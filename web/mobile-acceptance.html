@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0d0e11" />
+  <title>互动与小游戏 · 手机验收</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, -apple-system, "Microsoft YaHei", sans-serif; background: #0d0e11; color: #f1eee9; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: max(24px, env(safe-area-inset-top)) 16px max(36px, env(safe-area-inset-bottom)); }
+    main { max-width: 680px; margin: auto; }
+    .eyebrow { color: #ff6747; font-size: 11px; font-weight: 800; letter-spacing: .18em; }
+    h1 { margin: 9px 0 7px; font-size: clamp(25px, 7vw, 34px); line-height: 1.2; }
+    p { margin: 0; color: #a8a9af; line-height: 1.65; font-size: 14px; }
+    .intro { padding-bottom: 22px; border-bottom: 1px solid #303138; }
+    .intro strong { color: #f1eee9; }
+    .summary { margin: 20px 0 13px; color: #ff9b82; font-size: 13px; font-weight: 700; }
+    .card { margin: 0 0 12px; padding: 16px; border: 1px solid #34343a; background: #17181c; }
+    .card.priority { border-color: #904632; }
+    .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+    h2 { margin: 0; font-size: 18px; }
+    .tag { color: #ff8c70; font-size: 12px; white-space: nowrap; }
+    .detail { margin-top: 8px; }
+    .detail b { color: #f1eee9; }
+    .checks { margin-top: 12px; padding: 10px 0; border-top: 1px solid #303138; color: #bcc0c6; font-size: 13px; line-height: 1.7; }
+    .actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    a.open { display: inline-block; min-height: 44px; padding: 11px 15px; background: #f54927; color: #111; font-size: 14px; font-weight: 800; text-decoration: none; }
+    a.open:focus-visible, button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+    .rating { display: flex; gap: 7px; }
+    .rating button, #copy { min-height: 38px; padding: 7px 11px; border: 1px solid #4a4a50; background: transparent; color: #c5c5ca; font: inherit; font-size: 12px; }
+    .rating button[aria-pressed="true"] { border-color: #f54927; color: #ff8c70; background: #321f1b; }
+    .footer { margin-top: 22px; padding-top: 18px; border-top: 1px solid #303138; }
+    #copy { margin-top: 12px; font-size: 13px; }
+  </style>
+</head>
+<body>
+<main>
+  <header class="intro">
+    <div class="eyebrow">CROSSCORE / PAGES PREVIEW</div>
+    <h1>互动与小游戏 · 手机验收</h1>
+    <p>先检查 <strong>赤夕</strong> 和 <strong>伏特加·镜</strong>。点“打开游戏”后，在角色页面通过画面热区触发指定动作；测完用浏览器返回此页。建议关闭浏览器的“桌面版网站”。</p>
+  </header>
+  <div class="summary" id="summary">已验收 0 / 5</div>
+  <section class="card priority" data-name="赤夕">
+    <div class="head"><h2>赤夕</h2><span class="tag">优先复测 · 皮肤 03A</span></div>
+    <p class="detail">触发动作：<b>guochang</b>。检查节奏音符是否出现，左右点击后是否有连击反馈。</p>
+    <div class="checks">检查：游戏显示 · 点击反馈 · 结算或退出</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Alycorisradiata&amp;variant=70400_skin_lycorisradiata03a_spine%2F70400_skin_LycorisRadiata03a">打开游戏 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <section class="card priority" data-name="伏特加·镜">
+    <div class="head"><h2>伏特加·镜</h2><span class="tag">优先复测 · 皮肤 03</span></div>
+    <p class="detail">触发动作：<b>click8</b>。入场后连续点击画面，检查进度条是否上升。</p>
+    <div class="checks">检查：进度条显示 · 点击反馈 · 结算或退出</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Avodkamirror&amp;variant=75010_skin_vodkamirror03_spine%2F75010_skin_VodkaMirror03">打开游戏 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <section class="card" data-name="波塞冬">
+    <div class="head"><h2>波塞冬</h2><span class="tag">皮肤 05</span></div>
+    <p class="detail">触发动作：<b>guochang1</b>。</p>
+    <div class="checks">检查：游戏显示 · 点击反馈 · 结算或退出</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Aposeidon&amp;variant=70030_skin_poseidon05_spine%2F70030_skin_Poseidon05">打开游戏 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <section class="card" data-name="旋律">
+    <div class="head"><h2>旋律</h2><span class="tag">皮肤 06</span></div>
+    <p class="detail">触发动作：<b>guochang</b>。</p>
+    <div class="checks">检查：游戏显示 · 点击反馈 · 结算或退出</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Amelody&amp;variant=20080_skin_melody06_spine%2F20080_skin_Melody06">打开游戏 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <section class="card" data-name="刃齿">
+    <div class="head"><h2>刃齿</h2><span class="tag">皮肤 05A</span></div>
+    <p class="detail">触发动作：<b>guochang</b>。检查射击命中、靶子刷新与结算。</p>
+    <div class="checks">检查：游戏显示 · 点击反馈 · 结算或退出</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Amachairodus&amp;variant=30180_skin_machairodus05a_spine%2F30180_skin_Machairodus05a">打开游戏 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <section class="card" data-name="刃齿·皮肤04">
+    <div class="head"><h2>刃齿 · 皮肤 04</h2><span class="tag">新增验收 · 角色互动</span></div>
+    <p class="detail">点击角色不同热区，并试一下拖拽和姿态切换。对照画面、动作及语音反馈，记录不符合预期的步骤。</p>
+    <div class="checks">检查：模型加载 · 热区点击 · 拖拽与姿态 · 动作和语音</div>
+    <div class="actions"><a class="open" href="./?entry=character%3Amachairodus&amp;variant=30180_skin_machairodus04_spine%2F30180_skin_Machairodus04">打开皮肤 04 ↗</a><div class="rating"><button type="button" data-result="通过" aria-pressed="false">通过</button><button type="button" data-result="有问题" aria-pressed="false">有问题</button></div></div>
+  </section>
+  <footer class="footer"><p>标记只保存在当前浏览器中。可复制结果发给我；如有问题，请附上触发动作、操作步骤和看到的现象。</p><button id="copy" type="button">复制验收结果</button></footer>
+</main>
+<script>
+  const cards = [...document.querySelectorAll('.card')]
+  const key = 'crosscore-mobile-acceptance-v1'
+  let results = {}
+  try { results = JSON.parse(localStorage.getItem(key) || '{}') } catch {}
+  function render() {
+    for (const card of cards) {
+      const value = results[card.dataset.name]
+      for (const button of card.querySelectorAll('[data-result]')) button.setAttribute('aria-pressed', String(value === button.dataset.result))
+    }
+    document.getElementById('summary').textContent = `已验收 ${Object.keys(results).length} / ${cards.length}`
+  }
+  for (const card of cards) for (const button of card.querySelectorAll('[data-result]')) button.addEventListener('click', () => {
+    const name = card.dataset.name
+    if (results[name] === button.dataset.result) delete results[name]
+    else results[name] = button.dataset.result
+    localStorage.setItem(key, JSON.stringify(results))
+    render()
+  })
+  document.getElementById('copy').addEventListener('click', async event => {
+    const report = cards.map(card => `${card.dataset.name}：${results[card.dataset.name] || '未验收'}`).join('\n')
+    try { await navigator.clipboard.writeText(report); event.target.textContent = '已复制' }
+    catch { event.target.textContent = '复制失败，请截图发送' }
+  })
+  render()
+</script>
+</body>
+</html>

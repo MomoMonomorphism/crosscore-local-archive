@@ -1,0 +1,5 @@
+UnityPy==1.25.3
+Pillow==12.3.0
+brotli==1.2.0
+lz4==4.4.5
+texture2ddecoder==1.0.6

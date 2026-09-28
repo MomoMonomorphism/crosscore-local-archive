@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "source": {
+    "platform": "android",
+    "asset": "cfgSound3.lua",
+    "bundleSha256": "d92fccc322b77488c1c98ea5907283e05610ce4f88b91b4d43ef50dd0a510e88"
+  },
+  "records": [
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_01",
+      "audioId": 6100101,
+      "label": "三剑客-卡提那语音1",
+      "script": "乌波，你说什么呢，有个坏人一直盯着我们，那不是我们的英雄吗？"
+    },
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_02",
+      "audioId": 6100102,
+      "label": "三剑客-杜兰德尔1",
+      "script": "乌波说的是坏人该不会是……总队长，你要不要坐到这边来和我们好好解释一下？"
+    },
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_03",
+      "audioId": 6100103,
+      "label": "三剑客-咎瓦尤斯1",
+      "script": "嗯，各项描述都很像是您呢……开玩笑的，这并不是乌波发的资料。"
+    },
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_04",
+      "audioId": 6100104,
+      "label": "三剑客-咎瓦尤斯2",
+      "script": "令人羡慕的战绩呢，真想和您切磋一下，地点就交给总队长您来选择吧。"
+    },
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_05",
+      "audioId": 6100105,
+      "label": "三剑客-杜兰德尔2",
+      "script": "诶，这不是总队长吗？要不要过来一起参加我们的茶会，顺便复盘一些有趣的事情。"
+    },
+    {
+      "cueSheet": "picture/three_people.acb",
+      "cueName": "three_people_06",
+      "audioId": 6100106,
+      "label": "三剑客-卡提那语音2",
+      "script": "乌波说它收集到了某位大英雄的珍贵影像呢，总队长也来一起欣赏吧。"
+    }
+  ]
+}

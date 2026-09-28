@@ -1,0 +1,6 @@
+{
+  "game_data": "../Daibloscore/client/DAIBLOSCORE_Data",
+  "cache": "./cache",
+  "census": "../.probe/census_full.json",
+  "decoder": "../tools/vgmstream/vgmstream-cli.exe"
+}

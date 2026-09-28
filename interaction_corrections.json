@@ -1,0 +1,64 @@
+{
+  "schema": 1,
+  "corrections": [
+    {
+      "id": "multi-16-click2-role",
+      "table": "cfgCfgSpineMultiImageAction.lua",
+      "modelId": 16,
+      "rowIndex": 3,
+      "initialSpine": "CG0007_TenderDreamImmersingHeart",
+      "expectedRow": {
+        "role": 6101702,
+        "index": 3,
+        "areas": [
+          [
+            -29,
+            45,
+            214,
+            600,
+            15
+          ]
+        ],
+        "sName": "click2",
+        "gesture": 0,
+        "sType": 2
+      },
+      "replacementRow": {
+        "index": 3,
+        "sType": 2,
+        "sName": "click2",
+        "gesture": 0,
+        "areas": [
+          [
+            -29,
+            45,
+            214,
+            600,
+            15
+          ]
+        ]
+      },
+      "reason": "PC role=6101702 points to an unmapped, unreachable pose; Android same action and geometry uses default role 1. Do not infer an audioId.",
+      "source": {
+        "platform": "android",
+        "asset": "cfgCfgSpineMultiImageAction.lua",
+        "bundleSha256": "d92fccc322b77488c1c98ea5907283e05610ce4f88b91b4d43ef50dd0a510e88",
+        "row": {
+          "index": 3,
+          "sType": 2,
+          "sName": "click2",
+          "gesture": 0,
+          "areas": [
+            [
+              -29,
+              45,
+              214,
+              600,
+              15
+            ]
+          ]
+        }
+      }
+    }
+  ]
+}

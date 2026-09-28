@@ -1,0 +1,13 @@
+# Generated output and user-provided local game files
+cache/
+dist/
+dist-pages/
+web/node_modules/
+web/public/assets/
+web/public/offline/
+web/public/static-api/
+viewer.local.json
+.venv/
+__pycache__/
+*.pyc
+*.tsbuildinfo

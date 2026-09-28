@@ -1,0 +1,80 @@
+/* Shared shell widths/navigation; archive media and source touch rules stay in
+   the production PictureFigure / PictureInteractiveFigure implementations. */
+.illustration-gallery .illustration-filters{padding:0 4px 10px;flex-shrink:0}
+.illustration-gallery .illustration-filters select{width:100%;min-width:0;font-size:11px;padding:8px;border-radius:var(--ui-radius-control)}
+.illustration-gallery .illustration-filter-chips{display:flex;gap:4px;flex-wrap:wrap}
+.illustration-gallery .illustration-filter-chips button{flex:1 0 auto;font-size:11px;padding:6px 7px;border-radius:var(--ui-radius-control);white-space:nowrap}
+.illustration-gallery .illustration-card{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+.illustration-gallery .illustration-card .entry-monogram{width:100%;height:auto;flex:none;aspect-ratio:16/9;background:#0b0c0f}
+.illustration-gallery .illustration-card .entry-monogram img{object-fit:contain}
+.illustration-gallery .illustration-card .entry-copy strong{white-space:normal;line-height:1.6}
+.illustration-gallery .illustration-card .entry-copy small{white-space:normal;line-height:1.7}
+.illustration-gallery .entry-arrow{display:none}
+.illustration-gallery .illustration-panel{min-height:0;overflow:auto}
+.illustration-gallery .illustration-header .eyebrow{display:block;max-height:16px;overflow:hidden}
+.illustration-gallery .illustration-header p{display:block;margin-top:5px}
+.illustration-gallery .illustration-workspace{display:flex;flex-direction:column;flex:0 0 auto;min-height:0;padding:0;gap:0;overflow:visible}
+.illustration-gallery .illustration-canvas-column{flex:none;min-height:0;gap:0}
+.illustration-gallery .illustration-mode-bar{flex-shrink:0;flex-wrap:wrap;min-height:44px;padding:5px 0}
+.illustration-mode-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-left:auto;min-width:0}
+.illustration-mode-actions .illustration-evidence{margin-left:0;color:var(--text-low);font-size:11px}
+.illustration-related-link{display:inline-flex;align-items:center;min-height:30px;padding:5px 8px;border:var(--ui-border-width) solid var(--line-strong);background:var(--bg-panel);color:var(--text-mid);font-size:11px;text-decoration:none;white-space:nowrap}
+.illustration-related-link:hover{background:var(--bg-hover)}
+.illustration-info{flex:none;margin-top:8px;border-top:var(--ui-border-width) solid var(--line);font-size:11px;color:var(--text-mid)}
+.illustration-info>summary{cursor:pointer;padding:10px 0}
+.illustration-info .illustration-source-details{max-height:none;overflow:visible;padding-bottom:8px}
+/* Let the game frame determine the panel height; extra window height belongs
+   below the controls, not in black bands around the picture. */
+.illustration-gallery .illustration-viewport{display:flex;align-items:center;flex:none;width:100%;aspect-ratio:16/9;min-height:0;border:0;background:#08090a;isolation:isolate}
+.illustration-gallery .illustration-frame{flex:none;width:100%;height:auto;aspect-ratio:16/9;max-height:none;max-width:none;border:0;background:#08090a}
+.illustration-gallery .illustration-controls{display:block;flex-shrink:0;padding:0;min-height:0;background:#191a1e;border:var(--ui-border-width) solid #303139;border-top:0}
+.illustration-controls .gallery-compact-toolbar>.toolbar-hotspots{margin-left:auto}
+.illustration-controls .gallery-compact-toolbar:has(>.toolbar-hotspots)>.gallery-toolbar-more{margin-left:0}
+.illustration-gallery .illustration-controls:empty{display:none}
+.illustration-gallery .illustration-controls select{min-width:0;max-width:190px;padding:6px;font-size:11px;border-radius:var(--ui-radius-control)}
+.illustration-gallery .illustration-feedback{margin:0;padding:10px 12px;background:#1b1b20;border:var(--ui-border-width) solid #353038;border-left:2px solid #b57a33;overflow-wrap:anywhere}
+.illustration-gallery .illustration-feedback>strong{display:block;font-size:12px;color:#e5c89e;margin-bottom:7px}
+.illustration-gallery .illustration-status{display:block;min-width:0;font-size:11px;line-height:1.7;color:#b1b7c3}
+.illustration-gallery .illustration-status.error{color:var(--danger)}
+.illustration-source-details{flex-shrink:0;max-height:110px;overflow:auto;font-size:10px;color:#87909f;line-height:1.7;margin-top:8px;overflow-wrap:anywhere}
+.illustration-source-details summary{cursor:pointer;padding:4px 0}
+.illustration-source-details a{display:inline-block;color:#e6b67b;margin:3px 12px 3px 0}
+.illustration-source-details p{margin:6px 0}
+.illustration-gallery .illustration-load-error{margin:8px 0;flex-shrink:0}
+.illustration-gallery .illustration-voice-panel{padding:0;border:0;border-left:var(--ui-border-width) solid #303139;flex:auto;max-height:none}
+.illustration-tools-heading{display:flex;align-items:center;justify-content:space-between;height:57px;flex-shrink:0;padding:0 14px;border-bottom:var(--ui-border-width) solid #35353c}
+.illustration-tools-heading strong{font-size:14px;color:#e6c49b;font-weight:500}
+.illustration-tools-heading small{font:10px Consolas,monospace;color:#9aa3af;margin-left:8px}
+.illustration-tools-heading button{background:none;border:0;color:#9ca6b5;min-width:32px;height:34px}
+.illustration-gallery .illustration-bank-tabs{flex-shrink:0;max-height:94px;overflow:auto;margin:0;padding:10px 12px 0}
+.illustration-gallery .illustration-bank-meta{flex-shrink:0;margin:0 12px;padding:10px 0;border:0}
+.illustration-gallery .illustration-bank-meta small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.illustration-gallery .illustration-audio-controls{flex-shrink:0;padding:0 12px 10px}
+.illustration-gallery .illustration-transcript-search{flex-shrink:0;margin:0 12px 10px}
+.illustration-gallery .illustration-speakers{flex-shrink:0;max-height:90px;overflow:auto;padding:0 12px}
+.illustration-gallery .illustration-lines{padding:0 10px;overscroll-behavior:contain;min-height:65px}
+.illustration-gallery .illustration-line{flex-shrink:0;grid-template-columns:24px minmax(0,1fr);padding:10px 7px;border-radius:var(--ui-radius-control)}
+.illustration-gallery .illustration-line-speaker{grid-column:2;white-space:normal;color:#c2a47f}
+.illustration-gallery .illustration-line-copy span{line-height:1.8}
+.illustration-gallery .illustration-no-voice{flex:1;overflow:auto;padding:16px;line-height:1.9}
+.illustration-gallery .gallery-voice-detail>p{height:84px;margin:9px 0}
+.illustration-gallery .illustration-voice-panel audio{display:none}
+@media(max-width:1100px){
+ .illustration-gallery .illustration-filters select{font-size:14px;min-height:38px}
+ .illustration-gallery .illustration-filter-chips button{min-height:36px}
+ .illustration-gallery .illustration-workspace{flex:none;min-height:0}
+ .illustration-gallery .illustration-canvas-column{flex:none;min-height:0}
+ .illustration-gallery .illustration-mode-bar button,.illustration-gallery .illustration-controls button{min-height:38px}
+ .illustration-gallery .illustration-controls select{min-height:38px}
+ .illustration-related-link{min-height:38px}
+ .illustration-gallery .illustration-voice-panel{flex:none;min-height:460px;border:var(--ui-border-width) solid #34363f}
+ .illustration-tools-heading button{min-height:44px;min-width:44px}
+ .illustration-gallery .illustration-audio-controls button,.illustration-gallery .illustration-speakers button{min-height:36px}
+ .illustration-gallery .illustration-line-copy span{font-size:13px}
+ .illustration-gallery .illustration-line-copy strong{font-size:14px}
+}
+@media(max-width:1100px) and (orientation:landscape){
+ .illustration-gallery .illustration-voice-panel{min-height:0}
+ .illustration-gallery .illustration-header p{display:none}
+ .illustration-gallery .gallery-voice-detail>p{height:48px}
+}

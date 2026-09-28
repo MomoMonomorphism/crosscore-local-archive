@@ -1,0 +1,29 @@
+{
+  "name": "crosscore-local-viewer",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit -p tsconfig.app.json && vite build",
+    "build:pages": "tsc --noEmit -p tsconfig.app.json && vite build --mode pages",
+    "preview": "vite preview --host 127.0.0.1",
+    "check:hotspots": "node --experimental-strip-types check-hotspot-geometry.ts",
+    "check:interaction": "node --experimental-strip-types check-interaction-machine.ts"
+  },
+  "dependencies": {
+    "@esotericsoftware/spine-core": "4.2.120",
+    "@esotericsoftware/spine-pixi-v7": "4.2.120",
+    "fengari": "^0.1.5",
+    "pixi.js": "7.4.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.4",
+    "typescript": "5.7.2",
+    "vite": "6.4.3"
+  }
+}

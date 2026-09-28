@@ -1,0 +1,51 @@
+# Manual deployment after reviewing the selected demo pack.
+name: Deploy Pages demo
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - uses: actions/configure-pages@v5
+      - name: Install frontend dependencies
+        working-directory: web
+        run: npm ci
+      - name: Collect web library notices
+        run: python tools/collect_web_licenses.py
+      - name: Build static site
+        working-directory: web
+        env:
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+        run: npm run build:pages
+      - name: Verify static site
+        run: |
+          python tools/check_pages_demo.py
+          python tools/check_pages_release.py --base "/${{ github.event.repository.name }}/"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist-pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

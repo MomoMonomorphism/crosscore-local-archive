@@ -1,0 +1,309 @@
+Melody.png
+size:2048,2004
+filter:Linear,Linear
+pma:true
+scale:0.9
+M
+bounds:5,1268,106,67
+arm R
+bounds:1495,210,242,366
+rotate:90
+arn L1
+bounds:698,1305,113,104
+arn L2
+bounds:1608,445,165,145
+body
+bounds:1491,598,244,334
+body jia m
+bounds:1843,7,203,66
+breast
+bounds:1831,1378,182,152
+chest ribbon
+bounds:612,1976,64,23
+ci light M1
+bounds:112,1230,261,218
+ci light M2
+bounds:2,517,250,248
+ci light M3
+bounds:1820,425,226,215
+offsets:39,0,265,215
+cloak L
+bounds:857,653,370,637
+rotate:270
+cloak L lingjian 1
+bounds:1201,1968,61,31
+cloak L lingjian 2
+bounds:883,1972,59,27
+cloak R lingjian 1
+bounds:1265,1889,27,55
+cloak R lingjian 2
+bounds:1913,1944,28,55
+cloak RB
+bounds:522,922,410,609
+rotate:90
+cloak RF
+bounds:201,48,453,299
+cloak jia L
+bounds:685,751,198,136
+cloak jia R
+bounds:1294,1210,201,133
+eye L 1
+bounds:521,1986,32,13
+eye L 2
+bounds:1939,1743,48,27
+offsets:0,0,51,27
+eye L 3
+bounds:998,1975,35,24
+eye L 4
+bounds:1179,1977,31,22
+eye R 1
+bounds:1848,1979,63,20
+eye R 2
+bounds:1461,1981,39,18
+offsets:0,3,39,21
+eye R 3
+bounds:1092,1976,47,23
+offsets:4,0,51,23
+eye R 4
+bounds:1339,1978,32,21
+eyebrow
+bounds:1919,1766,113,46
+offsets:0,4,114,50
+face
+bounds:836,889,130,115
+fashi L B
+bounds:1959,1823,68,176
+fashi R
+bounds:1192,1536,59,179
+feather L1
+bounds:936,178,129,493
+rotate:90
+feather L2
+bounds:2,341,175,523
+rotate:90
+feather L3
+bounds:143,202,203,473
+rotate:90
+feather L4
+bounds:1133,1252,241,373
+rotate:90
+feather R0
+bounds:1158,68,98,145
+feather R11
+bounds:1112,237,86,272
+rotate:90
+feather R12
+bounds:2,1332,159,667
+feather R21
+bounds:2,1339,77,275
+feather R22
+bounds:731,429,222,629
+rotate:90
+feather R3
+bounds:1148,408,247,585
+rotate:90
+feather R4
+bounds:1218,318,297,515
+rotate:90
+fly L
+bounds:1722,855,324,342
+offsets:0,0,327,342
+fly L1
+bounds:1494,1943,37,56
+fly L2
+bounds:1954,1780,48,54
+fly R
+bounds:240,1126,432,495
+fly R1
+bounds:204,1730,52,81
+fly R2
+bounds:192,1811,70,77
+fly R3
+bounds:1040,1876,75,123
+hair B L
+bounds:10,860,416,699
+offsets:15,0,431,699
+rotate:90
+hair B R
+bounds:1377,1249,456,750
+rotate:180
+hair B R30
+bounds:244,58,194,176
+hair B R40
+bounds:184,1891,108,18
+rotate:90
+hair F1
+bounds:1450,70,92,348
+hair F2
+bounds:383,424,113,115
+offsets:0,2,113,117
+hair F3
+bounds:100,922,73,192
+rotate:90
+hair F4
+bounds:1538,1893,64,106
+hair pin L
+bounds:2,1691,33,87
+hair pin R
+bounds:227,1655,41,74
+hand L1
+bounds:741,1972,14,27
+hand L2
+bounds:1603,1965,32,34
+hand L3
+bounds:170,1390,70,59
+jia L
+bounds:340,802,116,145
+rotate:90
+jia R
+bounds:1004,56,156,187
+leg L
+bounds:1735,594,311,448
+leg R
+bounds:171,685,248,695
+offsets:14,3,262,698
+rotate:90
+light L
+bounds:1427,786,183,194
+light M
+bounds:1605,1741,357,258
+offsets:2,3,363,261
+light M 1
+bounds:1140,1240,475,759
+offsets:0,7,475,766
+light M 11
+bounds:1938,635,108,218
+light M 21
+bounds:30,694,100,307
+offsets:0,3,103,310
+light M 3
+bounds:789,1158,405,667
+offsets:0,0,408,725
+rotate:90
+light M 31
+bounds:1551,1389,162,194
+light R
+bounds:1543,325,233,275
+rotate:90
+line L1A
+bounds:1225,2,203,254
+rotate:270
+line L1B
+bounds:637,44,131,378
+rotate:90
+line LA
+bounds:856,14,95,223
+rotate:90
+line LB
+bounds:198,496,294,739
+rotate:90
+line R1A
+bounds:2,99,438,369
+rotate:180
+line R1B
+bounds:698,359,196,659
+offsets:0,0,299,726
+rotate:90
+line R2A
+bounds:1667,96,376,379
+rotate:90
+line R2B
+bounds:62,1445,131,554
+rotate:180
+line R3A
+bounds:1659,35,374,387
+rotate:270
+line R3B
+bounds:100,1457,128,542
+rotate:180
+line R4A
+bounds:2,35,377,380
+line R4B
+bounds:135,1491,119,508
+rotate:180
+mouse  nose
+bounds:165,1957,19,42
+neck
+bounds:680,1913,62,86
+ribbon B L
+bounds:1101,616,77,117
+ribbon B R1
+bounds:1353,914,70,146
+ribbon B R2
+bounds:681,141,185,204
+ribbon connect1
+bounds:858,1213,145,69
+ribbon connect2
+bounds:787,1591,85,79
+ribbon connect3
+bounds:1743,43,227,173
+ribbon connect4
+bounds:1365,1719,73,127
+ring L B
+bounds:314,1099,189,129
+ring L F
+bounds:2,975,239,182
+ring R B
+bounds:1807,1136,239,150
+ring R F
+bounds:823,548,288,197
+offsets:2,0,290,197
+ring UP R
+bounds:845,179,301,280
+rotate:180
+ring Up L
+bounds:2,31,276,230
+rotate:180
+shadow L
+bounds:1943,1961,11,38
+shadow M
+bounds:1717,1701,97,43
+shadow R
+bounds:36,1950,15,49
+offsets:10,0,25,50
+shoes L
+bounds:1918,70,128,295
+shoes L piao1
+bounds:845,1984,23,15
+shoes L piao2
+bounds:1251,1828,113,171
+shoes R
+bounds:578,104,172,318
+shoes R piao1
+bounds:571,1984,23,15
+shoes R piao2
+bounds:1570,41,132,196
+skirt L
+bounds:1657,672,157,181
+offsets:0,0,157,193
+skirt R
+bounds:1186,999,172,224
+offsets:1,0,173,224
+spot1(xiangjia)
+bounds:491,413,291,192
+offsets:13,14,377,206
+rotate:180
+spot2(xiangjia)
+bounds:1842,1532,281,204
+offsets:0,0,281,221
+rotate:90
+star
+bounds:2,43,113,107
+star L
+bounds:1219,1486,80,81
+wing L B
+bounds:977,1034,165,120
+wing L1
+bounds:723,1494,468,505
+offsets:0,0,524,505
+wing R B
+bounds:769,201,163,208
+wing R1
+bounds:200,1408,591,590
+offsets:113,0,712,590
+rotate:90
+zhang B
+bounds:1005,815,404,477
+zhang F
+bounds:1378,942,516,668
+rotate:90
