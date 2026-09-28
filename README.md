@@ -21,7 +21,7 @@ Set-Location ..
 
 ## Pages 演示版
 
-仓库中的 `pages-pack/public/` 只包含演示选定的资源。`.github/workflows/pages.yml` 通过 GitHub Actions 构建静态网站；[演示包说明](docs/PAGES_STATIC_DEMO_2026-09-28.md)列出当前选取的内容和生成方式。仓库首页的源码与 Pages 网站是同一项目的本地版和静态预览版。
+仓库中的 `pages-pack/public/` 只包含演示选定的资源，由 `tools/prepare_pages_demo.py` 从本地资源生成：6 个角色入口（默认立绘、动态骨骼、交互与素材预览）、4 组 CG / 插画档案、1 段 ASMR 预览（前 18 秒），以及 5 套在浏览器内运行的小游戏。`.github/workflows/pages.yml` 通过 GitHub Actions 构建并部署静态网站（手动触发），构建基址取自仓库名。仓库首页的源码与 Pages 网站是同一项目的本地版和静态预览版。
 
 ## 许可与资源
 
