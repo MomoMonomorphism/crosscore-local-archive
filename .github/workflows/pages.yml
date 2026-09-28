@@ -1,8 +1,10 @@
-# Manual deployment after reviewing the selected demo pack.
+# Deploys the selected demo pack on every main push; can also be run manually.
 name: Deploy Pages demo
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
 
 permissions:
   contents: read
@@ -10,6 +12,10 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      administration: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -18,6 +24,8 @@ jobs:
           cache: npm
           cache-dependency-path: web/package-lock.json
       - uses: actions/configure-pages@v5
+        with:
+          enablement: true
       - name: Install frontend dependencies
         working-directory: web
         run: npm ci
