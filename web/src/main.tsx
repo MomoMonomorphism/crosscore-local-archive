@@ -7,6 +7,7 @@ import './galleryLayout.css'
 import './asmrLayout.css'
 import './illustrationLayout.css'
 import './galleryTheme.css'
+import './galleryPolish.css'
 
 installStaticGateway()
 ReactDOM.createRoot(document.getElementById('root')!).render(

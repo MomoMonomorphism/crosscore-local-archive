@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { VoiceBank, VoicePictureBank, VoiceStream } from './types'
 import { pictureSpeakerName, pictureVoiceText } from './pictureVoiceBanks'
 import { interactionGuides } from './interactionGuidance'
 import type { InteractionRow, InteractionState } from './interactionMachine'
 import { simplifyDisplay } from './simplifyDisplay'
 import { hotspotSummary, hotspotExplanation, type InteractionIssue } from './interactionDiagnostics'
-import { useImmersiveMode } from './ImmersiveMode'
+export { useGalleryLayout } from './useGalleryLayout'
 
 export function GalleryHotspotDetails({ rows, state, issues, corrections = [] }: {
   rows: InteractionRow[]; state: InteractionState; issues: InteractionIssue[]; corrections?: string[]
@@ -19,57 +19,6 @@ export function GalleryHotspotDetails({ rows, state, issues, corrections = [] }:
     {rows.map(row => <div key={row.index}><strong>#{row.index} → {row.anim || row.kind}</strong> · {row.hittable ? hotspotExplanation(row, state) : '无可点击面积；内部调用项'}
       {issues.filter(issue => issue.row === row.index).map(issue => <p key={`${issue.code}:${issue.message}`}>{issue.level === 'error' ? '异常' : '待核查'}：{issue.message}</p>)}</div>)}
   </details>
-}
-
-const compactQuery = '(max-width: 1100px)'
-const landscapeQuery = '(max-width: 1100px) and (orientation: landscape)'
-export function useGalleryLayout(enabled: boolean) {
-  const root = useRef<HTMLDivElement>(null)
-  const immersive = useImmersiveMode(root, enabled)
-  const [compact, setCompact] = useState(() => matchMedia(compactQuery).matches)
-  const [landscape, setLandscape] = useState(() => matchMedia(landscapeQuery).matches)
-  const [libraryOpen, setLibraryOpen] = useState(() => !matchMedia(compactQuery).matches)
-  const [toolsOpen, setToolsOpen] = useState(() => !matchMedia(landscapeQuery).matches)
-  const [tab, setTab] = useState<'interaction' | 'actions' | 'voices'>('interaction')
-  const drawer = enabled && !immersive.active && compact && (libraryOpen ? 'library' : landscape && toolsOpen ? 'tools' : null)
-  useEffect(() => {
-    const width = matchMedia(compactQuery), orientation = matchMedia(landscapeQuery)
-    const change = () => { setCompact(width.matches); setLandscape(orientation.matches); if (!immersive.activeRef.current && Date.now() > immersive.layoutUntilRef.current) { setLibraryOpen(!width.matches); setToolsOpen(!orientation.matches) } }
-    width.addEventListener('change', change); orientation.addEventListener('change', change)
-    return () => { width.removeEventListener('change', change); orientation.removeEventListener('change', change) }
-  }, [])
-  useEffect(() => {
-    if (!enabled) return
-    document.body.classList.add('gallery-layout-active')
-    return () => document.body.classList.remove('gallery-layout-active')
-  }, [enabled])
-  useEffect(() => {
-    if (!drawer || !root.current) return
-    const panel = root.current.querySelector<HTMLElement>(drawer === 'library' ? '.library-panel' : '.gallery-tools')
-    if (!panel) return
-    const previous = document.activeElement as HTMLElement | null
-    const previousOverflow = document.body.style.overflow
-    const outside = [...root.current.children].filter(e => e !== panel && !e.classList.contains('gallery-scrim')) as HTMLElement[]
-    document.body.style.overflow = 'hidden'; outside.forEach(e => e.inert = true)
-    panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-modal', 'true')
-    const items = () => [...panel.querySelectorAll<HTMLElement>('button:not(:disabled),input,select,a[href]')].filter(e => e.getClientRects().length)
-    items()[0]?.focus()
-    const key = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') drawer === 'library' ? setLibraryOpen(false) : setToolsOpen(false)
-      if (e.key === 'Tab') { const all = items(), first = all[0], last = all.at(-1)
-        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus() }
-        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus() }
-      }
-    }
-    document.addEventListener('keydown', key)
-    return () => { document.body.style.overflow = previousOverflow; outside.forEach(e => e.inert = false); panel.removeAttribute('role'); panel.removeAttribute('aria-modal'); document.removeEventListener('keydown', key); if (previous?.isConnected) previous.focus() }
-  }, [drawer])
-  const showTools = (next: 'interaction' | 'actions' | 'voices') => {
-    setTab(next); setToolsOpen(true)
-    if (compact) setLibraryOpen(false)
-    if (compact && !landscape) requestAnimationFrame(() => root.current?.querySelector('.gallery-tools')?.scrollIntoView({ block: 'start', behavior: 'smooth' }))
-  }
-  return { root, compact, landscape, libraryOpen, setLibraryOpen, toolsOpen, setToolsOpen, tab, setTab, drawer, showTools, immersive }
 }
 
 export function GalleryGuides({ rows, state }: { rows: InteractionRow[]; state: InteractionState | null }) {

@@ -1,0 +1,380 @@
+/* UI polish v1: character browsing chrome only. Keep the canvas, native game
+   surfaces, breakpoint ownership, and immersive overlays in their own styles.
+   No transforms/transitions on a canvas ancestor: hit testing stays unchanged. */
+.gallery-shell.gallery-character:not(.immersive-active) {
+  --polish-panel: #141619;
+  --polish-inset: #191c20;
+  --polish-line: #292d32;
+  --polish-muted: #9da5af;
+  --polish-radius: 5px;
+}
+
+/* A directory, not a file explorer: predictable portrait/name rhythm. */
+.gallery-character:not(.immersive-active) .library-panel {
+  background: var(--polish-panel);
+  border-right-color: var(--polish-line);
+  padding-inline: 12px;
+}
+.gallery-character:not(.immersive-active) .gallery-library-heading {
+  height: 62px;
+  padding-inline: 4px;
+}
+.gallery-character:not(.immersive-active) .gallery-library-heading strong {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.gallery-character:not(.immersive-active) .gallery-library-heading small {
+  display: inline-block;
+  padding: 2px 6px;
+  margin-left: 6px;
+  border-radius: 3px;
+  background: #ffffff08;
+  color: var(--polish-muted);
+}
+.gallery-character:not(.immersive-active) .search-box {
+  min-height: 40px;
+  padding: 9px 11px;
+  margin-bottom: 12px;
+  background: #0e1012;
+  border: 1px solid var(--polish-line);
+  border-radius: var(--polish-radius);
+}
+.gallery-character:not(.immersive-active) .search-box:focus-within {
+  background: #111417;
+  border-color: var(--accent-line);
+  box-shadow: 0 0 0 2px var(--accent-soft);
+}
+.gallery-character:not(.immersive-active) .entry-count {
+  padding-inline: 4px;
+  margin-bottom: 6px;
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+.gallery-character:not(.immersive-active) .cache-note {
+  padding-inline: 4px;
+  font-size: 10px;
+  margin-bottom: 12px;
+}
+.gallery-character:not(.immersive-active) .entry-list {
+  padding: 3px 3px 3px 0;
+  scrollbar-gutter: stable;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .entry-card {
+  grid-template-columns: 64px minmax(0, 1fr) 10px;
+  align-items: center;
+  gap: 12px;
+  min-height: 86px;
+  padding: 10px;
+  margin-bottom: 5px;
+  border: 1px solid transparent;
+  border-radius: var(--polish-radius);
+  background: transparent;
+}
+.gallery-character:not(.immersive-active) .entry-card::before {
+  top: 22px;
+  bottom: 22px;
+  width: 2px;
+  border-radius: 2px;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .entry-monogram {
+  width: 64px;
+  height: 64px;
+  flex-basis: 64px;
+  border: 1px solid #ffffff0c;
+  border-radius: 4px;
+  background: #0c0e10;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .entry-copy strong {
+  color: #e6e9ec;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.45;
+  letter-spacing: .02em;
+}
+.gallery-character:not(.immersive-active) .entry-copy small {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  margin-top: 5px;
+  white-space: normal;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--polish-muted);
+}
+.gallery-shell.gallery-character:not(.immersive-active) .entry-arrow {
+  display: block;
+  color: #6b737d;
+  font-size: 18px;
+  opacity: 0;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .entry-card.selected {
+  border-color: #ff633d2b;
+  background: linear-gradient(100deg, #ff633d13, #ff633d05);
+}
+.gallery-character:not(.immersive-active) .entry-card.selected .entry-monogram {
+  outline: none;
+  border-color: #ff947465;
+}
+.gallery-character:not(.immersive-active) .entry-card.selected .entry-copy strong,
+.gallery-character:not(.immersive-active) .entry-card.selected .entry-arrow {
+  color: var(--accent-text);
+  opacity: 1;
+}
+.gallery-character:not(.immersive-active) .library-tools {
+  border-top-color: var(--polish-line);
+  padding-top: 10px;
+}
+.gallery-character:not(.immersive-active) .library-tools button {
+  min-height: 34px;
+  text-align: left;
+  background: transparent;
+  border-color: transparent;
+  border-radius: var(--polish-radius);
+  color: var(--polish-muted);
+}
+
+/* Calm tools chrome. The close control owns a full row rather than competing
+   with three tabs in a tiny fourth cell. Existing aria-labels remain intact. */
+.gallery-character:not(.immersive-active) .gallery-tools {
+  background: var(--polish-panel);
+  border-left-color: var(--polish-line);
+}
+.gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs {
+  height: 86px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: 40px 40px;
+  gap: 0 6px;
+  padding: 6px 14px 0;
+  border-bottom: 1px solid var(--polish-line);
+}
+.gallery-character:not(.immersive-active) .gallery-tabs::before {
+  content: '查看工具';
+  grid-row: 1;
+  grid-column: 1 / 3;
+  align-self: center;
+  color: var(--polish-muted);
+  font-size: 12px;
+  letter-spacing: .06em;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button[role=tab] {
+  grid-row: 2;
+  height: 40px;
+  min-height: 40px;
+  border: 0;
+  border-radius: 0;
+  padding: 0 3px;
+  background: transparent;
+  color: var(--polish-muted);
+  font-size: 12px;
+  gap: 5px;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button[aria-selected=true] {
+  color: var(--text-hi);
+  background: transparent;
+}
+.gallery-character:not(.immersive-active) .gallery-tabs > button[role=tab]::after {
+  left: 10px;
+  right: 10px;
+  height: 2px;
+}
+.gallery-character:not(.immersive-active) .gallery-tabs small {
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #ffffff07;
+  color: var(--polish-muted);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+.gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button:last-child {
+  grid-row: 1;
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 64px;
+  min-width: 64px;
+  height: 34px;
+  min-height: 34px;
+  border: 1px solid var(--polish-line);
+  border-radius: var(--polish-radius);
+  background: #ffffff04;
+  color: var(--polish-muted);
+  font-size: 0;
+}
+.gallery-character:not(.immersive-active) .gallery-tabs > button:last-child::before {
+  content: '›';
+  font-size: 20px;
+  line-height: 1;
+}
+.gallery-character:not(.immersive-active) .gallery-tabs > button:last-child::after {
+  content: '收起';
+  font-size: 11px;
+}
+.gallery-character:not(.immersive-active) .gallery-shared-status { padding-top: 14px; }
+.gallery-character:not(.immersive-active) .gallery-mode-status {
+  grid-template-rows: 16px 24px 32px auto;
+  gap: 6px;
+  margin: 0 14px 8px;
+  padding: 12px;
+  background: var(--polish-inset);
+  border: 1px solid #ffffff05;
+  border-radius: var(--polish-radius);
+}
+.gallery-character:not(.immersive-active) .gallery-mode-details { border-top-color: var(--polish-line); }
+.gallery-character:not(.immersive-active) .gallery-mode-name { font-size: 15px; }
+.gallery-character:not(.immersive-active) .gallery-mode-controls button { border-radius: 3px; }
+.gallery-character:not(.immersive-active) .gallery-mode-controls .gallery-game-mode-button[aria-pressed=true] {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  border-color: var(--accent-line);
+  box-shadow: none;
+}
+.gallery-character:not(.immersive-active) .gallery-interaction-page { padding-inline: 14px; }
+.gallery-character:not(.immersive-active) .gallery-interaction-feedback {
+  height: 76px;
+  margin-bottom: 14px;
+  padding: 10px 0;
+  border-bottom-color: var(--polish-line);
+}
+.gallery-character:not(.immersive-active) .gallery-feedback-followup { line-height: 17px; }
+.gallery-character:not(.immersive-active) .interaction-operations-heading { row-gap: 8px; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards { gap: 0; margin-top: 6px; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards article {
+  padding: 14px 0;
+  border: 0;
+  border-bottom: 1px solid var(--polish-line);
+  border-radius: 0;
+}
+.gallery-character:not(.immersive-active) .interaction-operation-cards article.located {
+  padding-inline: 10px;
+  border-radius: var(--polish-radius);
+  background: var(--accent-soft);
+  box-shadow: inset 2px 0 var(--accent);
+}
+.gallery-character:not(.immersive-active) .interaction-operation-cards strong { font-size: 13px; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards strong small {
+  display: inline-block;
+  min-width: 24px;
+  margin-right: 6px;
+  color: var(--polish-muted);
+  font: 11px 'Segoe UI', sans-serif;
+  font-variant-numeric: tabular-nums;
+}
+.gallery-character:not(.immersive-active) .interaction-operation-cards button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 32px;
+  border-radius: 4px;
+  border-color: var(--polish-line);
+  background: transparent;
+  color: var(--polish-muted);
+}
+.interaction-locate-icon { width: 14px; height: 14px; flex-shrink: 0; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards details { margin-top: 8px; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards summary { font-size: 11px; }
+.gallery-character:not(.immersive-active) .interaction-operation-cards p { font-size: 12px; }
+.gallery-character:not(.immersive-active) .interaction-help-tips { margin-top: 14px; }
+.gallery-character:not(.immersive-active) .interaction-help-tips summary { cursor: pointer; color: var(--polish-muted); }
+.gallery-character:not(.immersive-active) .interaction-action-link {
+  width: 100%;
+  min-height: 36px;
+  text-align: left;
+  border-color: var(--polish-line);
+  border-radius: var(--polish-radius);
+  background: #ffffff03;
+}
+.gallery-character:not(.immersive-active) :is(.gallery-action-search, .gallery-voice-search input) {
+  border: 1px solid var(--polish-line);
+  border-radius: var(--polish-radius);
+  padding: 10px;
+  background: #0e1012;
+}
+.gallery-character:not(.immersive-active) :is(.entry-list, .gallery-interaction-page, .gallery-action-list, .gallery-voice-list) {
+  scrollbar-width: thin;
+  scrollbar-color: #3a4048 transparent;
+}
+
+/* Subtle finishing, without changing stage height or native drawing geometry. */
+.gallery-character:not(.immersive-active) .viewer-header .eyebrow { letter-spacing: .2em; }
+.gallery-character:not(.immersive-active) .viewer-header-actions .immersive-entry {
+  border-radius: 4px;
+  border-color: var(--polish-line);
+  background: #ffffff03;
+}
+.gallery-character:not(.immersive-active) .stage-corner { opacity: .2; }
+.gallery-character:not(.immersive-active) .variant-strip { border-bottom-color: var(--polish-line); }
+.gallery-character:not(.immersive-active) .chip-row button { border-radius: 3px 3px 0 0; }
+.gallery-character:not(.immersive-active) .gallery-compact-toolbar :is(button, select),
+.gallery-character:not(.immersive-active) .gallery-toolbar-more > summary { border-radius: 4px; }
+
+@media (min-width: 1101px) {
+  .gallery-shell.gallery-character:not(.immersive-active) {
+    --gallery-left: clamp(216px, 15.2vw, 264px);
+    --gallery-right: clamp(288px, 20vw, 320px);
+  }
+  .gallery-shell.gallery-character.library-closed:not(.immersive-active) { --gallery-left: 48px; }
+  .gallery-shell.gallery-character.tools-closed:not(.immersive-active) { --gallery-right: 48px; }
+  .gallery-character:not(.immersive-active) .gallery-library-heading > button {
+    min-width: 34px;
+    height: 34px;
+    border: 1px solid var(--polish-line);
+    border-radius: var(--polish-radius);
+    background: #ffffff04;
+    font-size: 18px;
+  }
+  .gallery-shell.gallery-character.library-closed:not(.immersive-active) .library-panel { padding: 0; }
+  .gallery-shell.gallery-character.library-closed:not(.immersive-active) .library-panel > .gallery-rail,
+  .gallery-shell.gallery-character.tools-closed:not(.immersive-active) .gallery-tools > .gallery-rail {
+    background: var(--polish-panel);
+    color: var(--polish-muted);
+    padding-top: 22px;
+    gap: 18px;
+    font-size: 18px;
+  }
+  .gallery-character:not(.immersive-active) .gallery-rail span { letter-spacing: .15em; font-size: 12px; }
+}
+@media (max-width: 1100px) {
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs {
+    height: 96px;
+    grid-template-rows: 44px 44px;
+  }
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button:last-child,
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button[role=tab] {
+    min-height: 44px;
+    height: 44px;
+  }
+  .gallery-character:not(.immersive-active) .interaction-operation-cards button { min-height: 40px; }
+  .gallery-character:not(.immersive-active) .search-box input { font-size: 16px; }
+}
+@media (max-width: 1100px) and (orientation: landscape) {
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs {
+    height: 80px;
+    grid-template-rows: 36px 38px;
+  }
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button:last-child,
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs > button[role=tab] { min-height: 34px; height: 34px; }
+  .gallery-character:not(.immersive-active) .gallery-mode-status { padding: 8px; margin-bottom: 4px; gap: 4px; }
+  .gallery-character:not(.immersive-active) .gallery-shared-status { padding-top: 8px; }
+}
+@media (hover: hover) {
+  .gallery-shell.gallery-character:not(.immersive-active) .entry-card:hover { background: #ffffff06; }
+  .gallery-character:not(.immersive-active) .entry-card:hover .entry-arrow { opacity: 1; }
+  .gallery-character:not(.immersive-active) .gallery-tabs > button:last-child:hover,
+  .gallery-character:not(.immersive-active) .gallery-library-heading > button:hover,
+  .gallery-character:not(.immersive-active) .interaction-operation-cards button:hover {
+    color: var(--accent-text);
+    border-color: var(--accent-line);
+    background: var(--accent-soft);
+  }
+  .gallery-shell.gallery-character:not(.immersive-active) .gallery-rail:hover { color: var(--accent-text); background: #1b1d21; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gallery-character:not(.immersive-active) :is(.entry-card, .search-box, .gallery-tabs > button, .gallery-rail) { transition: none; }
+}
