@@ -45,6 +45,8 @@
   border-color: var(--accent-line);
   box-shadow: 0 0 0 2px var(--accent-soft);
 }
+/* The search container already provides a visible focus treatment. */
+.gallery-character:not(.immersive-active) .search-box input:focus-visible { outline: none; }
 .gallery-character:not(.immersive-active) .entry-count {
   padding-inline: 4px;
   margin-bottom: 6px;
@@ -99,7 +101,7 @@
   margin-top: 5px;
   white-space: normal;
   overflow: hidden;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   font-size: 11px;
   line-height: 1.6;
   color: var(--polish-muted);
@@ -339,6 +341,22 @@
     font-size: 18px;
   }
   .gallery-character:not(.immersive-active) .gallery-rail span { letter-spacing: .15em; font-size: 12px; }
+}
+/* Narrow desktops: spend the directory width on complete names, not an
+   empty arrow column. The wide-screen portrait rhythm remains unchanged. */
+@media (min-width: 1101px) and (max-width: 1500px) {
+  .gallery-shell.gallery-character:not(.immersive-active) .entry-card {
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 10px;
+    padding: 9px 8px;
+  }
+  .gallery-shell.gallery-character:not(.immersive-active) .entry-monogram {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+  }
+  .gallery-shell.gallery-character:not(.immersive-active) .entry-arrow { display: none; }
+  .gallery-shell.gallery-character:not(.immersive-active) .entry-copy strong { font-size: 14px; }
 }
 @media (max-width: 1100px) {
   .gallery-shell.gallery-character:not(.immersive-active) .gallery-tabs {
