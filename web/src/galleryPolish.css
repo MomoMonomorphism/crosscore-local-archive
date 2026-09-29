@@ -340,7 +340,18 @@
     gap: 18px;
     font-size: 18px;
   }
-  .gallery-character:not(.immersive-active) .gallery-rail span { letter-spacing: .15em; font-size: 12px; }
+  /* Stack horizontal glyphs, avoiding unreliable vertical metrics in fallback
+     CJK fonts. Keep the actual label in the DOM for assistive technology. */
+  .gallery-character:not(.immersive-active) .gallery-rail span {
+    writing-mode: horizontal-tb;
+    width: 1em;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.7;
+    letter-spacing: 0;
+    text-align: center;
+    font-size: 12px;
+  }
 }
 /* Narrow desktops: spend the directory width on complete names, not an
    empty arrow column. The wide-screen portrait rhythm remains unchanged. */
