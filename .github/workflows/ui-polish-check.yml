@@ -1,0 +1,62 @@
+name: UI polish validation
+
+on:
+  push:
+    branches: [ui-polish-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install project dependencies
+        working-directory: web
+        run: npm ci
+      - name: Check panel preference handling
+        working-directory: web
+        run: node --experimental-strip-types check-gallery-preferences.ts
+      - name: Typecheck and build local frontend
+        working-directory: web
+        run: npm run build
+      - name: Collect web library notices
+        run: python tools/collect_web_licenses.py
+      - name: Typecheck and build Pages preview (no deployment)
+        working-directory: web
+        env:
+          VITE_BASE_PATH: /
+        run: npm run build:pages
+      - name: Install isolated browser test tooling
+        working-directory: web
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Browser smoke checks and screenshots
+        run: |
+          mkdir -p .scratch/ui-polish
+          python -m http.server 4173 --bind 127.0.0.1 --directory dist-pages > .scratch/ui-polish/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then break; fi
+            sleep 1
+          done
+          cd web
+          node check-ui-polish.mjs
+      - name: Upload screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-polish-review
+          path: .scratch/ui-polish/
+          if-no-files-found: warn
+          retention-days: 7
