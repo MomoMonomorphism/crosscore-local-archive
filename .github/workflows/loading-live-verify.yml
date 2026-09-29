@@ -2,7 +2,16 @@ name: Verify loading feedback against live Pages
 
 on:
   push:
-    branches: [loading-feedback-v1]
+    branches: [loading-feedback-v1, main]
+    paths:
+      - '.github/workflows/loading-live-verify.yml'
+      - 'web/check-loading-live.mjs'
+      - 'web/src/SpineStage.tsx'
+      - 'web/src/SpineStageRenderer.tsx'
+      - 'web/src/CharacterPortraitStage.tsx'
+      - 'web/src/ResourceLoadingNotice.tsx'
+      - 'web/src/ThumbnailLoadingFeedback.tsx'
+      - 'web/src/resourceLoading.css'
   workflow_dispatch:
     inputs:
       mode:
@@ -21,7 +30,7 @@ jobs:
     timeout-minutes: 15
     env:
       LIVE_BASE_SHA: 97a83887f6e4192990bca7210d5118fb32116337
-      VERIFY_MODE: ${{ inputs.mode || 'baseline' }}
+      VERIFY_MODE: ${{ inputs.mode || (github.ref_name == 'main' && 'published') || 'baseline' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -37,7 +46,7 @@ jobs:
       - name: Build the deployed baseline independently
         run: |
           mkdir -p .scratch/live-baseline
-          git archive "$LIVE_BASE_SHA" web | tar -x -C .scratch/live-baseline
+          git archive "$LIVE_BASE_SHA" web voice_fold_map.json display_simplified_map.json | tar -x -C .scratch/live-baseline
           ln -s "$PWD/web/node_modules" .scratch/live-baseline/web/node_modules
           ln -s "$PWD/pages-pack" .scratch/live-baseline/pages-pack
           cd .scratch/live-baseline/web
@@ -72,7 +81,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: loading-live-${{ inputs.mode || 'baseline' }}
+          name: loading-live-${{ env.VERIFY_MODE }}
           path: .scratch/live-verification/
           if-no-files-found: warn
           retention-days: 7
