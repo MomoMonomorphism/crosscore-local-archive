@@ -1,0 +1,78 @@
+name: Verify loading feedback against live Pages
+
+on:
+  push:
+    branches: [loading-feedback-v1]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Verify the old live baseline, or the published loading-only update
+        type: choice
+        options: [baseline, published]
+        default: baseline
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      LIVE_BASE_SHA: 97a83887f6e4192990bca7210d5118fb32116337
+      VERIFY_MODE: ${{ inputs.mode || 'baseline' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Install project dependencies
+        working-directory: web
+        run: npm ci
+      - name: Fetch the identified deployed baseline
+        run: git fetch --depth=1 origin "$LIVE_BASE_SHA"
+      - name: Build the deployed baseline independently
+        run: |
+          mkdir -p .scratch/live-baseline
+          git archive "$LIVE_BASE_SHA" web | tar -x -C .scratch/live-baseline
+          ln -s "$PWD/web/node_modules" .scratch/live-baseline/web/node_modules
+          ln -s "$PWD/pages-pack" .scratch/live-baseline/pages-pack
+          cd .scratch/live-baseline/web
+          VITE_BASE_PATH=/crosscore-local-archive/ npm run build:pages
+      - name: Build the loading-only candidate
+        working-directory: web
+        env:
+          VITE_BASE_PATH: /crosscore-local-archive/
+        run: npm run build:pages
+      - name: Install browser verification tooling
+        working-directory: web
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Check actual Pages bundles and unchanged ready-state UI
+        run: |
+          mkdir -p .scratch/live-verification .scratch/site-after .scratch/site-before
+          ln -s "$PWD/dist-pages" .scratch/site-after/crosscore-local-archive
+          ln -s "$PWD/.scratch/live-baseline/dist-pages" .scratch/site-before/crosscore-local-archive
+          python -m http.server 4173 --bind 127.0.0.1 --directory .scratch/site-after > .scratch/live-verification/after-server.log 2>&1 &
+          AFTER_PID=$!
+          python -m http.server 4174 --bind 127.0.0.1 --directory .scratch/site-before > .scratch/live-verification/before-server.log 2>&1 &
+          BEFORE_PID=$!
+          trap 'kill "$AFTER_PID" "$BEFORE_PID"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:4173/crosscore-local-archive/ > /dev/null && curl --fail --silent http://127.0.0.1:4174/crosscore-local-archive/ > /dev/null; then break; fi
+            sleep 1
+          done
+          cd web
+          node check-loading-live.mjs
+      - name: Upload live comparison and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: loading-live-${{ inputs.mode || 'baseline' }}
+          path: .scratch/live-verification/
+          if-no-files-found: warn
+          retention-days: 7
