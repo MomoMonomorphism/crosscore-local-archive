@@ -1,0 +1,77 @@
+/* Loading feedback only. Do not resize or transform the stage or directory. */
+.resource-loading-notice {
+  position: absolute;
+  inset: 0;
+  z-index: 16;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-sizing: border-box;
+  padding: 24px;
+  background: #08090af2;
+  color: var(--text-hi, #e7e7e9);
+  text-align: center;
+  pointer-events: none;
+}
+.resource-loading-notice strong { font-size: 15px; font-weight: 600; line-height: 1.6; }
+.resource-loading-notice > span:not(.resource-loading-spinner) {
+  max-width: 30em;
+  color: var(--text-mid, #adb0b9);
+  font-size: 12px;
+  line-height: 1.8;
+}
+.resource-loading-notice small { color: var(--text-low, #9196a1); font-size: 11px; line-height: 1.7; }
+.resource-loading-spinner {
+  display: block;
+  width: 26px;
+  height: 26px;
+  box-sizing: border-box;
+  margin-bottom: 4px;
+  border: 2px solid #ffffff1c;
+  border-top-color: var(--accent, #ff633d);
+  border-radius: 50%;
+  animation: resource-loading-turn 1s linear infinite;
+}
+@keyframes resource-loading-turn { to { transform: rotate(360deg); } }
+
+.gallery-shell .entry-monogram[data-thumbnail-state] { position: relative; }
+.gallery-shell .entry-monogram[data-thumbnail-state="loading"]::after,
+.gallery-shell .entry-monogram[data-thumbnail-state="error"]::after {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 3px;
+  font: 10px/1.5 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  letter-spacing: 0;
+  color: var(--text-mid, #adb0b9);
+  background: #202227;
+  text-align: center;
+  pointer-events: none;
+}
+.gallery-shell .entry-monogram[data-thumbnail-state="loading"]::after {
+  content: '加载中…';
+  background: linear-gradient(110deg, #202227 25%, #30333a 45%, #202227 65%);
+  background-size: 240% 100%;
+  animation: resource-thumbnail-shimmer 1.8s ease-in-out infinite;
+}
+.gallery-shell .entry-monogram[data-thumbnail-state="error"]::after {
+  content: '加载失败';
+  color: var(--accent-text, #ff9474);
+}
+.gallery-shell .entry-monogram img[data-thumbnail-state="loading"],
+.gallery-shell .entry-monogram img[data-thumbnail-state="error"] { opacity: 0; }
+@keyframes resource-thumbnail-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (max-width: 600px) {
+  .resource-loading-notice { padding: 18px; gap: 8px; }
+  .resource-loading-notice strong { font-size: 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .resource-loading-spinner,
+  .gallery-shell .entry-monogram[data-thumbnail-state="loading"]::after { animation: none; }
+}
