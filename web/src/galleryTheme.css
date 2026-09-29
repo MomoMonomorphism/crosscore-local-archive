@@ -31,7 +31,6 @@
 .gallery-topbar .primary-nav button { color:var(--text-mid); }
 .gallery-topbar .primary-nav button.active { color:var(--text-hi); }
 .gallery-topbar .primary-nav button.active:after { background:var(--accent); }
-.gallery-reset { color:var(--text-mid); }
 
 /* Resource navigation: shared alignment, portrait rows and uncropped wide art. */
 .gallery-shell .library-panel { background:#131417; border-right-color:#ffffff06; }
@@ -59,6 +58,8 @@
 .gallery-shell .library-tools button { color:var(--text-mid); font-size:11px; }
 .gallery-shell.library-closed .library-panel>.gallery-rail,
 .gallery-shell.tools-closed .gallery-tools>.gallery-rail { background:#131417; color:var(--text-mid); }
+.gallery-shell.library-closed .library-panel>.gallery-rail span,
+.gallery-shell.tools-closed .gallery-tools>.gallery-rail span { font-size:11px; letter-spacing:2px; }
 
 /* Framing sizes deliberately stay in the layout files. */
 .gallery-shell .viewer-panel { background:var(--bg-app); }
@@ -211,15 +212,17 @@
 .gallery-shell .gallery-voice-detail button:disabled { opacity:.4; cursor:default; }
 .gallery-shell .gallery-action-entry:disabled .gallery-action-icon { color:inherit; }
 .gallery-shell .viewer-header-actions .immersive-entry {
-  height:32px; min-width:96px; padding:4px 10px; gap:6px;
-  color:var(--accent-text); font-size:12px; font-weight:700;
+  height:32px; min-width:0; padding:0 7px; gap:3px;
+  background:var(--accent); border-color:var(--accent); color:var(--accent-ink);
+  font-size:11px; font-weight:600;
 }
 .gallery-shell .immersive-entry-icon {
-  display:grid; place-items:center; flex:0 0 14px; width:14px; height:14px;
-  background:transparent; color:var(--accent-text);
+  display:grid; place-items:center; flex:0 0 12px; width:12px; height:12px;
+  background:transparent; color:inherit;
 }
+.gallery-shell .immersive-entry-icon svg { width:12px; height:12px; }
 .gallery-shell .viewer-header-actions .immersive-entry:not(:disabled):hover {
-  color:var(--accent-text); border-color:var(--accent);
+  background:var(--accent); border-color:var(--accent); color:var(--accent-ink);
 }
 .gallery-shell .immersive-entry:disabled .immersive-entry-icon { color:var(--text-mid); }
 .gallery-shell .gallery-voice-playing { border-color:var(--line); }
@@ -230,23 +233,17 @@
 .gallery-shell :is(.asmr-script-heading,.illustration-tools-heading) { border-color:var(--line); }
 .gallery-shell :is(.asmr-script-heading strong,.illustration-tools-heading strong) { color:var(--text-hi); font-size:14px; font-weight:600; }
 .gallery-shell :is(.asmr-script-heading small,.illustration-tools-heading small,.asmr-source-details,.illustration-source-details,.asmr-script-footer) { color:var(--text-low); font-size:11px; }
-.gallery-shell :is(.asmr-transport button,.asmr-transport select,.asmr-follow-toolbar button,.illustration-controls,.illustration-feedback) { background:#17181c; border-color:var(--line-strong); color:var(--text-mid); }
-.gallery-shell .asmr-transport .asmr-main-play { background:var(--accent); color:var(--accent-ink); }
-.gallery-shell :is(.asmr-track-options button[aria-pressed=true],.asmr-scene-toolbar button[aria-pressed=true]) { background:var(--accent-soft); color:var(--accent-text); border-color:var(--accent-line); }
-.gallery-shell .asmr-scene-toolbar button { background:#17191ef5; color:var(--text-hi); border-color:var(--line-strong); }
-.gallery-shell .asmr-scene-toolbar button[aria-pressed=true] { background:#35231ff5; color:var(--accent-text); border-color:var(--accent-line); }
-.gallery-shell .asmr-current-line { background:#17181c; border-color:var(--line); border-left:2px solid var(--accent); }
-.gallery-shell .asmr-current-line>div { color:var(--accent-text); font-size:11px; }
-.gallery-shell .asmr-current-line time { color:var(--text-low); font-size:11px; }
-.gallery-shell .asmr-current-line p { color:var(--text-hi); }
+.gallery-shell :is(.asmr-follow-toolbar button,.illustration-controls,.illustration-feedback) { background:#17181c; border-color:var(--line-strong); color:var(--text-mid); }
+.gallery-shell :is(.asmr-track-tabs,.illustration-mode-bar)>button { background:transparent; border-color:transparent; color:var(--text-mid); }
+.gallery-shell :is(.asmr-track-tabs,.illustration-mode-bar)>button.active { background:var(--accent-soft); color:var(--accent); border-color:transparent; box-shadow:inset 0 -2px var(--accent); }
 .gallery-shell .asmr-line { border-bottom-color:var(--line); }
 .gallery-shell .asmr-line.active { background:var(--accent-soft); border-color:transparent; border-left-color:var(--accent); }
 .gallery-shell .asmr-word { color:var(--text-mid); font-size:13px; }
 .gallery-shell .asmr-line.active .asmr-word { color:var(--text-hi); }
-.gallery-shell :is(.asmr-time,.asmr-follow-toolbar,.asmr-track-options>span,.asmr-volume-control,.asmr-timeline) { color:var(--text-low); }
+.gallery-shell :is(.asmr-time,.asmr-follow-toolbar,.asmr-volume-control,.asmr-timeline) { color:var(--text-low); }
 .gallery-shell .asmr-line.active .asmr-time { color:var(--accent-text); }
 .gallery-shell .asmr-script-footer { border-color:var(--line); }
-.gallery-shell :is(.asmr-follow-toolbar,.asmr-track-options>span,.asmr-volume-control) { font-size:11px; }
+.gallery-shell :is(.asmr-follow-toolbar,.asmr-volume-control) { font-size:11px; }
 .gallery-shell .illustration-feedback { border-left-color:var(--accent); }
 .gallery-shell .illustration-feedback>strong,.gallery-shell .illustration-source-details a { color:var(--accent-text); }
 .gallery-shell .illustration-status { color:var(--text-mid); }
@@ -256,7 +253,7 @@
 .gallery-shell .illustration-line-copy span { color:var(--text-mid); font-size:12px; line-height:1.8; }
 .gallery-shell .illustration-line-speaker { color:var(--accent-text); font-size:11px; }
 .gallery-shell .illustration-bank-meta small { color:var(--text-low); font-size:11px; }
-.gallery-shell .illustration-controls { background:transparent; border-color:transparent; border-top-color:var(--line); }
+.gallery-shell :is(.illustration-controls,.illustration-feedback) { background:transparent; border:0; }
 
 /* Immersive overlays: preserve pointer handling and the locked view default. */
 .gallery-shell .immersive-tools button,.gallery-shell .immersive-tools select { background:#17191eeb; color:var(--text-mid); border-color:var(--line-strong); }
@@ -300,6 +297,11 @@
   /* A single title/subtitle rhythm for all four content pages. */
   .gallery-shell .viewer-header h2 { font-size:23px; line-height:1.32; }
   .gallery-shell .viewer-header p { display:block; line-height:16px; }
+  .gallery-shell :is(.asmr-script-heading,.illustration-tools-heading) { padding:0 12px; }
+  .gallery-shell :is(.asmr-word,.illustration-line-copy span) { font-size:12px; line-height:1.7; }
+  .gallery-shell :is(.asmr-line,.illustration-line) { padding:10px 8px; }
+  .gallery-shell :is(.illustration-speakers,.illustration-bank-tabs) button { font-size:11px; padding:5px 7px; }
+  .gallery-shell .illustration-audio-controls button { min-height:30px; font-size:11px; }
 }
 @media(max-width:1300px) and (min-width:1101px) {
   .gallery-shell .gallery-tabs { gap:3px; grid-template-columns:repeat(3,minmax(0,1fr)) 20px; }

@@ -15,7 +15,8 @@ import SpineStage, { type SpineMetadata } from './SpineStage'
 import AuxiliaryPreview from './AuxiliaryPreview'
 import { separatePreviewLayers } from './previewLayers'
 import { SpineUiHost, supportsSpineUi, type SpineUiCommand } from './SpineUiHost'
-import PrimaryNav, { type ContentSection } from './PrimaryNav'
+import type { ContentSection } from './PrimaryNav'
+import GalleryTopbar from './GalleryTopbar'
 import { interactionAnimationCatalog, interactionAnimationExplanation, interactionAnimationLabel } from './interactionAnimationCatalog'
 import { figureKey, findPoseVariantIndex } from './interactionAssetMatch'
 import { sitePath } from './sitePaths'
@@ -1100,7 +1101,7 @@ export default function App() {
           { id: 'voices', title: '台词列表', content: voiceTools },
         ]}/>
 
-      <header className="gallery-topbar"><button className="gallery-brand" onClick={() => selectSection('character')}><b><span>CC</span></b><span>CROSSCORE<small>{isPublicPreview ? '非官方演示' : 'LOCAL ARCHIVE'}</small></span></button><PrimaryNav active={category} onSelect={selectSection}/><button className="gallery-reset" onClick={() => { layout.setLibraryOpen(!layout.compact); layout.setToolsOpen(!layout.landscape); layout.setTab('interaction') }}>恢复布局</button></header>
+      <GalleryTopbar active={category} onSelect={selectSection}/>
       <div className="gallery-mobilebar"><button aria-label="选择资源" aria-expanded={layout.libraryOpen} onClick={() => { layout.setLibraryOpen(!layout.libraryOpen); if (layout.landscape) layout.setToolsOpen(false) }}>☰ 资源{isPublicPreview && ' · 非官方'} <span>{selectedLabel?.primary}</span></button><button onClick={() => layout.showTools('interaction')}>交互</button><button onClick={() => layout.showTools('actions')}>动作</button><button onClick={() => layout.showTools('voices')}>台词</button></div>
       {layout.drawer && <button className="gallery-scrim" aria-label="关闭面板" onClick={() => { layout.setLibraryOpen(false); if (layout.landscape) layout.setToolsOpen(false) }}/>}
 
@@ -1137,10 +1138,6 @@ export default function App() {
           ))}
           {manifest && !entries.length && <p className="gallery-empty">没有匹配的资源，试试其他关键词。</p>}
         </section>
-        <div className="library-tools">
-          <span>工具与诊断</span>
-          <button onClick={() => setView('audit')} title="按需检查 Spine 骨骼的加载与渲染">Spine 资源巡检 ↗</button>
-        </div>
       </aside>
 
       <section className="viewer-panel">

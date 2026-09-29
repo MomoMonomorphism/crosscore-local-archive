@@ -2,7 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import PictureFigure, { selectableAnimations } from './PictureFigure'
 import PictureInteractiveFigure from './PictureInteractiveFigure'
-import PrimaryNav, { type ContentSection } from './PrimaryNav'
+import type { ContentSection } from './PrimaryNav'
+import GalleryTopbar from './GalleryTopbar'
 import type { Manifest, MultiPictureActionManifest, ThumbnailManifest, Variant, VoiceManifest, VoicePictureBank, VoiceStream } from './types'
 import { hitStaticPicture } from './staticPictureTouch'
 import { simplifyDisplay } from './simplifyDisplay'
@@ -249,11 +250,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
   return <ImmersiveContext.Provider value={layout.immersive}><div ref={layout.root} className={`app-shell gallery-shell illustration-gallery ${layout.immersive.active ? 'immersive-active' : ''} ${layout.libraryOpen ? '' : 'library-closed'} ${layout.toolsOpen ? '' : 'tools-closed'}`}>
     <ImmersiveTools mode={layout.immersive} playing={figurePlaying} onPlay={mode === 'dynamic' ? () => setFigurePlaying(v => !v) : undefined} canAdjust={mode === 'dynamic' && Boolean(variant)}
       debug={hotspotDebug} onDebug={mode === 'dynamic' && showFigure && interactive && !animation ? () => setHotspotDebug(v => !v) : undefined}/>
-    <header className="gallery-topbar">
-      <button className="gallery-brand" onClick={() => onSelectSection('character')}><b><span>CC</span></b><span>CROSSCORE<small>LOCAL ARCHIVE</small></span></button>
-      <PrimaryNav active="picture" onSelect={onSelectSection}/>
-      <button className="gallery-reset" onClick={() => { layout.setLibraryOpen(!layout.compact); layout.setToolsOpen(!layout.landscape) }}>恢复布局</button>
-    </header>
+    <GalleryTopbar active="picture" onSelect={onSelectSection}/>
     <div className="gallery-mobilebar">
       <button aria-label="选择插画档案" aria-expanded={layout.libraryOpen} onClick={() => { layout.setLibraryOpen(!layout.libraryOpen); if (layout.landscape) layout.setToolsOpen(false) }}>☰ 档案 <span>{title}</span></button>
       <button onClick={() => layout.showTools('voices')}>人物台词</button>
@@ -322,8 +319,6 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
         })}
         {!filteredPictures.length && !visibleUnmatched.length && <p className="gallery-empty">没有匹配的档案，请调整关键词或筛选条件。</p>}
       </section>
-      <div className="library-tools"><span>工具与诊断</span>
-        <button onClick={() => navigate('audit')}>Spine 资源巡检 ↗</button></div>
     </aside>
 
     <section className="viewer-panel illustration-panel">
@@ -345,16 +340,6 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
 
       <div className="illustration-workspace">
         <div className="illustration-canvas-column">
-          <div className="illustration-mode-bar">
-            <span>画面</span>
-            <button className={mode === 'dynamic' ? 'active' : ''} disabled={!hasDynamic} onClick={() => { setMode('dynamic'); setFigureStatus(''); setFigureError('') }}>动态</button>
-            <button className={mode === 'static' ? 'active' : ''} disabled={!hasStatic} onClick={() => { setMode('static'); setFigureStatus(''); setFigureError('') }}>静态原图</button>
-            <div className="illustration-mode-actions">
-              {mode === 'dynamic' && showFigure && picture?.hasDynamicTouch && <span className="illustration-evidence"
-                title={animation ? '选择“游戏待机”恢复画面交互' : '点击画面热区，按游戏原配置触发动作或语音；可用区域随当前姿态变化'}>{animation ? '素材预览' : '支持画面交互'}</span>}
-              {mode === 'static' && hasStaticAudio && <span className="illustration-evidence" title="点击原图中游戏配置的区域播放语音">点击听语音</span>}
-            </div>
-          </div>
           <div className="illustration-viewport"><div className="picture-figure-frame illustration-frame">
             {picture && mode === 'static' && staticName && !staticError &&
               <img className="picture-static-image" src={sitePath(`assets/archive/${encodeURIComponent(staticName)}.png`)}
@@ -380,6 +365,17 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
                   ? '当前档案没有已确认的可加载骨骼。' : '静态图未能从本地资源中加载。'}</span>
               </div>}
           </div></div>
+        </div>
+          <div className="illustration-mode-bar">
+            <span>画面</span>
+            <button className={mode === 'dynamic' ? 'active' : ''} disabled={!hasDynamic} onClick={() => { setMode('dynamic'); setFigureStatus(''); setFigureError('') }}>动态</button>
+            <button className={mode === 'static' ? 'active' : ''} disabled={!hasStatic} onClick={() => { setMode('static'); setFigureStatus(''); setFigureError('') }}>静态原图</button>
+            <div className="illustration-mode-actions">
+              {mode === 'dynamic' && showFigure && picture?.hasDynamicTouch && <span className="illustration-evidence"
+                title={animation ? '选择“游戏待机”恢复画面交互' : '点击画面热区，按游戏原配置触发动作或语音；可用区域随当前姿态变化'}>{animation ? '素材预览' : '支持画面交互'}</span>}
+              {mode === 'static' && hasStaticAudio && <span className="illustration-evidence" title="点击原图中游戏配置的区域播放语音">点击听语音</span>}
+            </div>
+          </div>
           <div className="illustration-controls">
             {mode === 'dynamic' && variant && <GalleryToolbar items={[
               { id: 'play', minWidth: 0, node: <button className="play-button" onClick={() => setFigurePlaying(value => !value)} disabled={!showFigure}
@@ -414,7 +410,6 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
           </div><p>{picture.img || '无静态图名'}{picture.l2dName ? ` · ${picture.l2dName}` : ''}</p>
           </div>}
           </details>
-        </div>
       </div>
       {error && <div className="illustration-load-error">数据读取失败：{error}</div>}
     </section>

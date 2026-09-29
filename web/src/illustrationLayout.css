@@ -15,24 +15,27 @@
 .illustration-gallery .illustration-header p{display:block;margin-top:5px}
 .illustration-gallery .illustration-workspace{display:flex;flex-direction:column;flex:0 0 auto;min-height:0;padding:0;gap:0;overflow:visible}
 .illustration-gallery .illustration-canvas-column{flex:none;min-height:0;gap:0}
-.illustration-gallery .illustration-mode-bar{flex-shrink:0;flex-wrap:wrap;min-height:44px;padding:5px 0}
+.illustration-gallery .illustration-mode-bar{flex-shrink:0;flex-wrap:wrap;min-height:44px;margin-top:0;padding:8px 10px;border-bottom:1px solid var(--line)}
+.illustration-gallery .illustration-mode-bar>button{min-height:30px;font-size:11px}
 .illustration-mode-actions{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:8px;margin-left:auto;min-width:0}
 .illustration-mode-actions .illustration-evidence{margin-left:0;color:var(--text-low);font-size:11px}
 .illustration-related-link{display:inline-flex;align-items:center;min-height:30px;padding:5px 8px;border:var(--ui-border-width) solid var(--line-strong);background:var(--bg-panel);color:var(--text-mid);font-size:11px;text-decoration:none;white-space:nowrap}
 .illustration-related-link:hover{background:var(--bg-hover)}
 .illustration-info{flex:none;margin-top:8px;border-top:var(--ui-border-width) solid var(--line);font-size:11px;color:var(--text-mid)}
-.illustration-info>summary{cursor:pointer;padding:10px 0}
+.illustration-info>summary{cursor:pointer;padding:8px 10px}
+.illustration-info>.illustration-source-details{padding:0 10px 8px}
 .illustration-info .illustration-source-details{max-height:none;overflow:visible;padding-bottom:8px}
 /* Let the game frame determine the panel height; extra window height belongs
    below the controls, not in black bands around the picture. */
 .illustration-gallery .illustration-viewport{display:flex;align-items:center;flex:none;width:100%;aspect-ratio:16/9;min-height:0;border:0;background:#08090a;isolation:isolate}
 .illustration-gallery .illustration-frame{flex:none;width:100%;height:auto;aspect-ratio:16/9;max-height:none;max-width:none;border:0;background:#08090a}
-.illustration-gallery .illustration-controls{display:block;flex-shrink:0;padding:0;min-height:0;background:#191a1e;border:var(--ui-border-width) solid #303139;border-top:0}
+/* Keep the media surface and its controls as separate, unboxed sections. */
+.gallery-shell.illustration-gallery .illustration-controls{display:block;flex-shrink:0;margin:0;padding:0;min-height:0;background:transparent;border:0}
 .illustration-controls .gallery-compact-toolbar>.toolbar-hotspots{margin-left:auto}
 .illustration-controls .gallery-compact-toolbar:has(>.toolbar-hotspots)>.gallery-toolbar-more{margin-left:0}
-.illustration-gallery .illustration-controls:empty{display:none}
+.gallery-shell.illustration-gallery .illustration-controls:empty{display:none}
 .illustration-gallery .illustration-controls select{min-width:0;max-width:190px;padding:6px;font-size:11px;border-radius:var(--ui-radius-control)}
-.illustration-gallery .illustration-feedback{margin:0;padding:10px 12px;background:#1b1b20;border:var(--ui-border-width) solid #353038;border-left:2px solid #b57a33;overflow-wrap:anywhere}
+.illustration-gallery .illustration-feedback{margin:0;padding:4px 10px 8px;background:transparent;border:0;overflow-wrap:anywhere}
 .illustration-gallery .illustration-feedback>strong{display:block;font-size:12px;color:#e5c89e;margin-bottom:7px}
 .illustration-gallery .illustration-status{display:block;min-width:0;font-size:11px;line-height:1.7;color:#b1b7c3}
 .illustration-gallery .illustration-status.error{color:var(--danger)}
