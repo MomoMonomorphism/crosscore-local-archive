@@ -1,0 +1,65 @@
+name: Loading feedback validation
+
+on:
+  push:
+    branches: [loading-feedback-v1]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - name: Confirm rendering engine is unchanged
+        run: test "$(git hash-object web/src/SpineStageRenderer.tsx)" = af1f12de082ffc8ef474bb8be8197750e7ff94c5
+      - name: Install dependencies and build local frontend
+        working-directory: web
+        run: npm ci && npm run build
+      - name: Collect web library notices
+        run: python tools/collect_web_licenses.py
+      - name: Build Pages with the production subpath (no deployment)
+        working-directory: web
+        env:
+          VITE_BASE_PATH: /crosscore-local-archive/
+        run: npm run build:pages
+      - name: Verify Pages package
+        run: |
+          python tools/check_pages_demo.py
+          python tools/check_pages_release.py --base /crosscore-local-archive/
+      - name: Install isolated browser test tooling
+        working-directory: web
+        run: |
+          npm install --no-save --package-lock=false playwright@1.51.1
+          npx playwright install --with-deps chromium
+      - name: Simulate slow, failed and cached resource loads
+        env:
+          LOADING_TEST_URL: http://127.0.0.1:4173/crosscore-local-archive/
+        run: |
+          mkdir -p .scratch/loading-feedback .scratch/site
+          ln -s "$PWD/dist-pages" .scratch/site/crosscore-local-archive
+          python -m http.server 4173 --bind 127.0.0.1 --directory .scratch/site > .scratch/loading-feedback/server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill "$SERVER_PID"' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent "$LOADING_TEST_URL" > /dev/null; then break; fi
+            sleep 1
+          done
+          cd web
+          node check-loading-feedback.mjs
+      - name: Upload screenshots and test report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: loading-feedback-review
+          path: .scratch/loading-feedback/
+          if-no-files-found: warn
+          retention-days: 7
