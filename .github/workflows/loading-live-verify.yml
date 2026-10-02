@@ -4,6 +4,8 @@ on:
   push:
     branches: [main]
     paths:
+      - 'pages-pack/**'
+      - 'web/src/sitePaths.ts'
       - '.github/workflows/loading-live-verify.yml'
       - 'web/check-loading-live.mjs'
       - 'web/src/SpineStage.tsx'

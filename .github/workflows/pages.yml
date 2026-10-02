@@ -35,6 +35,7 @@ jobs:
       - name: Verify static site
         run: |
           python tools/check_pages_demo.py
+          python tools/check_crested_pages.py
           python tools/check_pages_release.py --base "/${{ github.event.repository.name }}/"
       - uses: actions/upload-pages-artifact@v4
         with:

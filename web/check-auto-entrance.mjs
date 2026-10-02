@@ -64,6 +64,11 @@ try {
     assert.equal(await preference(page).getAttribute('aria-pressed'), 'true')
     await preference(page).click()
     await ready(page)
+    const skinResources = resources.filter(url => url.includes('/3006_skin_crestedplume03_spine/'))
+    for (const extension of ['.json', '.atlas', '.png']) {
+      assert.ok(skinResources.some(url => new URL(url).pathname.endsWith(extension)), `Android family requests ${extension}`)
+    }
+    assert.ok(skinResources.every(url => new URL(url).searchParams.get('reference') === 'android-cn-bea4b5a5'), 'Skeleton, atlas and PNG bypass the previous PC cache together')
     assert.equal(await stored(page), 'false')
     await stage(page).locator('canvas').evaluate(node => { node.__entranceTest = true })
     await preference(page).click()

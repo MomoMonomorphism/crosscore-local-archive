@@ -1,0 +1,21 @@
+{
+  "30060_break_crestedplume_spine": {
+    "platform": "android-cn",
+    "bundleSha256": "62394ac2effa07f5aa6f4497da33890d128adc9553180f8c888c329f5ece870e",
+    "files": {
+      "30060_break_CrestedPlume.atlas": "9461dba761cdc45aba6414729305e24daf61b4496240f79ec4bc86eb0adc68d5",
+      "30060_break_CrestedPlume.png": "85c8e4c1e6f1097a85d566c1a4713ad1bb9b197cbfeeb6fcc6ccf95d8b5d4b32",
+      "30060_break_CrestedPlume_chaea.json": "0f94ed04718e455b4414ca1ea9fd7c435625fca7021d1b32aa12d08c1b46d958",
+      "30060_break_CrestedPlume_effect_B.json": "cfb36f67f3964f9b3f47162ba63f209c303766ded6ac8c169d4845b12d555a3a"
+    }
+  },
+  "3006_skin_crestedplume03_spine": {
+    "platform": "android-cn",
+    "bundleSha256": "bea4b5a5aae49d299cadde057b401271f916bbb7071b0a31e90657baf7d1e28f",
+    "files": {
+      "3006_skin_CrestedPlume03.atlas": "76b16b978d5330e2d7c2463e2f48eb0b58c5193df79979c7a1fa04c29b125109",
+      "3006_skin_CrestedPlume03.json": "9342ff5689ce4e20bd35b2a341eddce97556d64843cf713d347f332c9a88424a",
+      "3006_skin_CrestedPlume03.png": "f0e005cf5f25585226f4c89854ad10200c2cee666b2a30a22863f7a05362905d"
+    }
+  }
+}
