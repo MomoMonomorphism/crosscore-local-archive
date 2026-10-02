@@ -1,7 +1,8 @@
 import supplement from '../../display_simplified_map.json'
+import voiceFold from '../../voice_fold_map.json'
 
-const replacements = supplement as Record<string, string>
+const replacements: Record<string, string> = { ...voiceFold, ...supplement }
 
-/** Finish the character conversions missing from the legacy voice-label fold. */
+/** Fallback for UI labels; game transcripts arrive from the Android text overlay. */
 export const simplifyDisplay = (value: string) =>
   Array.from(value, (char) => replacements[char] || char).join('')

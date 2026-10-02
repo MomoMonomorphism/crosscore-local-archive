@@ -5,40 +5,88 @@
 .immersive-active .control-deck,.immersive-active .illustration-feedback,.immersive-active .illustration-info{display:none!important}
 .spine-stage.interactive.viewport-locked,.spine-stage.interactive.viewport-locked.dragging{cursor:default}
 .gallery-shell.immersive-active .stage-wrap{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;aspect-ratio:auto!important;border:0!important;margin:0!important}
-.immersive-tools{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));z-index:100;display:flex;flex-direction:column;align-items:flex-end;gap:8px;max-width:calc(100% - 24px);pointer-events:none}
-.immersive-tools button,.immersive-controls{pointer-events:auto}
-.immersive-tools button{min-height:40px;padding:8px 12px;border:var(--ui-border-width) solid #5c4c36;border-radius:var(--ui-radius-control);background:#17191de8;color:#ecdfc8;font-size:12px;touch-action:manipulation}
-.immersive-tools button[aria-pressed=true]{background:#ff9e24;color:#19120b;border-color:#ff9e24}
-.immersive-tools button:focus-visible{outline:2px solid #ffb452;outline-offset:3px}
-.immersive-controls{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:7px;max-width:620px;padding:12px;background:#111317eb;border:var(--ui-border-width) solid #54442e;border-radius:var(--ui-radius-control);box-shadow:0 5px 28px #0008}
-.immersive-controls>span{width:100%;color:#c8b99e;font-size:12px;text-align:right;margin-bottom:4px}
+
+/* One overlay card keeps controls and lists within the viewport. */
+.immersive-tools{position:absolute;right:max(12px,env(safe-area-inset-right));top:max(12px,env(safe-area-inset-top));bottom:max(12px,env(safe-area-inset-bottom));z-index:100;display:flex;flex-direction:column;align-items:flex-end;gap:8px;width:min(400px,calc(100% - 24px - env(safe-area-inset-left) - env(safe-area-inset-right)));min-height:0;pointer-events:none}
+.immersive-tools button,.immersive-tools select,.immersive-tools input{pointer-events:auto;touch-action:manipulation}
+.immersive-tools button,.immersive-tools select{min-height:40px;padding:8px 11px;border:1px solid var(--line-strong);border-radius:0;background:#17191eeb;color:var(--text-mid);font:inherit;font-size:12px;cursor:pointer}
+.immersive-tools button:disabled,.immersive-tools select:disabled{opacity:.4;cursor:not-allowed}
+.immersive-tools :is(button,select,input):focus-visible,.immersive-panel-body:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.gallery-shell .immersive-tools button[aria-pressed=true],.gallery-shell .immersive-tools button.active{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent-text)}
+.immersive-tools button small{margin-left:5px;font-size:10px;opacity:.8}
+.immersive-tools .immersive-wake{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:8px 14px;box-shadow:0 4px 18px #0005;backdrop-filter:blur(12px)}
+.immersive-wake>span{font-size:17px;line-height:1}
+.immersive-controls{display:flex;flex-direction:column;flex:0 1 auto;width:100%;min-height:0;max-height:100%;border:1px solid var(--line-strong);border-top:2px solid var(--accent);border-radius:0;background:#14161bf5;box-shadow:0 10px 36px #0007;backdrop-filter:blur(16px);overflow:hidden;pointer-events:auto}
+.immersive-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 14px;flex-shrink:0}
+.immersive-heading>div{min-width:0;display:flex;flex-direction:column;gap:4px}
+.immersive-heading>div>span{color:var(--accent-text);font-size:10px;letter-spacing:2px}
+.immersive-heading strong{font-size:14px;font-weight:600;color:var(--text-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.immersive-heading button{min-height:36px;padding:5px 9px;flex-shrink:0}
+.immersive-panel-buttons{display:flex;flex-wrap:wrap;gap:3px;padding:0 10px 10px;flex-shrink:0;border-bottom:1px solid var(--line)}
+.gallery-shell .immersive-panel-buttons button{flex:1 1 auto;min-height:38px;padding:7px 8px;white-space:nowrap;background:transparent;border-color:transparent}
+.gallery-shell .immersive-panel-buttons button[aria-selected=true]{color:var(--accent-text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--accent)}
+.immersive-panel-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:14px 0;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
+.immersive-panel-body:not(.immersive-page-main):not(.immersive-page-more){height:480px}
+.immersive-control-section{padding:0 14px 14px;margin-bottom:14px;border-bottom:1px solid var(--line);flex-shrink:0}
+.immersive-control-section:last-child{padding-bottom:0;margin-bottom:0;border-bottom:0}
+.immersive-control-section h3{margin:0 0 9px;font-size:11px;font-weight:500;color:var(--text-low);letter-spacing:1px}
+.immersive-button-row{display:flex;flex-wrap:wrap;align-items:center;gap:7px}
+.immersive-button-row>button{flex:1 0 auto}
+.gallery-shell .immersive-button-row>.immersive-play{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.immersive-speed{display:flex;align-items:center;gap:7px;min-width:0;max-width:100%;font-size:11px;color:var(--text-mid)}
+.immersive-speed select{flex:1;min-width:66px;max-width:100%}
+.immersive-hint{margin:10px 0 0;font-size:11px;color:var(--text-low);line-height:1.7}
+.immersive-footer{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 14px;border-top:1px solid var(--line);background:#101216;flex-shrink:0}
+.immersive-footer>span{font-size:10px;color:var(--text-low)}
+.immersive-footer button{min-height:36px;font-size:11px}
+.immersive-footer button>span{margin-left:6px;color:var(--accent-text)}
+.immersive-current{flex-shrink:0;margin:0 14px 12px;padding:10px;border:1px solid var(--line);color:var(--text-mid);font-size:12px;overflow-wrap:anywhere}
+.immersive-forms{padding:0 14px;font-size:12px;color:var(--text-mid)}
+.immersive-forms .chip-row{display:flex;flex-wrap:wrap;gap:7px;overflow:visible}
+.immersive-settings{display:flex;flex-direction:column;gap:14px}
+.immersive-settings>button{margin-inline:14px;align-self:flex-start}
+.immersive-settings>.gallery-mode-status{margin-inline:14px}
+.immersive-tools .gallery-game-mode-button{font-weight:600}
+.gallery-shell .immersive-tools .gallery-game-mode-button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.immersive-panel-body .gallery-action-list,.immersive-panel-body .gallery-voice-list{flex:1 0 180px}
+.immersive-panel-body .gallery-voice-detail{max-height:none;overflow:visible}
+.immersive-panel-body .gallery-mode-status{flex-shrink:0}
 .immersive-active .asmr-scene,.immersive-active .illustration-workspace,.immersive-active .illustration-canvas-column,.immersive-active .illustration-viewport,.immersive-active .illustration-frame{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important;max-height:none!important;margin:0!important;border:0!important;aspect-ratio:auto!important;display:block!important}
 .immersive-active .asmr-track-tabs,.immersive-active .asmr-scene-controls,.immersive-active .asmr-transport,.immersive-active .illustration-mode-bar,.immersive-active .illustration-controls,.immersive-active .illustration-context,.immersive-active .picture-figure-toolbar,.immersive-active .picture-interaction-controls{display:none!important}
 .immersive-active .picture-figure-frame,.immersive-active .picture-figure{height:100%!important;min-height:0!important;aspect-ratio:auto!important}
-@media(max-width:600px){.immersive-controls{max-width:calc(100vw - 24px)}.immersive-controls>span{text-align:left}.immersive-controls{justify-content:flex-start}}
-.immersive-active .viewport-locked{cursor:default!important}.immersive-active .picture-hotspot-toggle[hidden]{display:none!important}
-/* Overlay controls never participate in the stage layout or change its framing. */
-.immersive-tools{max-height:calc(100dvh - 24px);min-height:0}
-.immersive-controls{flex-shrink:0;max-height:42dvh;overflow:auto;overscroll-behavior:contain}
-.immersive-tools select{min-height:40px;border:var(--ui-border-width) solid #5c4c36;border-radius:var(--ui-radius-control);background:#202126;color:#ecdfc8;padding:4px;font-size:12px;pointer-events:auto}
-.immersive-speed{display:flex;align-items:center;gap:5px;font-size:11px;color:#bbb5a9}
-.immersive-panel-buttons{display:flex;flex-wrap:wrap;gap:6px;width:100%;padding-top:8px;border-top:var(--ui-border-width) solid #3c3730}
-.immersive-panel-buttons button{flex:1;white-space:nowrap}
-.immersive-panel-buttons button[aria-expanded=true]{background:#3b2e1d;border-color:#c18842;color:#ffd399}
-.immersive-panel{display:flex;flex-direction:column;min-height:0;width:min(390px,calc(100vw - 24px));height:560px;max-height:65dvh;flex:0 1 auto;background:#17191df5;border:var(--ui-border-width) solid #54442e;border-radius:var(--ui-radius-control);box-shadow:0 5px 28px #0008;pointer-events:auto;overflow:hidden}
-.immersive-panel>header{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:var(--ui-border-width) solid #35363b;flex-shrink:0}
-.immersive-panel>header strong{font-size:13px;color:#e9bb7e}
-.immersive-panel>header button{min-height:32px;padding:5px 9px}
-.immersive-panel-body{display:flex;flex-direction:column;flex:1;min-height:0;overflow:auto;padding:12px 0;overscroll-behavior:contain}
-.immersive-current{flex-shrink:0;margin:0 12px 10px;padding:9px;border:var(--ui-border-width) solid #393939;color:#dfbc89;font-size:12px;overflow-wrap:anywhere}
-.immersive-panel .gallery-action-list,.immersive-panel .gallery-voice-list{flex:1 0 180px}
-.immersive-panel .gallery-voice-detail{max-height:none;overflow:visible}
-.immersive-panel .gallery-mode-status{flex-shrink:0}
-.immersive-forms{padding:0 12px;font-size:12px;color:#b7b7bd}
-.immersive-forms .chip-row{display:flex;flex-wrap:wrap;gap:7px;overflow:visible}
-.immersive-forms button.active{background:#3e2f1a;border-color:#e39935;color:#ffc77b}
-.immersive-tools .gallery-game-mode-button{background:#24262c;color:#c2c7d0;border-color:#555963;font-weight:700}
-.immersive-tools .gallery-game-mode-button[aria-pressed=true]{background:#ff9e24;color:#201608;border-color:#ff9e24;font-weight:700}
-.immersive-more-buttons{display:flex;flex-wrap:wrap;gap:8px;padding:12px}
-.immersive-panel-body>button{align-self:flex-start;margin:0 12px}
-.immersive-tools button:disabled{opacity:.4;cursor:not-allowed}
+.immersive-active .viewport-locked{cursor:default!important}
+.immersive-active .picture-hotspot-toggle[hidden]{display:none!important}
+.immersive-audio-timeline{display:flex;align-items:center;gap:8px;margin-top:12px}
+.immersive-audio-timeline time{flex-shrink:0;font-size:11px;color:var(--text-mid);font-variant-numeric:tabular-nums}
+.immersive-tools input[type=range]{min-width:0;accent-color:var(--accent);cursor:pointer;height:28px}
+.immersive-audio-timeline input{width:100%;flex:1}
+.immersive-volume{display:flex;align-items:center;gap:10px;margin-top:12px;font-size:11px;color:var(--text-mid)}
+.immersive-volume input{flex:1;width:100%}
+.immersive-volume output{min-width:34px;text-align:right;font-variant-numeric:tabular-nums}
+.immersive-track-controls{display:flex;flex-wrap:wrap;align-items:center;gap:7px;margin-top:12px}
+.immersive-track-controls>span{font-size:11px;color:var(--text-low);margin-right:2px}
+.immersive-track-controls button{flex:1}
+.immersive-albums{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 12px}
+.immersive-albums .entry-card{width:100%}
+.asmr-gallery .immersive-albums .entry-card{flex-direction:row;gap:12px}
+.asmr-gallery .immersive-albums .entry-monogram{width:94px;height:60px;aspect-ratio:auto;flex-shrink:0}
+.immersive-panel-body .search-box{margin:0 12px 10px;flex-shrink:0}
+.immersive-panel-body .entry-count{padding:0 14px 10px}
+.immersive-panel-body .asmr-lines,.immersive-panel-body .illustration-lines{flex:1;min-height:100px}
+.immersive-panel-body .asmr-script-footer{padding-bottom:0;margin-top:8px}
+.immersive-tools .asmr-playback-status{margin-top:10px}
+@media(max-width:600px){
+ .immersive-tools{right:max(8px,env(safe-area-inset-right));top:max(8px,env(safe-area-inset-top));bottom:max(8px,env(safe-area-inset-bottom));width:min(400px,calc(100% - 16px - env(safe-area-inset-left) - env(safe-area-inset-right)));gap:6px}
+ .immersive-tools button,.immersive-tools select{min-height:44px}
+ .immersive-panel-buttons button{min-height:40px}
+ .immersive-heading{padding:10px 12px}
+}
+@media(max-height:500px) and (orientation:landscape){
+ .immersive-tools{gap:5px}
+ .immersive-tools .immersive-wake{min-height:32px;padding:5px 12px}
+ .immersive-heading{padding:7px 12px}
+ .immersive-heading>div>span{display:none}
+ .immersive-panel-buttons{padding-bottom:5px}
+ .immersive-panel-body{padding-top:10px;padding-bottom:10px}
+ .immersive-footer{padding:5px 12px}
+}

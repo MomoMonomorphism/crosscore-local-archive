@@ -8,7 +8,8 @@ export default function GalleryTopbar({ active, onSelect }: {
   onSelect: (section: ContentSection) => void
 }) {
   return <header className="gallery-topbar">
-    <button type="button" className="gallery-brand" onClick={() => onSelect('character')}>
+    <button type="button" className="gallery-brand" onClick={() => onSelect('character')}
+      title="返回角色立绘" aria-label="CC · 返回角色立绘">
       <b><span>CC</span></b><span>CROSSCORE<small>{isPublicPreview ? '非官方演示' : 'LOCAL ARCHIVE'}</small></span>
     </button>
     <PrimaryNav active={active} onSelect={onSelect}/>

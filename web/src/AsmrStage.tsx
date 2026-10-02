@@ -60,11 +60,13 @@ export default function AsmrStage({
   const [requestPlay, setRequestPlay] = useState(false)
   const [cameraOn, setCameraOn] = useState(true)
   const [showLyrics, setShowLyrics] = useState(true)
+  const [lyricsPassthrough, setLyricsPassthrough] = useState(false)
   const [lyricsReset, setLyricsReset] = useState(0)
   const [figureStatus, setFigureStatus] = useState('')
   const [figureError, setFigureError] = useState('')
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
+  const immersiveListRef = useRef<HTMLDivElement | null>(null)
   const pendingLineSeek = useRef<number | null>(null)
 
   useEffect(() => {
@@ -158,7 +160,7 @@ export default function AsmrStage({
   }, [usingPreview, seekTo])
 
   const locateCurrentLine = useCallback((smooth = true) => {
-    const list = listRef.current
+    const list = layout.immersive.activeRef.current ? immersiveListRef.current : listRef.current
     const active = list?.querySelector<HTMLElement>('.asmr-line.active')
     if (!list || !active || !list.clientHeight) return
     const outer = list.getBoundingClientRect(), inner = active.getBoundingClientRect()
@@ -167,8 +169,12 @@ export default function AsmrStage({
   }, [])
 
   useEffect(() => {
-    if (follow && playing && layout.toolsOpen) locateCurrentLine()
-  }, [activeIndex, follow, playing, layout.toolsOpen, query, locateCurrentLine])
+    if (follow && playing && (layout.immersive.active ? layout.immersive.controls : layout.toolsOpen)) locateCurrentLine()
+  }, [activeIndex, follow, playing, layout.toolsOpen, layout.immersive.active, layout.immersive.controls, query, locateCurrentLine])
+  const attachImmersiveLineList = useCallback((node: HTMLDivElement | null) => {
+    immersiveListRef.current = node
+    if (node && follow) requestAnimationFrame(() => locateCurrentLine(false))
+  }, [follow, locateCurrentLine])
 
   const togglePlay = useCallback(() => {
     const audio = audioRef.current
@@ -234,9 +240,53 @@ export default function AsmrStage({
   const activeLine = album && activeIndex >= 0 ? album.lines[activeIndex] : null
   const setView = (action: 'in' | 'out' | 'reset') => setViewCommand(previous => ({ serial: previous.serial + 1, action }))
 
+  const albumTools = (immersive = false) => <>
+        <label className="search-box"><span>⌕</span><input aria-label="搜索专辑" value={albumQuery} onChange={event => setAlbumQuery(event.target.value)} placeholder="搜索专辑 / 角色 / CV"/></label>
+        <div className="entry-count">{visibleAlbums.length} 张专辑 · 日语音频</div>
+        <section className={immersive ? "immersive-albums asmr-album-list" : "entry-list asmr-album-list"}>
+          {visibleAlbums.map(item => <button className={`entry-card ${item.voice === selectedVoice ? 'selected' : ''}`} key={item.voice} title={`${asmrText(item.title)} · ${roleLabel(item)}`} onClick={() => chooseAlbum(item.voice)}>
+            <span className="entry-monogram"><img src={sitePath(`assets/thumbnails/asmr-${item.voice}.png`)} alt="" loading="lazy" onError={event => { event.currentTarget.hidden = true }}/></span>
+            <span className="entry-copy"><strong>{asmrText(item.title)}</strong><small>{roleLabel(item)}</small><small>{formatClock(item.seconds)} · {item.lineCount} 句</small></span>
+          </button>)}
+          {!visibleAlbums.length && manifest && <p className="gallery-empty">没有匹配的专辑</p>}
+          {error && <p className="asmr-audio-error">台本载入失败：{error}</p>}
+        </section>
+  </>
+  const scriptTools = (immersive = false) => <>
+          <label className="search-box asmr-search"><span>⌕</span><input aria-label="搜索台词" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索台词"/></label>
+          <div className="asmr-follow-toolbar"><label><input type="checkbox" checked={follow} onChange={event => setFollow(event.target.checked)}/>跟随播放</label><button disabled={usingPreview || activeIndex < 0} onClick={() => { setQuery(''); requestAnimationFrame(() => locateCurrentLine()) }}>定位当前句</button><small>{lines.length} 句</small></div>
+          <div className="asmr-lines" ref={immersive ? attachImmersiveLineList : listRef}>
+            {lines.map(line => <button key={line.index} className={`asmr-line ${album?.lines.indexOf(line) === activeIndex ? 'active' : ''}`} aria-current={album?.lines.indexOf(line) === activeIndex ? 'true' : undefined} onClick={() => seekToLine(line.time)}><time className="asmr-time">{formatClock(line.time)}</time><span className="asmr-word">{asmrText(line.word)}</span></button>)}
+            {album && !lines.length && <p className="gallery-empty">没有匹配的台词</p>}
+          </div>
+          <div className="asmr-script-footer">{usingPreview ? '点击台词将切换至全曲并播放对应片段。' : '点击任意台词，从该句开始播放。'}</div>
+  </>
+
   return (
     <ImmersiveContext.Provider value={layout.immersive}><div ref={layout.root} className={`app-shell gallery-shell asmr-gallery ${layout.immersive.active ? 'immersive-active' : ''} ${layout.libraryOpen ? '' : 'library-closed'} ${layout.toolsOpen ? '' : 'tools-closed'}`}>
-      <ImmersiveTools mode={layout.immersive} playing={playing} onPlay={togglePlay} canAdjust={Boolean(album?.spine)} subtitles={showLyrics} onSubtitles={() => setShowLyrics(value => !value)} onResetSubtitles={() => setLyricsReset(value => value + 1)}/>
+      <ImmersiveTools mode={layout.immersive} title={album ? asmrText(album.title) : 'ASMR'} playing={playing} onPlay={album ? togglePlay : undefined}
+        canAdjust={Boolean(album?.spine)} onZoom={action => setView(action)}
+        subtitles={showLyrics} onSubtitles={() => setShowLyrics(value => !value)}
+        subtitlesPassthrough={lyricsPassthrough} onSubtitlesPassthrough={() => setLyricsPassthrough(value => !value)} onResetSubtitles={() => setLyricsReset(value => value + 1)}
+        primaryControls={album && <><label className="immersive-speed">速度 <select aria-label="沉浸专辑播放速度" value={speed} onChange={event => setSpeed(Number(event.target.value))}>
+          {[.5,.75,1,1.25,1.5,2].map(rate => <option key={rate} value={rate}>{rate}×</option>)}</select></label>
+          <button aria-label="后退10秒" onClick={() => seekTo(currentTime - 10, playing)}>↶ 10秒</button>
+          <button aria-label="前进10秒" onClick={() => seekTo(Math.min(duration, currentTime + 10), playing)}>10秒 ↷</button></>}
+        playbackControls={album && <>
+          <div className="immersive-audio-timeline"><time>{formatClock(currentTime)}</time><input aria-label="沉浸专辑播放进度" type="range" min="0" max={duration} step=".1" disabled={!duration}
+            value={Math.min(currentTime, duration)} onChange={event => seekTo(Number(event.target.value), playing)}/><time>{formatClock(duration)}</time></div>
+          <label className="immersive-volume">音量<input aria-label="沉浸专辑音量" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))}/><output>{Math.round(volume * 100)}%</output></label>
+          <div className="immersive-track-controls" role="group" aria-label="沉浸音轨选择"><span>音轨</span>
+            <button aria-pressed={!usingPreview} onClick={() => chooseTrack(false)}>全曲</button>
+            <button aria-pressed={usingPreview} disabled={!album.previewSeconds} onClick={() => chooseTrack(true)}>独立试听 {album.previewSeconds ? formatClock(album.previewSeconds) : '—'}</button></div>
+          <div className="immersive-track-controls"><span>画面</span><button aria-pressed={cameraOn && !usingPreview} disabled={!album.spine || usingPreview} onClick={() => setCameraOn(value => !value)}>运镜 {cameraOn && !usingPreview ? '开' : '关'}</button></div>
+          {usingPreview && <p className="immersive-hint">独立试听不带同步台词与运镜；点击台词可切回全曲。</p>}
+          {(audioError || waiting) && <p className="asmr-playback-status" role="status">{audioError || '正在加载音频…'}</p>}
+        </>}
+        panels={[{ id: 'albums', title: '专辑', content: albumTools(true) }, { id: 'script', title: '同步台词', content: scriptTools(true) }]}
+        moreControls={album && <div className="immersive-forms"><p>{roleLabel(album)} · CV {asmrText(album.cvName)}</p>
+          {album.description && <p>{asmrText(album.description)}</p>}{(figureError || figureStatus) && <p>{figureError || figureStatus}</p>}</div>}/>
+
       <GalleryTopbar active="asmr" onSelect={onSelectSection}/>
       <div className="gallery-mobilebar">
         <button aria-label="选择专辑" aria-expanded={layout.libraryOpen} onClick={() => { layout.setLibraryOpen(!layout.libraryOpen); if (layout.landscape) layout.setToolsOpen(false) }}>☰ 专辑 <span>{album && asmrText(album.title)}</span></button>
@@ -246,16 +296,7 @@ export default function AsmrStage({
       <aside className="library-panel" aria-label="ASMR 专辑">
         <button className="gallery-rail" aria-label="展开专辑栏" onClick={() => layout.setLibraryOpen(true)}>☰<span>专辑</span></button>
         <div className="gallery-library-heading"><strong>ASMR 专辑 <small>{manifest?.albumCount ?? '—'}</small></strong><button aria-label="收起专辑栏" onClick={() => layout.setLibraryOpen(false)}>◧</button></div>
-        <label className="search-box"><span>⌕</span><input aria-label="搜索专辑" value={albumQuery} onChange={event => setAlbumQuery(event.target.value)} placeholder="搜索专辑 / 角色 / CV"/></label>
-        <div className="entry-count">{visibleAlbums.length} 张专辑 · 日语音频</div>
-        <section className="entry-list asmr-album-list">
-          {visibleAlbums.map(item => <button className={`entry-card ${item.voice === selectedVoice ? 'selected' : ''}`} key={item.voice} title={`${asmrText(item.title)} · ${roleLabel(item)}`} onClick={() => chooseAlbum(item.voice)}>
-            <span className="entry-monogram"><img src={sitePath(`assets/thumbnails/asmr-${item.voice}.png`)} alt="" loading="lazy" onError={event => { event.currentTarget.hidden = true }}/></span>
-            <span className="entry-copy"><strong>{asmrText(item.title)}</strong><small>{roleLabel(item)}</small><small>{formatClock(item.seconds)} · {item.lineCount} 句</small></span>
-          </button>)}
-          {!visibleAlbums.length && manifest && <p className="gallery-empty">没有匹配的专辑</p>}
-          {error && <p className="asmr-audio-error">台本载入失败：{error}</p>}
-        </section>
+        {albumTools()}
       </aside>
 
       <main className="viewer-panel asmr-listening-panel">
@@ -277,7 +318,7 @@ export default function AsmrStage({
                 playbackRate={speed} viewCommand={viewCommand} onStatus={setFigureStatus} onError={setFigureError}/>
             </div>}
             {!album.spine && <div className="asmr-figure-empty"><strong>该专辑暂无动态画面</strong></div>}
-            <FloatingLyrics visible={showLyrics && !usingPreview && Boolean(activeLine)} text={activeLine ? asmrText(activeLine.word) : ''} passthrough={false} resetSerial={lyricsReset}/>
+            <FloatingLyrics visible={showLyrics && !usingPreview && Boolean(activeLine)} text={activeLine ? asmrText(activeLine.word) : ''} passthrough={lyricsPassthrough} resetSerial={lyricsReset}/>
             {figureError && <p className="asmr-scene-error">{figureError}</p>}
           </section>
           <div className="asmr-track-tabs variant-strip" role="group" aria-label="选择播放音轨">
@@ -323,13 +364,7 @@ export default function AsmrStage({
         <button className="gallery-rail" aria-label="展开同步台词" onClick={() => layout.setToolsOpen(true)}>◧<span>同步台词</span></button>
         <div className="gallery-tool-content">
           <div className="asmr-script-heading"><strong>同步台词 <small>{album?.lineCount ?? 0}</small></strong><button aria-label="收起同步台词" onClick={() => layout.setToolsOpen(false)}>◧</button></div>
-          <label className="search-box asmr-search"><span>⌕</span><input aria-label="搜索台词" value={query} onChange={event => setQuery(event.target.value)} placeholder="搜索台词"/></label>
-          <div className="asmr-follow-toolbar"><label><input type="checkbox" checked={follow} onChange={event => setFollow(event.target.checked)}/>跟随播放</label><button disabled={usingPreview || activeIndex < 0} onClick={() => { setQuery(''); requestAnimationFrame(() => locateCurrentLine()) }}>定位当前句</button><small>{lines.length} 句</small></div>
-          <div className="asmr-lines" ref={listRef}>
-            {lines.map(line => <button key={line.index} className={`asmr-line ${album?.lines.indexOf(line) === activeIndex ? 'active' : ''}`} aria-current={album?.lines.indexOf(line) === activeIndex ? 'true' : undefined} onClick={() => seekToLine(line.time)}><time className="asmr-time">{formatClock(line.time)}</time><span className="asmr-word">{asmrText(line.word)}</span></button>)}
-            {album && !lines.length && <p className="gallery-empty">没有匹配的台词</p>}
-          </div>
-          <div className="asmr-script-footer">{usingPreview ? '点击台词将切换至全曲并播放对应片段。' : '点击任意台词，从该句开始播放。'}</div>
+          {scriptTools()}
         </div>
       </aside>
     </div></ImmersiveContext.Provider>

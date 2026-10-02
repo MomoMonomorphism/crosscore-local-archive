@@ -8,7 +8,7 @@ export function ActionTriggerGuide({ animation, rows, state, canLocate, onLocate
 }) {
   const matches = animationTriggers(rows, animation)
   return <div className="action-trigger-guide">
-    {animation === 'in' && hallEntry && <p>大厅入场由“重播入场”启动，结束后恢复游戏交互。直接预览仅播放素材片段。</p>}
+    {animation === 'in' && hallEntry && <p>角色／皮肤加载完成后，配置支持的大厅入场会自动播放；也可用“重播入场”再次播放。结束后恢复待机与交互。直接预览仅播放素材片段，插画档案默认保持游戏待机。</p>}
     {state?.idle === animation && <p>这是当前交互待机，交互空闲时由运行时持续播放。</p>}
     {!matches.length && <p>{rows.length ? '未在当前交互配置中找到此动作的直接或间接引用。它可能是待机、过场或辅助素材，暂不提供未经确认的点击步骤。' : '此资源没有可用的游戏交互配置；可直接预览素材。'}</p>}
     {matches.length > 0 && <p className="action-guide-note">原配置入口：{matches.length} 个 · 按当前交互状态推导</p>}

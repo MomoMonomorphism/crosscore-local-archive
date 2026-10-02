@@ -1,6 +1,7 @@
 import { GalleryHotspotDetails, GalleryVoiceTools, useGalleryLayout } from './GalleryLayout'
 import { InteractionHelp } from './InteractionHelp'
 import { FloatingLyrics } from './FloatingLyrics'
+import { automaticHallEntrance, configuredHallIdle, type HallEntryConfig } from './hallEntrance'
 import { GalleryToolbar } from './GalleryToolbar'
 import { ActionTriggerGuide } from './ActionTriggerGuide'
 import { animationTriggers } from './animationTriggers'
@@ -20,10 +21,13 @@ import GalleryTopbar from './GalleryTopbar'
 import { interactionAnimationCatalog, interactionAnimationExplanation, interactionAnimationLabel } from './interactionAnimationCatalog'
 import { figureKey, findPoseVariantIndex } from './interactionAssetMatch'
 import { sitePath } from './sitePaths'
+import { loadSpineAssets } from './spineAssets'
+import { loadNativeSpineSettings } from './nativeSpineSettings'
 import type { PrefabSpace } from './gameFrame'
 import { buildGalleryLabels, gallerySearchText } from './galleryNames'
 import { cgPictureVoiceBanks, pictureSpeakerId, pictureSpeakerName, pictureVoiceText, pictureVoicePlaybackText } from './pictureVoiceBanks'
 import { simplifyDisplay } from './simplifyDisplay'
+import { voicePlaybackIds, voiceLabel, voiceText, matchesVoiceCategory } from './voicePlayback'
 import type { DisplayNamesManifest, GalleryEntry, Manifest, ModelAsset, MultiPictureActionManifest, ThumbnailManifest, VoiceBank, VoiceManifest, VoiceStream } from './types'
 import {
   createInteractionState,
@@ -49,7 +53,6 @@ const BootFallback = () => (
 )
 
 const NO_PREVIEW_STATES: string[] = []
-type HallEntryConfig = { index: number; audio: number[]; clearTracks: number[]; baseIdle: string | null; effect?: string | null }
 
 const formatBytes = (bytes: number) => {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(0)} KB`
@@ -57,6 +60,7 @@ const formatBytes = (bytes: number) => {
 }
 
 const STATE_KEY = 'crosscore-local-viewer.state'
+const AUTO_ENTRANCE_KEY = 'crosscore-local-viewer.autoHallEntrance'
 const DEFAULT_ENTRY = 'character:crestedplume'
 const DEFAULT_VARIANT = '3006_skin_crestedplume03_spine/3006_skin_CrestedPlume03'
 const MIN_ZOOM = 0.25
@@ -155,14 +159,41 @@ const initialState = requestedState()
 const isPublicPreview = import.meta.env.VITE_STATIC_DEMO === '1'
 
 export default function App() {
+  const [autoHallEntrance, setAutoHallEntrance] = useState(() => {
+    try { return localStorage.getItem(AUTO_ENTRANCE_KEY) !== 'false' } catch { return true }
+  })
   const [hallEntries, setHallEntries] = useState<Record<string, HallEntryConfig>>({})
-  useEffect(() => {
-    let cancelled = false
-    void fetch('/api/hall-entries').then(r => { if (!r.ok) throw new Error('入场配置读取失败');return r.json() })
-      .then(data => { if (!cancelled) setHallEntries(data) }).catch(() => {})
-    return () => { cancelled = true }
+  const [hallEntriesSettled, setHallEntriesSettled] = useState<Record<string, boolean>>({})
+  const [hallEntriesErrors, setHallEntriesErrors] = useState<Record<string, string>>({})
+  const [hallReplayLoading, setHallReplayLoading] = useState<string | null>(null)
+  const hallEntriesRequests = useRef(new Map<string, Promise<Record<string, HallEntryConfig>>>())
+  const [interactionDataReady, setInteractionDataReady] = useState({ character: false, cg: false })
+  const ensureHallEntries = useCallback((modelId: string) => {
+    // Static exports retain their prebuilt full table. Local mode opens only
+    // the selected figure's prefab, never every character's texture bundle.
+    const key = isPublicPreview ? '*' : modelId
+    let pending = hallEntriesRequests.current.get(key)
+    if (!pending) {
+      setHallEntriesErrors(previous => ({ ...previous, [key]: '' }))
+      pending = fetch(`/api/hall-entries${isPublicPreview ? '' : `?model=${encodeURIComponent(modelId)}`}`, { signal: AbortSignal.timeout(60000) })
+        .then(response => { if (!response.ok) throw new Error('入场配置读取失败'); return response.json() as Promise<Record<string, HallEntryConfig>> })
+        .then(data => { setHallEntries(previous => ({ ...previous, ...data })); return data })
+        .catch((error: Error) => {
+          hallEntriesRequests.current.delete(key)
+          setHallEntriesErrors(previous => ({ ...previous, [key]: error.message }))
+          throw error
+        })
+        .finally(() => setHallEntriesSettled(previous => ({ ...previous, [key]: true })))
+      hallEntriesRequests.current.set(key, pending)
+    }
+    return pending
   }, [])
   const [view, setView] = useState<'gallery' | 'asmr' | 'picture' | 'audit'>(initialState.view)
+  const currentViewRef = useRef(view)
+  currentViewRef.current = view
+  useEffect(() => {
+    try { localStorage.setItem(AUTO_ENTRANCE_KEY, String(autoHallEntrance)) } catch { /* Storage may be disabled. */ }
+  }, [autoHallEntrance])
   const [asmrAlbumId, setAsmrAlbumId] = useState<number | null>(null)
   const [manifest, setManifest] = useState<Manifest | null>(null)
   const [displayNames, setDisplayNames] = useState<DisplayNamesManifest | null>(null)
@@ -175,6 +206,7 @@ export default function App() {
   const [stateAnimations, setStateAnimations] = useState<string[]>([])
   const [persistentStates, setPersistentStates] = useState<string[]>(initialState.states)
   const [layers, setLayers] = useState<SpineMetadata['layers']>([])
+  const [loadedSpine, setLoadedSpine] = useState<{ assetId: string; version: string } | null>(null)
   const [hiddenLayerIds, setHiddenLayerIds] = useState<string[]>([])
   const [animation, setAnimation] = useState<string | null>(initialState.animation || null)
   const [playbackPlaying, setPlaying] = useState(true)
@@ -238,7 +270,7 @@ export default function App() {
   const activeTrackSerialsRef = useRef(new Map<number, number>())
   const sourceUiCallbacksRef = useRef(new Map<number, { serial: number; token: string }>())
   const pendingPoseFollowUpRef = useRef<{ modelId: string; variantId: string; assetId: string; index: number | null; spine: string } | null>(null)
-  const runPoseFollowUpRef = useRef<(assetId: string, idle: string | null) => Array<{ serial: number; effect: InteractionEffect }>>(() => [])
+  const runPoseFollowUpRef = useRef<(assetId: string, idle: string | null, animations: string[]) => Array<{ serial: number; effect: InteractionEffect }>>(() => [])
   const viewByVariantRef = useRef(new Map<string, ViewState>(initialState.variant
     ? [[initialState.variant, { zoom: initialState.zoom, pan: initialState.pan, flipped: initialState.flipped }]]
     : []))
@@ -294,14 +326,16 @@ export default function App() {
       .then((response) => response.ok ? response.json() as Promise<ThumbnailManifest> : null)
       .then((data) => { if (data) setThumbnails(data) })
       .catch(() => undefined)
-    fetch('/api/interactions')
+    fetch('/api/interactions', { signal: AbortSignal.timeout(10000) })
       .then((response) => response.ok ? response.json() as Promise<InteractionManifest> : null)
       .then((data) => { if (data) setCharacterInteractions(data) })
       .catch(() => undefined)
-    fetch('/api/multi-interactions')
+      .finally(() => setInteractionDataReady(current => ({ ...current, character: true })))
+    fetch('/api/multi-interactions', { signal: AbortSignal.timeout(10000) })
       .then((response) => response.ok ? response.json() as Promise<MultiPictureActionManifest> : null)
       .then((data) => { if (data) setMultiActions(data) })
       .catch(() => undefined)
+      .finally(() => setInteractionDataReady(current => ({ ...current, cg: true })))
   }, [refreshCacheStatus])
 
   const interactions = useMemo<InteractionManifest | null>(() => {
@@ -342,9 +376,18 @@ export default function App() {
   const portrait = selected?.portraits?.find((item) => item.modelId === portraitId) ?? (!selected?.variants.length ? selected?.portraits?.[0] : undefined)
   useEffect(() => { portraitRecords.current = {}; if (portrait) setStatus('静态原图 · 完整立绘') }, [portrait?.modelId])
   const variant = portrait ? undefined : selected?.variants[Math.min(variantIndex, Math.max(selected.variants.length - 1, 0))]
+  // Turning autoplay on affects the next selection, not the live skeleton.
+  // Turning it off can also release an initial entrance-config wait immediately.
+  const entranceSelection = useRef({ key: '', automatic: false })
+  const entranceSelectionKey = `${variant?.id ?? ''}:${retryKey}`
+  if (entranceSelection.current.key !== entranceSelectionKey)
+    entranceSelection.current = { key: entranceSelectionKey, automatic: autoHallEntrance }
+  if (!autoHallEntrance) entranceSelection.current.automatic = false
+  const autoEntranceForSelection = entranceSelection.current.automatic
   useEffect(() => {
     if (previousVariantRef.current && variant?.id !== previousVariantRef.current) {
       setRawPreviewActive(false)
+      setPlaying(true)
     }
     previousVariantRef.current = variant?.id ?? null
   }, [variant?.id])
@@ -372,6 +415,16 @@ export default function App() {
     return null
   }, [interactions, selected, variant])
   const rawPreviewMode = Boolean(interactionBinding && rawPreviewActive)
+  const hallRequestKey = isPublicPreview ? '*' : interactionBinding?.modelId ?? ''
+  const hallEntriesReady = !interactionBinding || Boolean(hallEntriesSettled[hallRequestKey])
+  const hallEntriesError = hallEntriesErrors[hallRequestKey] ?? ''
+  useEffect(() => {
+    if (autoHallEntrance && view === 'gallery' && interactionBinding)
+      void ensureHallEntries(interactionBinding.modelId).catch(() => undefined)
+  }, [autoHallEntrance, view, interactionBinding?.modelId, ensureHallEntries])
+  const galleryRuntimeConfigured = (!autoEntranceForSelection || hallEntriesReady) && interactionDataReady[category]
+    && (!interactionBinding || (interactionModelRef.current === interactionBinding.modelId
+      && figureKey(interactionState?.spine) === figureKey(interactionBinding.spine)))
   const previewHiddenSlots = rawPreviewMode && previewSlotOverride?.asset === variant?.id
     ? previewSlotOverride?.slots ?? NO_PREVIEW_STATES : NO_PREVIEW_STATES
   const hallConfig = interactionBinding ? hallEntries[interactionBinding.modelId] : undefined
@@ -385,8 +438,7 @@ export default function App() {
   const hotspotCorrections = category === 'cg' ? (multiActions?.corrections ?? [])
     .filter(correction => String(correction.modelId) === interactionBinding?.modelId)
     .map(correction => `#${correction.rowIndex} 已按安卓原配置更正；来源 ${correction.source.asset}（${correction.id}）`) : []
-  const hallFallbackIdle = animations.find(name => /(^|_)idle(?:_?\d+)?($|_)/i.test(name))
-    ?? animations.find(name => /stand|loop/i.test(name)) ?? animations[0] ?? ''
+  const hallFallbackIdle = configuredHallIdle(hallConfig, animations)
   const hallActualIdle = interactionState?.idle === 'idle' ? hallFallbackIdle : interactionState?.idle
   const hallReason = !hallConfig ? '游戏配置未声明大厅入场' : !animations.includes('in') ? '当前骨骼没有 in 动画'
     : !hallConfig.baseIdle ? '尚未确认原始待机' : interactionState?.role !== 1 ? '请先回到第一套姿态'
@@ -409,6 +461,14 @@ export default function App() {
   ), [characterInteractions, multiActions])
   const previewLayers = useMemo(() => separatePreviewLayers(variant?.effects ?? [], interludeNames), [variant, interludeNames])
   const stageEffects = previewLayers.attached
+  useEffect(() => {
+    if (view !== 'gallery' || !variant || !interactionDataReady[category] || galleryRuntimeConfigured) return
+    // Download/decode the selected scene while its admission configuration is
+    // being prepared. The stage consumes the same cached promises afterward.
+    const models = [variant.main, ...stageEffects.map(effect => effect.asset)]
+    void Promise.allSettled(models.flatMap(model => [loadSpineAssets(model),
+      ...(interactionBinding ? [loadNativeSpineSettings(model)] : [])]))
+  }, [view, variant, stageEffects, galleryRuntimeConfigured, interactionDataReady[category], Boolean(interactionBinding)])
   useEffect(() => { setAuxiliaryPreview(null); setExpandedAction(null) }, [variant?.id, portrait?.modelId, view])
 
   useEffect(() => {
@@ -497,7 +557,7 @@ export default function App() {
     const chineseBanks = [...Object.values(voices.chineseEntries ?? {}), ...Object.values(voices.chineseVariantEntries ?? {})]
     for (const bank of effectiveVoiceLanguage === '中配' ? [...japaneseBanks, ...chineseBanks] : japaneseBanks) {
       for (const stream of bank.streams) {
-        for (const id of [stream.semantic?.audioId, stream.interactionAudioId, ...(stream.interactionAudioIds ?? [])]) {
+        for (const id of voicePlaybackIds(stream)) {
           if (id != null && (!lookup.has(id) || bank.sourceGroup === 'cv_cn')) lookup.set(id, { bank, stream })
         }
       }
@@ -511,32 +571,28 @@ export default function App() {
     }
     return lookup
   }, [voices, multiActions, effectiveVoiceLanguage])
-  const semanticStreams = useMemo(
-    () => selectedVoice?.streams.filter((stream) => stream.semantic) ?? [],
-    [selectedVoice],
-  )
   const availableVoiceCategories = useMemo(
     () => {
       if (!selectedVoice) return []
       const categories: Array<readonly [string, string]> = [['all', '全部']]
-      categories.push(...SEMANTIC_VOICE_CATEGORIES.filter(([id]) => semanticStreams.some((stream) => stream.semantic?.category === id)))
-      if (selectedVoice.streams.some((stream) => !stream.semantic)) categories.push(['raw', '未识别'])
+      categories.push(...SEMANTIC_VOICE_CATEGORIES.filter(([id]) => selectedVoice.streams.some(stream => matchesVoiceCategory(stream, id))))
+      if (selectedVoice.streams.some(stream => matchesVoiceCategory(stream, 'usage'))) categories.push(['usage', '用途已知'])
+      if (selectedVoice.streams.some(stream => matchesVoiceCategory(stream, 'raw'))) categories.push(['raw', '未识别'])
       return categories
     },
-    [selectedVoice, semanticStreams],
+    [selectedVoice],
   )
   const visibleVoiceStreams = useMemo(() => {
     if (!selectedVoice) return []
     let streams = selectedVoice.streams
     if (category === 'cg' && pictureSpeaker !== 'all') streams = streams.filter(stream => pictureSpeakerId(stream) === pictureSpeaker)
-    if (voiceCategory === 'raw') streams = streams.filter((stream) => !stream.semantic)
-    else if (voiceCategory !== 'all') streams = streams.filter((stream) => stream.semantic?.category === voiceCategory)
+    streams = streams.filter(stream => matchesVoiceCategory(stream, voiceCategory))
     const term = voiceQuery.trim().toLocaleLowerCase()
     if (!term) return streams
     // Search the simplified label as well as the raw one: the sound book is
     // traditional, so a query for `接触` would otherwise miss every `接觸` row.
     const foldText = category === 'cg' ? pictureVoiceText : simplifyDisplay
-    return streams.filter((stream) => foldText(`${stream.name} ${stream.semantic?.label ?? ''} ${stream.semantic?.labelSimplified ?? ''} ${stream.semantic?.script ?? ''} ${category === 'cg' ? pictureSpeakerName(stream, displayNames?.roleNames ?? {}) : ''}`)
+    return streams.filter((stream) => foldText(`${stream.name} ${voiceLabel(stream)} ${stream.semantic?.script ?? ''} ${category === 'cg' ? pictureSpeakerName(stream, displayNames?.roleNames ?? {}) : ''}`)
       .toLocaleLowerCase()
       .includes(foldText(term)))
   }, [selectedVoice, voiceCategory, voiceQuery, category, pictureSpeaker, displayNames])
@@ -544,8 +600,7 @@ export default function App() {
   const voiceCategoryCount = useCallback((id: string) => {
     if (!selectedVoice) return 0
     if (id === 'all') return selectedVoice.streams.length
-    if (id === 'raw') return selectedVoice.streams.filter((stream) => !stream.semantic).length
-    return selectedVoice.streams.filter((stream) => stream.semantic?.category === id).length
+    return selectedVoice.streams.filter(stream => matchesVoiceCategory(stream, id)).length
   }, [selectedVoice])
 
   useEffect(() => {
@@ -586,7 +641,7 @@ export default function App() {
     setPlayingLyric('')
     audioRef.current = audio
     audio.volume = voiceVolumeRef.current
-    const voiceLabel = stream.semantic?.labelSimplified || stream.semantic?.label || stream.name
+    const playbackLabel = voiceLabel(stream)
     const voiceScript = stream.semantic?.script
     setActiveVoiceIndex(stream.index)
     setActiveVoiceBankId(bank.id)
@@ -594,13 +649,13 @@ export default function App() {
       setPictureBankId(bank.id)
       if (pictureVoice?.id !== bank.id) setPictureSpeaker('all')
     }
-    setVoiceStatus(bank.sourceGroup === 'picture' ? '正在准备语音…' : `正在准备 ${voiceLabel}…`)
+    setVoiceStatus(bank.sourceGroup === 'picture' ? '正在准备语音…' : `正在准备 ${playbackLabel}…`)
     audio.onplaying = () => {
       if (audioRef.current !== audio) return
       setPlayingLyric((bank.sourceGroup === 'picture' ? pictureVoiceText : simplifyDisplay)(voiceScript || '此语音暂无台词文本'))
       setVoiceStatus(bank.sourceGroup === 'picture'
         ? pictureVoicePlaybackText(stream)
-        : `${voiceLabel} · ${voiceScript || stream.name} · ${stream.duration.toFixed(1)} 秒`)
+        : `${playbackLabel} · ${voiceText(stream)} · ${stream.duration.toFixed(1)} 秒`)
     }
     audio.onended = () => {
       if (audioRef.current !== audio) return
@@ -646,9 +701,7 @@ export default function App() {
       const command = queueInteractionEffect(effect)
       if (command) commands.push(command)
       if (effect.type === 'audio') {
-        const local = selectedVoice?.streams.find((candidate) =>
-          candidate.semantic?.audioId === effect.cue || candidate.interactionAudioId === effect.cue
-          || candidate.interactionAudioIds?.includes(effect.cue))
+        const local = selectedVoice?.streams.find((candidate) => voicePlaybackIds(candidate).includes(effect.cue))
         const resolved = local && selectedVoice
           ? { bank: selectedVoice, stream: local }
           : interactionVoiceLookup.get(effect.cue)
@@ -713,6 +766,9 @@ export default function App() {
     const binding = interactionBinding
     const current = interactionStateRef.current
     if (!binding || !current) return
+    // Both the skip button and a canvas click must finish the exit transition
+    // even when the user paused the entrance (or paused its outgoing fade).
+    if (event.type === 'hall-exit' && current.hallEntry) setPlaying(true)
     if (event.type === 'track-progress' || event.type === 'track-complete' || event.type === 'track-callback'
       || event.type === 'track-abandoned' || event.type === 'multi-reset') {
       const track = event.type === 'multi-reset'
@@ -781,9 +837,29 @@ export default function App() {
     }
   }, [handleInteractionEvent, interactionBinding, runInteractionEffects])
 
-  useEffect(() => {
-    runPoseFollowUpRef.current = (assetId, idle) => {
+  useLayoutEffect(() => {
+    runPoseFollowUpRef.current = (assetId, idle, readyAnimations) => {
+      // Ignore an old async load after selection has already moved elsewhere.
+      if (view !== 'gallery' || assetId !== variant?.main.id) return []
       const pending = pendingPoseFollowUpRef.current
+      if (!pending) {
+        let state = interactionStateRef.current
+        if (!interactionBinding || !state || figureKey(state.spine) !== figureKey(interactionBinding.spine)) return []
+        if (idle && state.idle !== idle) {
+          state = { ...state, idle }
+          interactionStateRef.current = state
+          setInteractionState(state)
+        }
+        const event = automaticHallEntrance(hallConfig, state, readyAnimations, idle, rawPreviewActive, autoHallEntrance && autoEntranceForSelection)
+        if (!event) return []
+        const result = reduceInteraction(interactionBinding.rows, state, event)
+        if (!result.accepted) return []
+        audioRef.current?.pause()
+        interactionStateRef.current = result.state
+        setInteractionState(result.state)
+        setStatus('入场播放中 · 点击画面可跳过')
+        return runInteractionEffects(result.effects)
+      }
       if (!pending || pending.assetId !== assetId || pending.variantId !== variant?.id
         || pending.modelId !== interactionBinding?.modelId) return []
       const state = interactionStateRef.current
@@ -798,7 +874,7 @@ export default function App() {
       if (!result.accepted) setStatus(`姿态加载后续 #${pending.index} 被拒绝：${result.reason ?? '未知原因'}`)
       return runInteractionEffects(result.effects)
     }
-  }, [interactionBinding?.modelId, interactions, runInteractionEffects, variant?.id])
+  }, [interactionBinding, interactions, runInteractionEffects, variant?.id, variant?.main.id, hallConfig, rawPreviewActive, view, autoHallEntrance, autoEntranceForSelection])
 
   useEffect(() => {
     if (!interactionBinding || !interactionState) {
@@ -893,7 +969,7 @@ export default function App() {
       if (target?.matches('input, select, textarea')) return
       if (event.code === 'Space') { event.preventDefault(); setPlaying((value) => !value) }
       if (event.key.toLowerCase() === 'f') setFlipped((value) => !value)
-      if (event.key.toLowerCase() === 'e' && variant?.effects.length) setEffectsVisible((value) => !value)
+      if (event.key.toLowerCase() === 'e' && variant && !portrait) setEffectsVisible((value) => !value)
       if (!layout.immersive.active || layout.immersive.adjustable) {
         if (event.key === '0') { setZoom(1); setPan({ x: 0, y: 0 }) }
         if (event.key === '+' || event.key === '=') setZoom((value) => Math.min(MAX_ZOOM, value + .1))
@@ -925,6 +1001,7 @@ export default function App() {
   }
 
   const receiveMetadata = useCallback((metadata: SpineMetadata) => {
+    setLoadedSpine({ assetId: variant?.main.id ?? '', version: metadata.spineVersion })
     setAnimations(metadata.animations)
     setOverlayAnimations(metadata.overlayAnimations)
     setStateAnimations(metadata.stateAnimations)
@@ -934,8 +1011,9 @@ export default function App() {
     setAnimation((current) => current && metadata.animations.includes(current)
       ? current
       : motions.find((name) => /idle|stand|loop/i.test(name)) ?? motions[0] ?? null)
-  }, [])
-  const receiveRuntimeReady = useCallback((assetId: string, idle: string | null) => runPoseFollowUpRef.current(assetId, idle), [])
+  }, [variant?.main.id])
+  const receiveRuntimeReady = useCallback((assetId: string, idle: string | null, readyAnimations: string[]) => runPoseFollowUpRef.current(assetId, idle, readyAnimations), [])
+  const displayedSpineVersion = loadedSpine?.assetId === variant?.main.id ? loadedSpine?.version : variant?.main.spineVersion
   const ignorePreviewMetadata = useCallback(() => undefined, [])
   useEffect(() => {
     setFocusedHotspot(null)
@@ -1000,6 +1078,38 @@ export default function App() {
         title={rawPreviewMode ? '返回可点击、拖动的游戏交互' : '游戏交互已开启；点击切换到素材预览'}
         onClick={() => chooseAnimation(rawPreviewMode ? null : animation || interactionState?.idle || motionAnimations[0] || null)}>
         {rawPreviewMode ? '游戏交互 关' : '游戏交互 开'}</button>
+  const autoEntranceControl = <button aria-label="自动播放入场" aria-pressed={autoHallEntrance} className={autoHallEntrance ? 'active' : ''}
+    title="切换角色或皮肤时播放入场动画；关闭后可手动重播入场"
+    onClick={() => setAutoHallEntrance(value => !value)}>自动播放入场 {autoHallEntrance ? '开' : '关'}</button>
+  const replayHallEntrance = async () => {
+    if (interactionStateRef.current?.hallEntry) { handleInteractionEvent({ type: 'hall-exit' }); return }
+    if (!interactionBinding || !variant || rawPreviewMode || hallReplayLoading === variant.id) return
+    const selectedVariant = variant.id
+    const binding = interactionBinding
+    const stillCurrent = () => currentViewRef.current === 'gallery'
+      && currentViewVariantRef.current === selectedVariant && interactionModelRef.current === binding.modelId
+      && figureKey(interactionStateRef.current?.spine) === figureKey(binding.spine)
+    setHallReplayLoading(selectedVariant)
+    try {
+      if (!hallEntriesReady || hallEntriesError) setStatus('正在读取入场配置…')
+      const entries = await ensureHallEntries(binding.modelId)
+      const state = interactionStateRef.current
+      if (!stillCurrent() || !state) return
+      const config = entries[binding.modelId]
+      const idle = state.idle === 'idle' ? configuredHallIdle(config, animations) : state.idle
+      const event = automaticHallEntrance(config, state, animations, idle, false)
+      if (!event || state.spineUi.open || state.dragging != null || state.blocked.harmony) {
+        setStatus('当前皮肤、姿态或交互状态不支持重播入场')
+        return
+      }
+      audioRef.current?.pause()
+      setPlaying(true)
+      handleInteractionEvent(event)
+      setStatus('大厅入场 · 点击画面或按“跳过入场”结束，随后恢复交互')
+    } catch (error) {
+      if (stillCurrent()) setStatus(error instanceof Error ? `${error.message}，可再次点击“重播入场”重试` : '入场配置读取失败，请重试')
+    } finally { setHallReplayLoading(null) }
+  }
   const currentModePanel = <div className="gallery-mode-status" aria-label="当前播放状态">
     <div className="gallery-mode-heading"><small>当前状态</small><span>{modePhase}</span>
 
@@ -1008,18 +1118,12 @@ export default function App() {
     {!portrait && <div className="gallery-mode-controls">
       {gameModeButton}
       {interactionBinding && <button className="raw-preview-replay gallery-hall-entry"
-              disabled={!interactionState?.hallEntry && Boolean(hallReason)}
-              title={interactionState?.hallEntry ? '跳过并恢复游戏交互' : hallReason || '重播原配置入场动作与语音；部分原生粒子转场暂不支持'}
-              onClick={() => {
-                if (interactionStateRef.current?.hallEntry) { handleInteractionEvent({ type: 'hall-exit' });return }
-                if (!hallConfig?.baseIdle || hallReason) return
-                audioRef.current?.pause()
-                setPlaying(true)
-                handleInteractionEvent({ type: 'hall-enter', baseIdle: hallConfig.baseIdle,
-                  fallbackIdle: hallFallbackIdle,
-                  clearTracks: hallConfig.clearTracks, audio: hallConfig.audio, rowIndex: hallConfig.index, random: Math.random() })
-                setStatus('大厅入场 · 点击画面或按“跳过入场”结束，随后恢复交互')
-              }}>{interactionState?.hallEntry ? '跳过入场' : '重播入场'}</button>}
+              disabled={!interactionState?.hallEntry && (hallReplayLoading === variant?.id || loadedSpine?.assetId !== variant?.main.id
+                || rawPreviewMode || !animations.includes('in') || interactionState?.role !== 1
+                || (hallEntriesReady && !hallEntriesError && Boolean(hallReason)))}
+              title={interactionState?.hallEntry ? '跳过并恢复游戏交互' : !hallEntriesReady || hallEntriesError
+                ? '按需读取入场配置并重播；不改变自动播放偏好' : hallReason || '重播入场动作与语音，随后恢复待机和交互'}
+              onClick={() => void replayHallEntrance()}>{interactionState?.hallEntry ? '跳过入场' : hallReplayLoading === variant?.id ? '准备入场…' : '重播入场'}</button>}
       {rawPreviewMode && animation && <button onClick={() => setRawPreviewSerial(serial => serial + 1)}>重播当前素材</button>}
     </div>}
     <div className="gallery-mode-details">
@@ -1087,13 +1191,15 @@ export default function App() {
 
   return (
     <ImmersiveContext.Provider value={layout.immersive}><div ref={layout.root} className={`app-shell gallery-shell ${layout.immersive.active ? 'immersive-active' : ''} ${category === 'cg' ? 'gallery-cg' : 'gallery-character'} ${layout.libraryOpen ? '' : 'library-closed'} ${layout.toolsOpen ? '' : 'tools-closed'}`}>
-      <ImmersiveTools mode={layout.immersive} playing={playing} onPlay={portrait ? undefined : () => setPlaying(v => !v)} debug={interactionDebug} onDebug={interactionBinding && !rawPreviewMode ? () => setInteractionDebug(v => !v) : undefined}
+      <ImmersiveTools mode={layout.immersive} title={selectedLabel?.primary} onZoom={action => setZoom(value => Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, value + (action === 'in' ? .1 : -.1))))} playing={playing} onPlay={portrait ? undefined : () => setPlaying(v => !v)} debug={interactionDebug} onDebug={interactionBinding && !rawPreviewMode ? () => setInteractionDebug(v => !v) : undefined}
         subtitles={floatingLyrics} onSubtitles={() => setFloatingLyrics(v => !v)}
         subtitlesPassthrough={lyricsPassthrough} onSubtitlesPassthrough={() => setLyricsPassthrough(v => !v)} onResetSubtitles={() => setLyricsReset(v => v + 1)}
         primaryControls={!portrait && <>{gameModeButton}<label className="immersive-speed">速度 <select aria-label="沉浸播放速度" value={speed} onChange={e => setSpeed(Number(e.target.value))}>
           <option value={0.5}>0.5×</option><option value={1}>1.0×</option><option value={1.5}>1.5×</option><option value={2}>2.0×</option>
         </select></label></>}
-        moreControls={<>{currentModePanel}<button aria-pressed={flipped} onClick={() => setFlipped(v => !v)}>水平翻转</button></>}
+        moreControls={<>{currentModePanel}<section className="immersive-control-section" aria-label="入场设置"><h3>入场</h3>
+          <div className="immersive-button-row">{autoEntranceControl}</div><p className="immersive-hint">切换角色或皮肤时播放入场动画；下次切换生效。</p>
+        </section><button aria-pressed={flipped} onClick={() => setFlipped(v => !v)}>水平翻转</button></>}
         onPanelChange={() => setFocusedHotspot(null)}
         panels={[
           { id: 'forms', title: '形态', content: <div className="immersive-forms"><p>{selectedLabel?.primary} · 选择形态</p>{formTools}</div> },
@@ -1145,9 +1251,9 @@ export default function App() {
           <div>
             <span className="eyebrow">{category === 'character' ? 'CHARACTER PROFILE' : 'CG SPINE RESOURCE'}</span>
             <h2 title={selectedLabel?.primary}>{selectedLabel?.primary ?? '载入中'}</h2>
-            {(selectedLabel?.secondary || variant) && <p title={[selectedLabel?.secondary, variant && `Spine ${variant.main.spineVersion}`].filter(Boolean).join(' · ')}>
+            {(selectedLabel?.secondary || variant) && <p title={[selectedLabel?.secondary, variant && `Spine ${displayedSpineVersion}`].filter(Boolean).join(' · ')}>
               {selectedLabel?.secondary}{selectedLabel?.secondary && variant && ' · '}
-              {variant && <span className="viewer-header-meta">Spine {variant.main.spineVersion}</span>}
+              {variant && <span className="viewer-header-meta">Spine {displayedSpineVersion}</span>}
             </p>}
           </div>
           <div className="viewer-header-actions">
@@ -1186,7 +1292,8 @@ export default function App() {
               portraitRecords.current[key] = index + 1
               playVoiceStream(resolved.stream, false, resolved.bank)
             }} /> }
-          {variant && (
+          {variant && !galleryRuntimeConfigured && <div role="status" className="boot-fallback">{autoHallEntrance ? '正在准备角色与入场配置…' : '正在准备角色交互配置…'}</div>}
+          {variant && galleryRuntimeConfigured && (
             <div className={`stage-runtime ${rawPreviewMode ? 'stage-runtime-hidden' : ''} ${interactionState?.spineUi.open && interactionBinding && supportsSpineUi(interactionBinding.modelId) ? 'source-ui-running' : ''}`}>
               <SpineStage
                 key={`${variant.id}:${retryKey}`}
@@ -1301,11 +1408,12 @@ export default function App() {
               <button title="重置视图（0）" onClick={() => { setZoom(1); setPan({ x: 0, y: 0 }) }} aria-label="重置视图">{Math.round(zoom * 100)}%</button>
               <button title="放大（+）" onClick={() => setZoom((value) => Math.min(MAX_ZOOM, value + .1))} aria-label="放大">＋</button></>) },
             { id: 'flip', minWidth: 740, node: (<button title="水平翻转（F）" className={flipped ? 'active' : ''} onClick={() => setFlipped((value) => !value)} aria-label="水平翻转">↔</button>) },
-            { id: 'effects', minWidth: 99999, node: (variant && stageEffects.length > 0 && (
-                <button title="切换特效层（E）" className={effectsVisible ? 'active' : ''} onClick={() => setEffectsVisible((value) => !value)} aria-label="切换特效层">
-                  FX {stageEffects.length}
+            { id: 'effects', minWidth: Infinity, node: (variant && (
+                <button title="隐藏附加特效层及骨骼内可识别的粒子；保留角色、入场遮罩和动作（E）" className={effectsVisible ? 'active' : ''} onClick={() => setEffectsVisible((value) => !value)} aria-label="粒子效果" aria-pressed={effectsVisible}>
+                  粒子效果 {effectsVisible ? '开' : '关'}
                 </button>
               )) },
+            { id: 'auto-entrance', minWidth: Infinity, node: autoEntranceControl },
             { id: 'cv', minWidth: 620, node: (selectedVoice && category !== 'cg' && (
                 <div className="cv-language-control">
                   <button title={`当前${effectiveVoiceLanguage}，点击切换配音`} className={voiceLanguageOpen ? 'active' : ''}

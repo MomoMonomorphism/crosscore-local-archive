@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
-import { chromium } from 'playwright'
+import { createRequire } from 'node:module'
+import { fileURLToPath } from 'node:url'
+const require = createRequire(import.meta.url)
+const { chromium } = require(process.env.CROSSCORE_PLAYWRIGHT_PATH || 'playwright')
 
 const url = process.env.LOADING_TEST_URL || 'http://127.0.0.1:4173/crosscore-local-archive/'
 const output = new URL('../.scratch/loading-feedback/', import.meta.url)
 await fs.mkdir(output, { recursive: true })
 const checks = [], errors = [], pages = []
-const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
+const browser = await chromium.launch({ channel: process.env.CROSSCORE_BROWSER_CHANNEL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 const makePage = async (viewport = { width: 390, height: 844 }) => {
   const page = await browser.newPage({ viewport, deviceScaleFactor: 1 })
   page.setDefaultTimeout(90000)
@@ -14,7 +17,7 @@ const makePage = async (viewport = { width: 390, height: 844 }) => {
   pages.push(page)
   return page
 }
-const shot = (page, name) => page.screenshot({ path: new URL(name, output).pathname, fullPage: true, animations: 'disabled' })
+const shot = (page, name) => page.screenshot({ path: fileURLToPath(new URL(name, output)), fullPage: true, animations: 'disabled' })
 const notice = page => page.locator('.stage-wrap .resource-loading-notice:visible')
 const waitReady = async page => {
   await page.waitForFunction(() => Boolean(window.__interactionStage))
