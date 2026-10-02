@@ -10,6 +10,7 @@ import type { TrackState } from './interactionMachine'
 import { UiClock } from './uiClock'
 import { sitePath } from './sitePaths'
 import { applyUiNodeDelta } from './spineUiDelta'
+import { simplifyDisplay } from './simplifyDisplay'
 type Snapshot = { session?: string; nodes: Node[]; removed?: string[]; partial?: boolean; commands: SpineUiCommand[];
   time: number; detail?: string; workerTiming?: { queueMs: number; runMs: number };
   runtimeTiming?: { advanceMs: number; snapshotMs: number } }
@@ -322,7 +323,7 @@ export function SpineUiHost({ model, idle, playing, speed, multiTracks, rolePosi
     return <div key={node.id} style={style} data-ui-node={node.name}>
       {(!node.mask || node.mask.showGraphic) && <UiImage node={node} width={w} height={h}
         time={node.material ? snapshot?.time ?? 0 : undefined} />}
-      {node.text && <span style={{ position: 'absolute', inset: 0, color: 'white', fontSize: node.fontSize ?? 24, textAlign: 'center', whiteSpace: 'pre-wrap' }}>{node.text}</span>}
+      {node.text && <span style={{ position: 'absolute', inset: 0, color: 'white', fontSize: node.fontSize ?? 24, textAlign: 'center', whiteSpace: 'pre-wrap' }}>{simplifyDisplay(node.text)}</span>}
       {node.click && <button type="button" className="source-ui-hit" aria-label={labels[node.click] ?? node.click}
         disabled={!playing} title={labels[node.click] ?? node.click}
         onPointerDown={event => { if (event.button === 0) { event.preventDefault();queueInput(node.id, node.click) } }}

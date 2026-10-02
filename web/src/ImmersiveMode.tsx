@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type ReactNode, type RefObject, type PointerEvent as ReactPointerEvent } from 'react'
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode, type RefObject, type PointerEvent as ReactPointerEvent } from 'react'
 import './immersiveMode.css'
 import { ViewportPinch } from './viewportPinch'
 
@@ -115,57 +115,81 @@ export function useImmersiveMode(root: RefObject<HTMLDivElement>, enabled: boole
 }
 
 export type ImmersiveMode = ReturnType<typeof useImmersiveMode>
-export function ImmersiveTools({ mode, playing, onPlay, debug, onDebug, canAdjust = true, subtitles, onSubtitles, subtitlesPassthrough, onSubtitlesPassthrough, onResetSubtitles,
-  primaryControls, moreControls, panels = [], onPanelChange }: {
+export function ImmersiveTools({ mode, title, playing, onPlay, debug, onDebug, canAdjust = true, onZoom, subtitles, onSubtitles, subtitlesPassthrough, onSubtitlesPassthrough, onResetSubtitles,
+  primaryControls, playbackControls, moreControls, panels = [], onPanelChange }: {
   mode: ImmersiveMode; playing?: boolean; onPlay?: () => void; debug?: boolean; onDebug?: () => void; canAdjust?: boolean
+  title?: string; onZoom?: (action: 'in' | 'out') => void
   subtitles?: boolean; onSubtitles?: () => void
   subtitlesPassthrough?: boolean; onSubtitlesPassthrough?: () => void; onResetSubtitles?: () => void
-  primaryControls?: ReactNode; moreControls?: ReactNode
+  primaryControls?: ReactNode; playbackControls?: ReactNode; moreControls?: ReactNode
   panels?: { id: string; title: string; content: ReactNode }[]; onPanelChange?: () => void
 }) {
   const toggle = useRef<HTMLButtonElement>(null)
-  const panelRef = useRef<HTMLElement>(null)
+  const tabsRef = useRef<HTMLElement>(null)
+  const id = useId()
   const [panel, setPanel] = useState<string | null>(null)
-  const closePanel = () => { setPanel(null); onPanelChange?.() }
+  const hasSettings = Boolean(moreControls || onSubtitlesPassthrough || onResetSubtitles)
+  const tabs = [{ id: 'main', title: '常用' }, ...panels, ...(hasSettings ? [{ id: 'more', title: '设置' }] : [])]
+  const selected = tabs.some(item => item.id === panel) ? panel : 'main'
+  const selectPanel = (next: string) => { setPanel(next); onPanelChange?.() }
+  const hide = () => { mode.setControls(false); toggle.current?.focus({ preventScroll: true }); onPanelChange?.() }
   useEffect(() => {
     if (mode.active) toggle.current?.focus({ preventScroll: true })
     setPanel(null)
     onPanelChange?.()
   }, [mode.active])
   useEffect(() => {
-    if (panel && mode.controls) panelRef.current?.focus({ preventScroll: true })
-  }, [panel, mode.controls])
+    if (!canAdjust && mode.adjustable) mode.setAdjustable(false)
+  }, [canAdjust, mode.adjustable])
   if (!mode.active) return null
-  const panelContent = panel === 'more' ? <>
+  const panelContent = selected === 'main' ? <>
+    {(onPlay || primaryControls || playbackControls) && <section className="immersive-control-section" aria-label="播放控制">
+      <h3>播放</h3><div className="immersive-button-row">
+        {onPlay && <button className="immersive-play" onClick={onPlay} aria-label={playing ? '暂停播放' : '开始播放'}>{playing ? 'Ⅱ 暂停' : '▶ 播放'}</button>}
+        {primaryControls}
+      </div>{playbackControls}
+    </section>}
+    {(onDebug || onSubtitles) && <section className="immersive-control-section" aria-label="显示控制">
+      <h3>显示</h3><div className="immersive-button-row">
+        {onDebug && <button aria-pressed={debug} onClick={onDebug}>热区提示 <small>{debug ? '开' : '关'}</small></button>}
+        {onSubtitles && <button aria-pressed={subtitles} onClick={onSubtitles}>台词 <small>{subtitles ? '开' : '关'}</small></button>}
+      </div>
+    </section>}
+    <section className="immersive-control-section" aria-label="画面调整">
+      <h3>画面</h3><div className="immersive-button-row">
+        <button disabled={!canAdjust} aria-pressed={mode.adjustable} onClick={() => mode.setAdjustable(!mode.adjustable)}>{mode.adjustable ? '锁定画面' : '调整画面'}</button>
+        {onZoom && <button aria-label="缩小画面" disabled={!canAdjust || !mode.adjustable} onClick={() => onZoom('out')}>− 缩小</button>}
+        {onZoom && <button aria-label="放大画面" disabled={!canAdjust || !mode.adjustable} onClick={() => onZoom('in')}>＋ 放大</button>}
+        <button disabled={!canAdjust} onClick={mode.reset}>复位画面</button>
+      </div><p className="immersive-hint">{!canAdjust ? '当前画面不支持移动与缩放' : mode.adjustable ? '拖动移动 · 滚轮或双指缩放' : '画面已锁定 · 开启调整后可移动与缩放'}</p>
+    </section>
+  </> : selected === 'more' ? <div className="immersive-settings">
     {moreControls}
-    <div className="immersive-more-buttons">
-      {onSubtitlesPassthrough && <button aria-pressed={subtitlesPassthrough} onClick={onSubtitlesPassthrough}>字幕穿透 {subtitlesPassthrough ? '开' : '关'}</button>}
-      {onResetSubtitles && <button onClick={onResetSubtitles}>字幕复位</button>}
-    </div>
-  </> : panels.find(item => item.id === panel)?.content
+    {(onSubtitlesPassthrough || onResetSubtitles) && <section className="immersive-control-section" aria-label="台词设置"><h3>台词</h3><div className="immersive-button-row">
+      {onSubtitlesPassthrough && <button aria-pressed={subtitlesPassthrough} onClick={onSubtitlesPassthrough}>字幕穿透 <small>{subtitlesPassthrough ? '开' : '关'}</small></button>}
+      {onResetSubtitles && <button onClick={onResetSubtitles}>复位台词位置</button>}
+    </div>{onSubtitlesPassthrough && <p className="immersive-hint">开启穿透后，点击与拖动会交给画面。</p>}</section>}
+  </div> : panels.find(item => item.id === selected)?.content
   return <div className="immersive-tools" onKeyDown={e => { if (e.key !== 'Escape') e.stopPropagation() }} onPointerDown={e => e.stopPropagation()} onPointerUp={e => e.stopPropagation()}
     onPointerMove={e => e.stopPropagation()} onClick={e => e.stopPropagation()} onWheel={e => e.stopPropagation()}>
-    <button ref={toggle} className="immersive-wake" aria-expanded={mode.controls} aria-controls="immersive-controls"
-      onClick={() => { closePanel(); mode.setControls(!mode.controls) }}>{mode.controls ? '收起控制' : '☰ 控制'}{mode.adjustable ? ' · 调整中' : ''}</button>
-    {mode.controls && <>
-      <div id="immersive-controls" className="immersive-controls" role="group" aria-label="沉浸模式控制">
-        <span>{mode.adjustable ? '拖动画面 · 滚轮缩放' : '画面已锁定 · 开启“调整画面”可移动缩放'}</span>
-        {onPlay && <button onClick={onPlay}>{playing ? 'Ⅱ 暂停' : '▶ 播放'}</button>}
-        {primaryControls}
-        {onDebug && <button aria-pressed={debug} onClick={onDebug}>热区提示 {debug ? '开' : '关'}</button>}
-        {onSubtitles && <button aria-pressed={subtitles} onClick={onSubtitles}>台词 {subtitles ? '开' : '关'}</button>}
-        <button disabled={!canAdjust} aria-pressed={mode.adjustable} onClick={() => mode.setAdjustable(!mode.adjustable)}>调整画面</button>
-        {mode.adjustable && <button disabled={!canAdjust} onClick={mode.reset}>复位画面</button>}
-        <button onClick={mode.exit}>退出沉浸 · Esc</button>
-        <nav className="immersive-panel-buttons" aria-label="沉浸功能面板">
-          {[...panels, { id: 'more', title: '更多' }].map(item => <button key={item.id} aria-expanded={panel === item.id} aria-controls="immersive-panel"
-            onClick={() => { setPanel(panel === item.id ? null : item.id); onPanelChange?.() }}>{item.title}</button>)}
-        </nav>
-      </div>
-      {panel && <section ref={panelRef} tabIndex={-1} id="immersive-panel" className="immersive-panel" aria-label={panel === 'more' ? '更多设置' : panels.find(item => item.id === panel)?.title}>
-        <header><strong>{panel === 'more' ? '更多设置' : panels.find(item => item.id === panel)?.title}</strong><button aria-label="关闭沉浸面板" onClick={() => { closePanel(); toggle.current?.focus({ preventScroll: true }) }}>关闭 ×</button></header>
-        <div className="immersive-panel-body" key={panel}>{panelContent}</div>
-      </section>}
-    </>}
+    <button ref={toggle} className="immersive-wake" aria-label={mode.controls ? '收起沉浸菜单' : '打开沉浸菜单'} aria-expanded={mode.controls} aria-controls={`${id}-controls`}
+      onClick={() => mode.controls ? hide() : mode.setControls(true)}><span aria-hidden="true">{mode.controls ? '×' : '☰'}</span> 控制{mode.adjustable && <small>调整中</small>}</button>
+    {mode.controls && <section id={`${id}-controls`} className="immersive-controls" aria-label="沉浸模式控制">
+      <header className="immersive-heading"><div><span>沉浸控制</span>{title && <strong title={title}>{title}</strong>}</div><button aria-label="收起沉浸菜单" onClick={hide}>收起</button></header>
+      <nav ref={tabsRef} className="immersive-panel-buttons" role="tablist" aria-label="沉浸功能" onKeyDown={e => {
+        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
+        const buttons = [...e.currentTarget.querySelectorAll<HTMLButtonElement>('button')]
+        const index = buttons.indexOf(document.activeElement as HTMLButtonElement)
+        if (index < 0) return
+        e.preventDefault()
+        const next = e.key === 'Home' ? 0 : e.key === 'End' ? buttons.length - 1 : (index + (e.key === 'ArrowLeft' ? -1 : 1) + buttons.length) % buttons.length
+        selectPanel(tabs[next].id); buttons[next].focus()
+      }}>
+        {tabs.map(item => <button key={item.id} id={`${id}-tab-${item.id}`} role="tab" aria-selected={selected === item.id} tabIndex={selected === item.id ? 0 : -1}
+          aria-controls={`${id}-panel`} onClick={() => selectPanel(item.id)}>{item.title}</button>)}
+      </nav>
+      <div id={`${id}-panel`} className={`immersive-panel-body immersive-page-${selected}`} key={selected} role="tabpanel" tabIndex={0} aria-labelledby={`${id}-tab-${selected}`}>{panelContent}</div>
+      <footer className="immersive-footer"><span>{mode.adjustable ? '画面调整中' : '沉浸浏览'}</span><button onClick={mode.exit}>退出沉浸 <span aria-hidden="true">↗</span></button></footer>
+    </section>}
   </div>
 }

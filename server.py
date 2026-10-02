@@ -11,7 +11,7 @@ import time
 from http import HTTPStatus
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
-from urllib.parse import unquote, urlsplit
+from urllib.parse import parse_qs, unquote, urlsplit
 from runtime_paths import PATHS
 
 from asset_cache import DEFAULT_CACHE, DEFAULT_CENSUS, DEFAULT_SOURCE, extract_archive_image, extract_package, load_catalog, write_catalog
@@ -163,7 +163,8 @@ class Handler(BaseHTTPRequestHandler):
             self.wfile.write(body)
             return
         if path == "/api/hall-entries":
-            self.send_json(entry_manifest(self.server.source_root, self.server.cache_root))
+            model_id = parse_qs(urlsplit(self.path).query).get('model', [None])[0]
+            self.send_json(entry_manifest(self.server.source_root, self.server.cache_root, model_id))
             return
         if path == "/api/interactions":
             if not self.server.interaction_manifest_bytes:

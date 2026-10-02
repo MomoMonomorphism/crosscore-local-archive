@@ -79,9 +79,12 @@ export type VoiceStream = {
   interactionAudioId?: number
   /** Other game IDs that point at this same cue in cfgSound. */
   interactionAudioIds?: number[]
+  usage?: { label: string; category: 'battle'; source: 'gameplayConfig';
+    provenance: Array<{ platform: 'pc' | 'android'; asset: string; bundleSha256: string; field?: string }> }
   semantic?: {
     /** Absent for 7 sound-book rows that ship without an id (`CfgSound` gap). */
     audioId: number | null
+    annotationOnly?: boolean
     cue: number
     /** Position of the line inside the role's own config block. Not a category. */
     position: number | null
@@ -105,7 +108,8 @@ export type VoiceStream = {
     character?: string
     /** 多人立绘 only: the speaker resolved through `character.key`. Null for NPCs. */
     characterRoleId?: string | null
-    textProvenance?: { platform: 'pc' | 'android'; asset: string; audioId: number; cueSheet: string; cueName: string; bundleSha256?: string }
+    textProvenance?: { platform: 'pc' | 'android'; asset: string; audioId: number; cueSheet: string; cueName: string; bundleSha256?: string;
+      originalConfig?: { verification: string; activeRecordPresent?: boolean } }
   }
 }
 
@@ -208,11 +212,14 @@ export type MultiPictureActionManifest = {
     audioCues: number; resolvedAudioCues: number; inferredAudioCues: number
   }
   groups: Array<{ id: number; name: string; icon: string; boardIds: number[] }>
+  supplementalArchive?: MultiPictureActionManifest['archive']
   archive: Record<string, {
     id: number; img: string | null; icon: string | null; l2dName: string | null
     l2dPos: [number, number, number] | null; imgPos: [number, number, number] | null
     title: string; sort: number | null; groupIds: number[]; entryMatches: Array<[string, string]>
     pictureBankIds: string[]; hasDynamicTouch: boolean; hasStaticTouch: boolean
+    source?: { platform: string; archiveId: number; luaSha256: string }
+    presentation?: 'static' | 'static-with-particles'
   }>
   entryByModel: Record<string, string>
   variantByModel: Record<string, string>

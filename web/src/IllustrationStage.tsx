@@ -62,6 +62,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
   const [volume, setVolume] = useState(.65)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const linesRef = useRef<HTMLDivElement | null>(null)
+  const immersiveLinesRef = useRef<HTMLDivElement | null>(null)
   const choosePicture = (key: string) => {
     setSelectedKey(key)
     if (layout.compact) layout.setLibraryOpen(false)
@@ -91,19 +92,20 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     return () => { cancelled = true }
   }, [])
 
-  const pictures = useMemo(() => Object.values(contract?.archive ?? {})
-    .sort((a, b) => Number(!a.groupIds.length) - Number(!b.groupIds.length)
+  const pictures = useMemo(() => Object.entries({ ...contract?.archive, ...contract?.supplementalArchive })
+    .map(([selectionId, row]) => ({ ...row, selectionId }))
+    .sort((a, b) => Number(Boolean(a.source)) - Number(Boolean(b.source)) || Number(!a.groupIds.length) - Number(!b.groupIds.length)
       || (a.sort ?? 9999) - (b.sort ?? 9999) || a.id - b.id), [contract])
   const unmatchedIds = useMemo(() => (contract?.unresolvedPictures ?? [])
     .filter((id) => Boolean(voices?.pictureEntries?.[id])), [contract, voices])
   const picture = selectedKey.startsWith('archive:')
-    ? contract?.archive[selectedKey.slice('archive:'.length)] ?? null : null
+    ? pictures.find((item) => item.selectionId === selectedKey.slice('archive:'.length)) ?? null : null
   const unmatchedBankId = selectedKey.startsWith('voice:') ? selectedKey.slice('voice:'.length) : ''
 
   useEffect(() => {
     if (!contract || !voices) return
     if (picture || unmatchedIds.includes(unmatchedBankId)) return
-    setSelectedKey(pictures[0] ? `archive:${pictures[0].id}` : (unmatchedIds[0] ? `voice:${unmatchedIds[0]}` : ''))
+    setSelectedKey(pictures[0] ? `archive:${pictures[0].selectionId}` : (unmatchedIds[0] ? `voice:${unmatchedIds[0]}` : ''))
   }, [contract, voices, picture, unmatchedBankId, unmatchedIds, pictures])
 
   useEffect(() => {
@@ -133,8 +135,8 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     : null, [picture?.img, archiveImages])
   const hasDynamic = Boolean(variant)
   const hasStatic = Boolean(staticName)
-  const interactive = Boolean(picture && contract?.models[String(picture.id)]?.length)
-  const hasStaticAudio = Boolean(picture && contract?.staticModels[String(picture.id)]
+  const interactive = Boolean(picture && !picture.source && contract?.models[String(picture.id)]?.length)
+  const hasStaticAudio = Boolean(picture && !picture.source && contract?.staticModels[String(picture.id)]
     ?.some((row) => row.audioId?.some((id) => contract.audioLookup[String(id)])))
 
   useEffect(() => {
@@ -159,8 +161,9 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     const term = query.trim().toLocaleLowerCase()
     return pictures.filter((item) => {
       if (groupFilter === 'unmatched') return false
+      if (groupFilter === 'supplement' && !item.source) return false
       if (groupFilter === 'other' && item.groupIds.length) return false
-      if (groupFilter !== 'all' && groupFilter !== 'other' && !item.groupIds.includes(Number(groupFilter))) return false
+      if (!['all', 'other', 'supplement'].includes(groupFilter) && !item.groupIds.includes(Number(groupFilter))) return false
       if (mediaFilter === 'dynamic' && !item.entryMatches.length) return false
       if (mediaFilter === 'voice' && !item.pictureBankIds.length) return false
       if (mediaFilter === 'static' && item.entryMatches.length) return false
@@ -217,7 +220,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
       speaker: (roleId && roleNames[roleId]) || item.semantic?.character || '未识别' })
   }, [bankIdsKey, contract, voices, play, roleNames])
   const handleStaticClick = (event: ReactMouseEvent<HTMLImageElement>) => {
-    if (!picture || !contract) return
+    if (!picture || picture.source || !contract) return
     const rows = contract.staticModels[String(picture.id)] ?? []
     const hit = hitStaticPicture(event.currentTarget, event.clientX, event.clientY, rows)
     if (!hit?.audioId?.length || (audioRef.current && !audioRef.current.paused)) return
@@ -233,23 +236,90 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     const next = visibleRows[position + delta]
     if (next) play(next)
   }
-  useEffect(() => {
-    if (!playingKey) return
-    const list = linesRef.current
+  const locateVoiceLine = useCallback(() => {
+    const list = layout.immersive.activeRef.current ? immersiveLinesRef.current : linesRef.current
     const line = list?.querySelector<HTMLElement>('.picture-line.active')
     if (!list || !line || !list.clientHeight) return
     list.scrollTo({ top: list.scrollTop + line.getBoundingClientRect().top - list.getBoundingClientRect().top
       - (list.clientHeight - line.offsetHeight) / 2, behavior: 'smooth' })
-  }, [playingKey])
+  }, [])
+  useEffect(() => { if (playingKey) locateVoiceLine() }, [playingKey, locateVoiceLine])
+  const attachImmersiveLines = useCallback((node: HTMLDivElement | null) => {
+    immersiveLinesRef.current = node
+    if (node) requestAnimationFrame(locateVoiceLine)
+  }, [locateVoiceLine])
 
   const selectedVoice = rows.find(row => `${row.bankId}:${row.stream.index}` === selectedVoiceKey) ?? visibleRows[0]
 
   const title = simplifyDisplay(picture?.title || (bank?.titleSimplified || bank?.title) || '插画')
   const groupLabel = picture?.groupIds.map((id) => groupNames.get(id)).filter(Boolean).join(' · ') || '档案分组之外'
 
+  const voiceTools = (immersive = false) => <>
+          {bankIds.length > 1 && <div className="illustration-bank-tabs">
+            {bankIds.map((id) => {
+              const item = voices?.pictureEntries?.[id]
+              return <button key={id} className={activeBankId === id ? 'active' : ''}
+                onClick={() => { stopAudio(); setSelectedVoiceKey(''); setActiveBankId(id); setSpeaker('all'); setTranscriptQuery('') }}>
+                {item ? simplifyDisplay(item.titleSimplified || item.sourceFile) : id}
+              </button>
+            })}
+          </div>}
+          {bank && <>
+            <div className="illustration-bank-meta">
+              <strong>{simplifyDisplay(bank.titleSimplified || bank.title)}</strong>
+              <small>{bank.sourceFile} · {bank.streamCount} 条音轨 · {bank.semanticStreamCount} 条已标注</small>
+            </div>
+            <div className="illustration-audio-controls">
+              <button onClick={() => advance(-1)} disabled={!playingKey}>上一句</button>
+              <button onClick={() => advance(1)} disabled={!playingKey}>下一句</button>
+              <label><input type="checkbox" checked={chain} onChange={(event) => setChain(event.target.checked)} />连播</label>
+            </div>
+            <label className="search-box illustration-transcript-search"><span>⌕</span>
+              <input aria-label="搜索档案台词" value={transcriptQuery} onChange={(event) => setTranscriptQuery(event.target.value)} placeholder="搜索台词或说话人" />
+            </label>
+            {bank.speakers.length > 1 && <div className="illustration-speakers">
+              <button className={speaker === 'all' ? 'active' : ''} onClick={() => setSpeaker('all')}>全部</button>
+              {bank.speakers.map((item) => <button key={item.roleId || item.name}
+                className={speaker === (item.roleId || item.name) ? 'active' : ''}
+                onClick={() => setSpeaker(item.roleId || item.name)}>
+                {(item.roleId && roleNames[item.roleId]) || item.name}</button>)}
+            </div>}
+            <div className="illustration-lines" ref={immersive ? attachImmersiveLines : linesRef}>
+              {visibleRows.map((row) => <button key={`${row.bankId}:${row.stream.index}`}
+                className={`picture-line illustration-line ${playingKey === `${row.bankId}:${row.stream.index}` ? 'active' : ''}`}
+                onClick={() => play(row)}>
+                <span className="illustration-line-index">{String(row.stream.index).padStart(2, '0')}</span>
+                <span className="illustration-line-copy"><strong>{simplifyDisplay(lineTitle(row.stream))}</strong>
+                  <span>{simplifyDisplay(row.stream.semantic?.script || row.stream.name)}</span></span>
+                <span className="illustration-line-speaker">{row.speaker}</span>
+              </button>)}
+              {!visibleRows.length && <p className="gallery-empty">没有匹配的台词，请调整关键词或人物筛选。</p>}
+            </div>
+          </>}
+          {!bank && <div className="illustration-no-voice">这张插画没有可靠关联的 `picture` 语音包，画面仍可独立浏览。</div>}
+          <div className="gallery-voice-detail">
+            <small>当前台词</small><strong>{selectedVoice ? simplifyDisplay(selectedVoice.speaker) : '暂无台词'}</strong>
+            <p>{selectedVoice ? simplifyDisplay(selectedVoice.stream.semantic?.script || selectedVoice.stream.name) : '画面仍可独立查看。'}</p>
+            <div><button className="gallery-action-entry" disabled={!selectedVoice} onClick={() => selectedVoice && play(selectedVoice)}>
+              <span className="gallery-action-icon" aria-hidden="true">▷</span>{selectedVoice && playingKey === `${selectedVoice.bankId}:${selectedVoice.stream.index}` ? '重新播放' : '试听这句'}
+            </button><button disabled={!playingKey} onClick={stopAudio}>停止</button></div>
+            <label>音量<input aria-label="档案语音音量" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))}/><small>{Math.round(volume * 100)}%</small></label>
+          </div>
+  </>
+
   return <ImmersiveContext.Provider value={layout.immersive}><div ref={layout.root} className={`app-shell gallery-shell illustration-gallery ${layout.immersive.active ? 'immersive-active' : ''} ${layout.libraryOpen ? '' : 'library-closed'} ${layout.toolsOpen ? '' : 'tools-closed'}`}>
-    <ImmersiveTools mode={layout.immersive} playing={figurePlaying} onPlay={mode === 'dynamic' ? () => setFigurePlaying(v => !v) : undefined} canAdjust={mode === 'dynamic' && Boolean(variant)}
-      debug={hotspotDebug} onDebug={mode === 'dynamic' && showFigure && interactive && !animation ? () => setHotspotDebug(v => !v) : undefined}/>
+    <ImmersiveTools mode={layout.immersive} title={title} playing={figurePlaying} onPlay={mode === 'dynamic' && showFigure ? () => setFigurePlaying(v => !v) : undefined} canAdjust={mode === 'dynamic' && Boolean(variant) && showFigure}
+      debug={hotspotDebug} onDebug={mode === 'dynamic' && showFigure && interactive && !animation ? () => setHotspotDebug(v => !v) : undefined}
+      primaryControls={<><button aria-pressed={mode === 'dynamic'} disabled={!hasDynamic} onClick={() => { setMode('dynamic'); setFigureStatus(''); setFigureError('') }}>动态</button>
+        <button aria-pressed={mode === 'static'} disabled={!hasStatic} onClick={() => { setMode('static'); setFigureStatus(''); setFigureError('') }}>静态原图</button></>}
+      panels={[{ id: 'figure', title: '画面与动作', content: <div className="immersive-forms">
+        {mode === 'dynamic' && variant && <><label className="immersive-speed">动作 <select aria-label="沉浸插画动作" value={animation ?? ''} disabled={!showFigure} onChange={event => setAnimation(event.target.value || null)}>
+          <option value="">游戏待机</option>{animations.map(name => <option key={name} value={name}>{name}</option>)}</select></label>
+          <div className="immersive-track-controls"><button aria-pressed={showFigure} onClick={() => setShowFigure(value => !value)}>显示画面 {showFigure ? '开' : '关'}</button>
+            {animation && <button disabled={!showFigure} onClick={() => setPreviewResetSerial(value => value + 1)}>重播动作</button>}</div></>}
+        <p className="immersive-hint">{figureError || (animation ? '素材预览 · ' + animation + '；选择“游戏待机”恢复画面交互。' : figureStatus) || (mode === 'static' ? hasStaticAudio ? '点击原图的配置区域可播放语音' : '静态原图' : '点击画面可触发已配置的互动')}</p>
+      </div> }, { id: 'voices', title: '人物台词', content: voiceTools(true) }]}/>
+
     <GalleryTopbar active="picture" onSelect={onSelectSection}/>
     <div className="gallery-mobilebar">
       <button aria-label="选择插画档案" aria-expanded={layout.libraryOpen} onClick={() => { layout.setLibraryOpen(!layout.libraryOpen); if (layout.landscape) layout.setToolsOpen(false) }}>☰ 档案 <span>{title}</span></button>
@@ -268,6 +338,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
           <span>档案分组</span>
           <select value={groupFilter} onChange={(event) => setGroupFilter(event.target.value)}>
             <option value="all">全部画面 · {pictures.length}</option>
+            {Object.keys(contract?.supplementalArchive ?? {}).length > 0 && <option value="supplement">安卓补充 · {Object.keys(contract?.supplementalArchive ?? {}).length}</option>}
             {(contract?.groups ?? []).map((group) =>
               <option key={group.id} value={group.id}>{simplifyDisplay(group.name)} · {group.boardIds.length}</option>)}
             <option value="other">档案分组之外 · {pictures.filter((item) => !item.groupIds.length).length}</option>
@@ -282,19 +353,19 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
       <div className="entry-count">{filteredPictures.length} 幅画面{visibleUnmatched.length ? ` · ${visibleUnmatched.length} 组待匹配语音` : ''}</div>
       <section className="entry-list illustration-list">
         {filteredPictures.map((item) => {
-          const thumb = thumbnails?.archiveEntries?.[String(item.id)]
+          const thumb = thumbnails?.archiveEntries?.[item.selectionId]
           return <button
-            key={item.id}
+            key={item.selectionId}
             title={simplifyDisplay(item.title || item.img || `画面 ${item.id}`)}
-            className={`entry-card illustration-card ${selectedKey === `archive:${item.id}` ? 'selected' : ''}`}
-            onClick={() => choosePicture(`archive:${item.id}`)}
+            className={`entry-card illustration-card ${selectedKey === `archive:${item.selectionId}` ? 'selected' : ''}`}
+            onClick={() => choosePicture(`archive:${item.selectionId}`)}
           >
             <span className="entry-monogram">
               {thumb ? <img src={sitePath(`assets/${thumb.path}`)} alt="" loading="lazy" /> : `#${item.id}`}
             </span>
             <span className="entry-copy">
               <strong>{simplifyDisplay(item.title || item.img || `画面 ${item.id}`)}</strong>
-              <small>#{item.id} · {item.groupIds.map((id) => groupNames.get(id)).filter(Boolean).join(' / ') || '档案外'}
+              <small>#{item.id} · {item.source ? '安卓补充' : item.groupIds.map((id) => groupNames.get(id)).filter(Boolean).join(' / ') || '档案外'}
                 {item.entryMatches.length ? ' · 动态' : ' · 静态'}
                 {item.pictureBankIds.length ? ` · ${item.pictureBankIds.length} 组语音` : ''}</small>
             </span>
@@ -324,7 +395,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     <section className="viewer-panel illustration-panel">
       <header className="viewer-header illustration-header">
         <div>
-          <span className="eyebrow">{picture ? `ARCHIVE #${picture.id} // ${groupLabel}` : 'UNMATCHED PICTURE AUDIO'}</span>
+          <span className="eyebrow">{picture ? `${picture.source ? 'ANDROID ARCHIVE' : 'ARCHIVE'} #${picture.id} // ${picture.source ? '安卓补充' : groupLabel}` : 'UNMATCHED PICTURE AUDIO'}</span>
           <h2 title={title}>{title}</h2>
           <p>{picture ? '静态原图、动态画面与关联语音' : '画面关联待确认，可独立试听音轨'}
             {picture && poseName && <span className="viewer-header-meta"> · {poseName}</span>}
@@ -405,9 +476,10 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
           </div>
           {picture && <div className="illustration-source-details"><div className="illustration-provenance">
             <span>游戏档案 ID <strong>{picture.id}</strong></span>
-            <span>骨骼 <strong>{variant ? '已匹配' : picture.l2dName ? '资源未匹配' : '未配置'}</strong></span>
+            <span>画面 <strong>{picture.presentation === 'static-with-particles' ? '原图已支持 · 粒子待接入' : variant ? '骨骼已匹配' : picture.l2dName ? '资源未匹配' : '静态原图'}</strong></span>
             <span>语音 <strong>{bankIds.length ? `${bankIds.length} 组` : '未关联'}</strong></span>
           </div><p>{picture.img || '无静态图名'}{picture.l2dName ? ` · ${picture.l2dName}` : ''}</p>
+          {picture.source && <p>安卓国服档案补充；原配置未展示。本页提供本地原图浏览。</p>}
           </div>}
           </details>
       </div>
@@ -418,56 +490,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
           <button className="gallery-rail" aria-label="展开档案台词栏" onClick={() => layout.setToolsOpen(true)}>☷<span>人物台词</span></button>
           <div className="gallery-tool-content">
           <div className="illustration-tools-heading"><strong>人物与台词 <small>{rows.length}</small></strong><button aria-label="收起档案台词栏" onClick={() => layout.setToolsOpen(false)}>◧</button></div>
-          {bankIds.length > 1 && <div className="illustration-bank-tabs">
-            {bankIds.map((id) => {
-              const item = voices?.pictureEntries?.[id]
-              return <button key={id} className={activeBankId === id ? 'active' : ''}
-                onClick={() => { stopAudio(); setSelectedVoiceKey(''); setActiveBankId(id); setSpeaker('all'); setTranscriptQuery('') }}>
-                {item ? simplifyDisplay(item.titleSimplified || item.sourceFile) : id}
-              </button>
-            })}
-          </div>}
-          {bank && <>
-            <div className="illustration-bank-meta">
-              <strong>{simplifyDisplay(bank.titleSimplified || bank.title)}</strong>
-              <small>{bank.sourceFile} · {bank.streamCount} 条音轨 · {bank.semanticStreamCount} 条已标注</small>
-            </div>
-            <div className="illustration-audio-controls">
-              <button onClick={() => advance(-1)} disabled={!playingKey}>上一句</button>
-              <button onClick={() => advance(1)} disabled={!playingKey}>下一句</button>
-              <label><input type="checkbox" checked={chain} onChange={(event) => setChain(event.target.checked)} />连播</label>
-            </div>
-            <label className="search-box illustration-transcript-search"><span>⌕</span>
-              <input aria-label="搜索档案台词" value={transcriptQuery} onChange={(event) => setTranscriptQuery(event.target.value)} placeholder="搜索台词或说话人" />
-            </label>
-            {bank.speakers.length > 1 && <div className="illustration-speakers">
-              <button className={speaker === 'all' ? 'active' : ''} onClick={() => setSpeaker('all')}>全部</button>
-              {bank.speakers.map((item) => <button key={item.roleId || item.name}
-                className={speaker === (item.roleId || item.name) ? 'active' : ''}
-                onClick={() => setSpeaker(item.roleId || item.name)}>
-                {(item.roleId && roleNames[item.roleId]) || item.name}</button>)}
-            </div>}
-            <div className="illustration-lines" ref={linesRef}>
-              {visibleRows.map((row) => <button key={`${row.bankId}:${row.stream.index}`}
-                className={`picture-line illustration-line ${playingKey === `${row.bankId}:${row.stream.index}` ? 'active' : ''}`}
-                onClick={() => play(row)}>
-                <span className="illustration-line-index">{String(row.stream.index).padStart(2, '0')}</span>
-                <span className="illustration-line-copy"><strong>{simplifyDisplay(lineTitle(row.stream))}</strong>
-                  <span>{simplifyDisplay(row.stream.semantic?.script || row.stream.name)}</span></span>
-                <span className="illustration-line-speaker">{row.speaker}</span>
-              </button>)}
-              {!visibleRows.length && <p className="gallery-empty">没有匹配的台词，请调整关键词或人物筛选。</p>}
-            </div>
-          </>}
-          {!bank && <div className="illustration-no-voice">这张插画没有可靠关联的 `picture` 语音包，画面仍可独立浏览。</div>}
-          <div className="gallery-voice-detail">
-            <small>当前台词</small><strong>{selectedVoice ? simplifyDisplay(selectedVoice.speaker) : '暂无台词'}</strong>
-            <p>{selectedVoice ? simplifyDisplay(selectedVoice.stream.semantic?.script || selectedVoice.stream.name) : '画面仍可独立查看。'}</p>
-            <div><button className="gallery-action-entry" disabled={!selectedVoice} onClick={() => selectedVoice && play(selectedVoice)}>
-              <span className="gallery-action-icon" aria-hidden="true">▷</span>{selectedVoice && playingKey === `${selectedVoice.bankId}:${selectedVoice.stream.index}` ? '重新播放' : '试听这句'}
-            </button><button disabled={!playingKey} onClick={stopAudio}>停止</button></div>
-            <label>音量<input aria-label="档案语音音量" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))}/><small>{Math.round(volume * 100)}%</small></label>
-          </div>
+          {voiceTools()}
           </div>
           <audio ref={audioRef} preload="none" onEnded={() => {
             const position = visibleRows.findIndex((row) => `${row.bankId}:${row.stream.index}` === playingKey)

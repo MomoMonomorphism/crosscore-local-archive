@@ -1,5 +1,9 @@
 import { useEffect, useRef } from 'react'
 import { createSceneLifetime } from './sceneLifetime'
+import { hallTransitionFrame, hallTransitionVisual } from './hallEntrance'
+import { applyStagePlayback } from './stagePlayback'
+import { createParticleSlotFilter } from './spineParticleVisibility'
+import { preserveCollapsedBoneTransforms } from './spineCollapsedBones'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { Application, Assets, Container, Graphics, Point, Rectangle, Text, Sprite, Matrix, Renderer, BLEND_MODES } from 'pixi.js'
 import { MeshAttachment, RegionAttachment, Spine } from '@esotericsoftware/spine-pixi-v7'
@@ -20,8 +24,10 @@ import { loadNativeSpineSettings, applyNativeSpineSettings, type NativeSpineSett
 import { useViewAdjustment, useViewReset, usePinchZoom } from './ImmersiveMode'
 import { traceStageFrame } from './stageFrameTrace'
 import { spineAssetPath } from './sitePaths'
+import { loadSpineAssets, spineAliases } from './spineAssets'
 
 export type SpineMetadata = {
+  spineVersion: string
   animations: string[]
   overlayAnimations: string[]
   stateAnimations: string[]
@@ -64,7 +70,7 @@ type Props = {
   onZoomChange: (zoom: number) => void
   onPanChange: (pan: { x: number; y: number }) => void
   onMetadata: (metadata: SpineMetadata) => void
-  onRuntimeReady?: (assetId: string, idle: string | null) => Array<{ serial: number; effect: InteractionEffect }>
+  onRuntimeReady?: (assetId: string, idle: string | null, animations: string[]) => Array<{ serial: number; effect: InteractionEffect }>
   onStatus: (status: string) => void
   onError: (message: string) => void
   onActivate?: () => void
@@ -92,11 +98,6 @@ const MIN_ZOOM = 0.25
 const MAX_ZOOM = 4
 
 const assetUrl = spineAssetPath
-
-function aliases(asset: ModelAsset) {
-  const key = `${asset.folder}:${asset.sourceName}:${asset.id}`
-  return { skeleton: `skeleton:${key}`, atlas: `atlas:${asset.atlasPath}` }
-}
 
 function animationNames(spine: Spine) {
   return spine.skeleton.data.animations.map((item) => item.name)
@@ -274,6 +275,8 @@ export default function SpineStage({
   const poseDirtyRef = useRef(false)
   const playbackRef = useRef(playing)
   playbackRef.current = playing
+  const loadedControlsRef = useRef({ playing, speed, effectsVisible, hiddenLayerIds })
+  loadedControlsRef.current = { playing, speed, effectsVisible, hiddenLayerIds }
   const previewSelectionRef = useRef({ animation, loopAnimation, persistentStates })
   previewSelectionRef.current = { animation, loopAnimation, persistentStates }
   const uiCameraRef = useRef<{ clip: UiClip; elapsed: number } | null>(null)
@@ -419,6 +422,7 @@ export default function SpineStage({
     const bounds = boundsRef.current
     if (!app || !group) return
     const gameSpace = interactionRef.current?.space
+    const entranceScale = hallTransitionVisual(interactionRef.current?.state.hallEntry).scale
     if (gameSpace?.scale) {
       const frame = gameFrameTransform(
         app.screen.width, app.screen.height, { ...gameSpace,
@@ -427,8 +431,9 @@ export default function SpineStage({
         interactionRef.current?.state.spineUi.open ? 1 : viewRef.current.zoom,
         interactionRef.current?.state.spineUi.open ? { x: 0, y: 0 } : viewRef.current.pan, viewRef.current.flipped,
       )
-      group.scale.set(frame.scaleX, frame.scaleY)
-      group.position.set(frame.x, frame.y)
+      group.scale.set(frame.scaleX * entranceScale, frame.scaleY * entranceScale)
+      group.position.set(app.screen.width / 2 + (frame.x - app.screen.width / 2) * entranceScale,
+        app.screen.height / 2 + (frame.y - app.screen.height / 2) * entranceScale)
       traceStageFrame(hostRef.current, asset.id, { mode: 'game', viewport: { width: app.screen.width, height: app.screen.height },
         view: viewRef.current, space: gameSpace, l2dPos: interactionRef.current?.l2dPos, ...frame })
       fitDebugLabels()
@@ -436,7 +441,7 @@ export default function SpineStage({
     }
     if (!bounds?.width || !bounds.height) return
     const scale = Math.min((app.screen.width * 0.82) / bounds.width, (app.screen.height * 0.84) / bounds.height)
-      * viewRef.current.zoom
+      * viewRef.current.zoom * entranceScale
     const scaleX = viewRef.current.flipped ? -scale : scale
     group.scale.set(scaleX, scale)
     group.position.set(
@@ -560,6 +565,8 @@ export default function SpineStage({
 
   useEffect(() => {
     let disposed = false
+    const loadStarted = performance.now()
+    const loadTiming: { readyMs?: number; firstRenderMs?: number; layers?: Array<{ id: string; kind: string }>; models: Array<{ id: string; resourcesMs: number; createMs: number }> } = { models: [] }
     const lifetime = createSceneLifetime()
     const host = hostRef.current
     if (!host) return
@@ -586,31 +593,59 @@ export default function SpineStage({
       renderer.runners.contextChange.add({ contextChange: configureAdditive })
     }
     appRef.current = app
+    host.dataset.entranceHistory = 'loading'
+    host.dataset.assetId = asset.id
     host.replaceChildren(app.view)
 
     const nativeProfiles = new WeakMap<Spine, NativeSpineSettings>()
     const loadOne = async (model: ModelAsset) => {
-      const id = aliases(model)
+      const started = performance.now()
+      const id = spineAliases(model)
       const useNative = Boolean(interactionRef.current) && probeKey !== '__rawPreviewStage'
-      const [, profile] = await Promise.all([Assets.load([
-        { alias: id.skeleton, src: assetUrl(model.jsonPath) },
-        { alias: id.atlas, src: assetUrl(model.atlasPath) },
-      ]), useNative ? loadNativeSpineSettings(model) : Promise.resolve(null)])
+      const [, profile] = await Promise.all([loadSpineAssets(model),
+        useNative ? loadNativeSpineSettings(model) : Promise.resolve(null)])
+      const resourcesReady = performance.now()
       const spine = lifetime.create(() => Spine.from({ skeleton: id.skeleton, atlas: id.atlas }))
+      preserveCollapsedBoneTransforms(spine.skeleton)
+      const filterParticles = createParticleSlotFilter(spine.skeleton.slots)
+      const updateTransform = spine.updateTransform.bind(spine)
+      spine.updateTransform = () => filterParticles(loadedControlsRef.current.effectsVisible, updateTransform)
       applyNativeSpineSettings(spine.state.data, profile)
       if (profile) nativeProfiles.set(spine, profile)
       if (!interactionRef.current?.space && probeKey !== '__auxiliaryPreviewStage') {
         spine.update(0)
         suppressOversizedCameraMatte(spine)
       }
+      loadTiming.models.push({ id: model.id, resourcesMs: resourcesReady - started, createMs: performance.now() - resourcesReady })
       return spine
     }
 
     const load = async () => {
       onStatus(effects.length ? `正在组合主体与 ${effects.length} 个特效层…` : '正在从本地端提取并加载…')
       try {
-        const main = await loadOne(asset)
+        // Start independent layers and hidden interaction resources together.
+        // Assemble only after they settle, preserving authored z-order and the
+        // ready callback's guarantee that every interaction object exists.
+        const dragHosts = new Map<string, NonNullable<InteractionRow['dragHost']>>()
+        for (const row of interactionRef.current?.rows ?? []) {
+          const host = row.dragHost
+          if (host?.image && !host.unsupported && !dragHosts.has(host.object)) dragHosts.set(host.object, host)
+        }
+        const [modelResults, dragResults] = await Promise.all([
+          Promise.allSettled([loadOne(asset), ...effects.map(effect => loadOne(effect.asset))]),
+          Promise.allSettled([...dragHosts.values()].map(async host => {
+            const [texture, nested, overlays] = await Promise.all([
+              Assets.load(assetUrl(host.image!)),
+              host.nested ? loadOne(host.nested.asset) : Promise.resolve(null),
+              Promise.all((host.overlays ?? []).map(overlay => Assets.load(assetUrl(overlay.image)))),
+            ])
+            return { host, texture, nested, overlays }
+          })),
+        ])
         if (disposed) return
+        const mainResult = modelResults[0]
+        if (mainResult.status === 'rejected') throw mainResult.reason
+        const main = mainResult.value
         // Explicit diagnostic preview only. Mutate this skeleton instance, never
         // shared SkeletonData or the preserved interaction renderer. Restoring
         // the preview remounts it to recover original attachments.
@@ -646,14 +681,12 @@ export default function SpineStage({
 
         const loadedEffects: Layer[] = []
         const failedEffects: string[] = []
-        for (const effect of effects) {
-          try {
-            const spine = await loadOne(effect.asset)
-            if (disposed) return
-            loadedEffects.push({ kind: effect.layer, asset: effect.asset, spine })
-          } catch (error) {
-            if (disposed) return
-            console.warn(`[SpineStage] skipped effect ${effect.asset.id}`, error)
+        for (const [index, effect] of effects.entries()) {
+          const result = modelResults[index + 1]
+          if (result.status === 'fulfilled') {
+            loadedEffects.push({ kind: effect.layer, asset: effect.asset, spine: result.value })
+          } else {
+            console.warn(`[SpineStage] skipped effect ${effect.asset.id}`, result.reason)
             failedEffects.push(effect.asset.id)
           }
         }
@@ -663,7 +696,9 @@ export default function SpineStage({
           { kind: 'main', asset, spine: main },
           ...loadedEffects.filter((item) => item.kind === 'front'),
         ]
+        loadTiming.layers = layers.map(layer => ({ id: layer.asset.id, kind: layer.kind }))
         const group = lifetime.create(() => new Container())
+        group.alpha = 0
         for (const layer of layers) {
           const profile = nativeProfiles.get(layer.spine)
           if (profile && layer.spine.skeleton.data.findAnimation(profile.startingAnimation)) {
@@ -676,11 +711,9 @@ export default function SpineStage({
           layer.spine.visible = !hiddenLayerIds.includes(layer.asset.id) && (layer.kind === 'main' || effectsVisible)
           group.addChild(layer.spine)
         }
-        for (const row of interactionRef.current?.rows ?? []) {
-          const host = row.dragHost
-          if (!host?.image || host.unsupported || dragObjectsRef.current.has(host.object)) continue
-          const texture = await Assets.load(assetUrl(host.image))
-          if (disposed) return
+        for (const result of dragResults) {
+          if (result.status === 'rejected') throw result.reason
+          const { host, texture, nested, overlays } = result.value
           const sprite = lifetime.create(() => new Sprite(texture))
           sprite.width = host.width; sprite.height = host.height
           sprite.anchor.set(host.pivotX, host.pivotY)
@@ -690,9 +723,7 @@ export default function SpineStage({
           object.visible = false
           group.addChild(object)
           dragObjectsRef.current.set(host.object, object)
-          if (host.nested) {
-            const nested = await loadOne(host.nested.asset)
-            if (disposed) return
+          if (host.nested && nested) {
             const m = host.nested.matrix
             nested.transform.setFromMatrix(new Matrix(m[0],m[1],m[2],m[3],m[4],m[5]))
             nested.state.setAnimation(0,host.nested.idle,true)
@@ -701,9 +732,8 @@ export default function SpineStage({
             group.addChild(nested)
             dragNestedRef.current.set(host.object,nested)
           }
-          for (const overlay of host.overlays ?? []) {
-            const overlayTexture = await Assets.load(assetUrl(overlay.image))
-            if (disposed) return
+          for (const [index, overlay] of (host.overlays ?? []).entries()) {
+            const overlayTexture = overlays[index]
             const frame = lifetime.create(() => new Sprite(overlayTexture))
             if (disposed) { frame.destroy();return }
             frame.width = overlay.width * overlay.scaleX;frame.height = overlay.height * overlay.scaleY
@@ -736,6 +766,14 @@ export default function SpineStage({
         layersRef.current = layers
         groupRef.current = group
         app.stage.addChild(group)
+        // Keep authored entrance attachments, deforms and alpha unchanged.
+        // Alps 03 fades sucai_bg over 1.4–1.7667 s to reveal the figure;
+        // viewport-sized mesh replacement is not part of the original game.
+        const entranceFlash = lifetime.create(() => new Graphics())
+        entranceFlash.eventMode = 'none'
+        app.stage.addChild(entranceFlash)
+        let revealMs = runtimeReadyRef.current ? 0 : 180
+        let wasTransitioning = false
         boundsRef.current = visibleLayerBounds(layers, group)
         const debug = new Graphics()
         debug.eventMode = 'none'
@@ -811,11 +849,30 @@ export default function SpineStage({
           },
         })
         app.ticker.add(() => {
+          revealMs = Math.min(180, revealMs + app.ticker.deltaMS)
+          group.alpha = revealMs / 180
+          const hall = interactionRef.current?.state.hallEntry
+          const phase = hall?.phase ?? (main.state.getCurrent(1)?.animation?.name === 'in' ? 'in' : 'idle')
+          if (host.dataset.entrancePhase !== phase) {
+            host.dataset.entrancePhase = phase
+            host.dataset.entranceHistory = `${host.dataset.entranceHistory},${phase}`.split(',').slice(-12).join(',')
+          }
+          host.dataset.mainAnimation = main.state.getCurrent(0)?.animation?.name ?? ''
+          host.dataset.overlayAnimation = main.state.getCurrent(1)?.animation?.name ?? ''
+          const transitionFrame = hallTransitionFrame(hall, app.ticker.deltaMS,
+            playbackRef.current, main.state.timeScale)
+          const white = transitionFrame.white
+          entranceFlash.clear()
+          if (white > 0) entranceFlash.beginFill(0xffffff, white).drawRect(0, 0, app.screen.width, app.screen.height).endFill()
+          // Framing is stable throughout in; only the masked idle reveal scales.
+          const transitioning = hall?.phase === 'out'
+          if (transitioning || wasTransitioning) fit()
+          wasTransitioning = transitioning
           // Pause the host timers as well as Spine's AnimationState.
           if (!playbackRef.current) return
           if (interactionRef.current?.state.hallEntry?.phase === 'out') {
             callbacksRef.current.onInteractionEvent?.({ type: 'hall-frame',
-              deltaMs: app.ticker.deltaMS * (main.state.timeScale || 1) })
+              deltaMs: transitionFrame.deltaMs })
           }
           if (uiCameraRef.current) {
             uiCameraRef.current.elapsed += app.ticker.deltaMS / 1000
@@ -1060,6 +1117,7 @@ export default function SpineStage({
         const overlayAnimations = animations.filter((name) => isOverlay(main, name))
         const stateAnimations = animations.filter((name) => isStateAnimation(main, name))
         onMetadata({
+          spineVersion: main.skeleton.data.version || asset.spineVersion,
           animations,
           overlayAnimations,
           stateAnimations,
@@ -1080,17 +1138,32 @@ export default function SpineStage({
         // The original SetImg creation callback configures the new skeleton in
         // this same turn. Metadata/React updates must not expose a default-idle
         // frame or consume restoration commands while the skeleton is loading.
+        // Controls may have changed while images, native settings or objects
+        // were loading. Their effects had no layers to update at that time.
+        const latestControls = loadedControlsRef.current
+        applyStagePlayback(layers.map(layer => layer.spine), latestControls.playing, latestControls.speed)
+        for (const layer of layers) layer.spine.visible = !latestControls.hiddenLayerIds.includes(layer.asset.id)
+          && (layer.kind === 'main' || latestControls.effectsVisible)
         captureInitialFrame('before-ready-callback')
-        const initialCommands = runtimeReadyRef.current?.(asset.id, main.state.getCurrent(0)?.animation?.name ?? idleName(main)) ?? []
+        const initialCommands = runtimeReadyRef.current?.(asset.id, main.state.getCurrent(0)?.animation?.name ?? idleName(main), animations) ?? []
+        if (initialCommands.some(command => command.effect.type === 'play' && command.effect.animation === 'in')) revealMs = 180
+        group.alpha = revealMs / 180
         applyCommandsRef.current(initialCommands)
         main.update(0)
         captureInitialFrame('after-ready-commands')
+        loadTiming.readyMs = performance.now() - loadStarted
+        host.dataset.loadTiming = JSON.stringify(loadTiming)
         // Observe actual render boundaries, without changing update or fade order.
         const recordRender = () => {
           captureInitialFrame('pre-render')
           if (initialFrames.length >= 22) app.renderer.off('prerender', recordRender)
         }
         app.renderer.on('prerender', recordRender)
+        app.renderer.once('postrender', () => {
+          if (disposed) return
+          loadTiming.firstRenderMs = performance.now() - loadStarted
+          host.dataset.loadTiming = JSON.stringify(loadTiming)
+        })
         if (onAudit) {
           requestAnimationFrame(() => requestAnimationFrame(() => {
             if (disposed) return
@@ -1146,7 +1219,7 @@ export default function SpineStage({
           }))
         }
         const effectStatus = effects.length ? ` · ${loadedEffects.length}/${effects.length} 特效层` : ''
-        onStatus(`Spine ${asset.spineVersion} · ${animations.length} 个动作${effectStatus}`)
+        onStatus(`Spine ${main.skeleton.data.version || asset.spineVersion} · ${animations.length} 个动作${effectStatus}`)
       } catch (error) {
         if (!disposed) onError(error instanceof Error ? error.message : String(error))
       }
@@ -1231,7 +1304,7 @@ export default function SpineStage({
   }, [animation, persistentStates, previewResetSerial, loopAnimation, probeKey])
 
   useEffect(() => {
-    for (const layer of layersRef.current) layer.spine.state.timeScale = playing ? speed : 0
+    applyStagePlayback(layersRef.current.map(layer => layer.spine), playing, speed)
   }, [playing, speed])
 
 

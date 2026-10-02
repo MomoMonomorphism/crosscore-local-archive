@@ -4,8 +4,7 @@ import SpineStageRenderer from './SpineStageRenderer'
 import { ResourceLoadingNotice } from './ResourceLoadingNotice'
 
 // Keep the public import path and all existing types/callbacks compatible.
-// The renderer is moved verbatim; loading UI must not change its timing,
-// transforms, asset cache, animation state, or interaction command ordering.
+// Keep loading feedback separate from renderer and entrance behavior.
 export type { SpineMetadata, SpineAuditMeasurement } from './SpineStageRenderer'
 type Props = ComponentProps<typeof SpineStageRenderer>
 

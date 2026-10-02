@@ -416,7 +416,7 @@ export function reduceInteraction(rows: InteractionRow[], previous: InteractionS
     if (previous.hallEntry || previous.role !== 1 || actualIdle !== event.baseIdle
       || previous.blocked.harmony || previous.spineUi.open || previous.dragging != null)
       return { state: previous, effects: [], accepted: false, reason: '当前姿态或互动界面不支持大厅入场' }
-    const state = createInteractionState(rows, previous.spine, previous.idle, previous.role)
+    const state = createInteractionState(rows, previous.spine, actualIdle, previous.role)
     state.active = { ...previous.active }
     state.tracks = Object.fromEntries(Object.entries(previous.tracks).filter(([t]) => !event.clearTracks.includes(Number(t))))
     state.hallEntry = { phase: 'in', elapsedMs: 0 }

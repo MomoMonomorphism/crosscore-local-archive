@@ -11,3 +11,5 @@ viewer.local.json
 __pycache__/
 *.pyc
 *.tsbuildinfo
+
+.scratch/
