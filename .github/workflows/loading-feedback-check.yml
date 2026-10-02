@@ -34,6 +34,7 @@ jobs:
       - name: Verify Pages package
         run: |
           python tools/check_pages_demo.py
+          python tools/check_crested_pages.py
           python tools/check_pages_release.py --base /crosscore-local-archive/
       - name: Install isolated browser test tooling
         working-directory: web

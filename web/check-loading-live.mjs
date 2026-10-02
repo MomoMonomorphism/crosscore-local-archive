@@ -49,6 +49,22 @@ for (const reference of expectedReferences) {
 }
 report.checks.push(`Live HTML plus all bootstrap CSS/JS bundles match the ${mode === 'baseline' ? 'published build' : 'published build'} byte for byte`)
 
+// Check the actual deployed game files too; matching bootstrap code alone
+// cannot prove that Pages stopped serving the older PC eye animation.
+const spineReferences = JSON.parse(await fs.readFile('../pages-pack/spine-references.json', 'utf8'))
+report.androidResources = []
+for (const [folder, reference] of Object.entries(spineReferences)) {
+  for (const [name, expectedHash] of Object.entries(reference.files)) {
+    const remote = new URL(`assets/spine/${folder}/${encodeURIComponent(name)}`, live)
+    remote.searchParams.set('reference', `${reference.platform}-${reference.bundleSha256.slice(0, 8)}`)
+    const response = await fetch(remote, { signal: AbortSignal.timeout(60000) })
+    assert.ok(response.ok, `Android resource HTTP ${response.status}: ${remote.pathname}`)
+    assert.equal(sha256(Buffer.from(await response.arrayBuffer())), expectedHash, `Actual Android resource: ${name}`)
+    report.androidResources.push(remote.pathname)
+  }
+}
+report.checks.push('Deployed Crestedplume Android skeletons, atlases and textures match the pinned local export')
+
 const browser = await chromium.launch({ channel: process.env.CROSSCORE_BROWSER_CHANNEL, args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] })
 const pages = []
 const makePage = async viewport => {
