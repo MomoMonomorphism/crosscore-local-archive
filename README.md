@@ -6,7 +6,7 @@
 
 ## 本地版
 
-仓库包含本地版源码，但不包含完整游戏包。需要使用者自行准备可合法使用的游戏资源、Windows x64、Python 和 Node.js。现有作者机器上的缓存曾通过验收；全新机器的空缓存安装尚未完整验证，遇到启动问题请参阅 [运行手册](docs/RUNBOOK.md)。
+仓库包含本地版源码，但不包含完整游戏包。需要使用者自行准备可用的游戏资源、Windows x64、Python 和 Node.js。现有作者机器上的缓存曾通过验收；全新机器的空缓存安装尚未完整验证，遇到启动问题请参阅 [运行手册](docs/RUNBOOK.md)。
 
 ```powershell
 Set-Location <仓库目录>
@@ -17,7 +17,7 @@ Set-Location ..
 .\start_viewer.ps1 -Port 8798 -Build
 ```
 
-复制并填写 `viewer.example.json` 中的资源路径；不要上传个人的游戏包、缓存或凭据。
+复制并填写 `viewer.example.json` 中的资源路径。
 
 ## Pages 演示版
 
