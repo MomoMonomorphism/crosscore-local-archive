@@ -21,7 +21,11 @@ Set-Location ..
 
 ## Pages 演示版
 
-仓库中的 `pages-pack/public/` 只包含演示选定的资源，由 `tools/prepare_pages_demo.py` 从本地资源生成：6 个角色入口（默认立绘、动态骨骼、交互与素材预览）、4 组 CG / 插画档案、1 段 ASMR 预览（前 18 秒），以及 5 套在浏览器内运行的小游戏。`.github/workflows/pages.yml` 通过 GitHub Actions 构建并部署静态网站（手动触发），构建基址取自仓库名。仓库首页的源码与 Pages 网站是同一项目的本地版和静态预览版。
+仓库中的 `pages-pack/public/` 只包含演示选定的资源，由 `tools/prepare_pages_demo.py` 从本地资源生成：6 个角色入口（默认立绘、动态骨骼、交互与素材预览）、4 组 CG / 插画档案、1 段 ASMR 预览（前 18 秒），以及 5 套在浏览器内运行的小游戏。`.github/workflows/pages.yml` 通过 GitHub Actions 构建并部署静态网站（推送到 `main` 时自动触发，也可手动触发），构建基址取自仓库名。仓库首页的源码与 Pages 网站是同一项目的本地版和静态预览版。
+
+## 开发者模式
+
+本地版和在线演示均可点击左上角 **CC** 切换开发者模式，再通过顶部的“开发工具”打开点选检查器和图层磁贴。支持查看资源缩略图、点选与定位图层、显隐、透明度、独显、遮罩控制及命名预设；切回普通模式会恢复临时调整。详见 [使用说明](docs/DEVELOPER_MODE.md)。
 
 ## 许可与资源
 

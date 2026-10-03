@@ -18,6 +18,9 @@ import { separatePreviewLayers } from './previewLayers'
 import { SpineUiHost, supportsSpineUi, type SpineUiCommand } from './SpineUiHost'
 import type { ContentSection } from './PrimaryNav'
 import GalleryTopbar from './GalleryTopbar'
+import MotionTabIndicator from './MotionTabIndicator'
+import { MotionPopup } from './MotionPopup'
+import { useDeveloperPlayback } from './developerPlayback'
 import { interactionAnimationCatalog, interactionAnimationExplanation, interactionAnimationLabel } from './interactionAnimationCatalog'
 import { figureKey, findPoseVariantIndex } from './interactionAssetMatch'
 import { sitePath } from './sitePaths'
@@ -376,6 +379,8 @@ export default function App() {
   const portrait = selected?.portraits?.find((item) => item.modelId === portraitId) ?? (!selected?.variants.length ? selected?.portraits?.[0] : undefined)
   useEffect(() => { portraitRecords.current = {}; if (portrait) setStatus('静态原图 · 完整立绘') }, [portrait?.modelId])
   const variant = portrait ? undefined : selected?.variants[Math.min(variantIndex, Math.max(selected.variants.length - 1, 0))]
+  useDeveloperPlayback('gallery', layout.root, { playing,
+    available: view === 'gallery' && Boolean(variant) && !portrait && !auxiliaryPreview, setPlaying })
   // Turning autoplay on affects the next selection, not the live skeleton.
   // Turning it off can also release an initial entrance-config wait immediately.
   const entranceSelection = useRef({ key: '', automatic: false })
@@ -1159,6 +1164,7 @@ export default function App() {
   const voiceTools = <GalleryVoiceTools bank={selectedVoice} streams={visibleVoiceStreams} categories={availableVoiceCategories} category={voiceCategory} onCategory={setVoiceCategory} count={voiceCategoryCount} query={voiceQuery} onQuery={setVoiceQuery} active={activeVoiceBankId === selectedVoice?.id ? activeVoiceIndex : 0} canStop={activeVoiceIndex !== 0} onPlay={stream => playVoiceStream(stream)} onStop={() => { audioRef.current?.pause(); audioRef.current = null; setActiveVoiceIndex(0); setVoiceStatus('语音已停止') }} language={voiceLanguage} hasChinese={Boolean(chineseVoice)} onLanguage={setVoiceLanguage} sourceNote={category === 'cg' ? selectedVoice ? `游戏档案关联声库 · ${selectedVoice.sourceFile}` : '暂无已确认的档案声库关联' : selectedVoice ? labelSourceNote(selectedVoice) : ''} volume={voiceVolume} onVolume={setVoiceVolume}
               picture={category === 'cg' ? { banks: pictureBanks, onBank: choosePictureBank, speaker: pictureSpeaker, onSpeaker: setPictureSpeaker, speakers: pictureSpeakers, roleNames: displayNames?.roleNames ?? {} } : undefined}/>
   const formTools = <div className="chip-row">
+              <MotionTabIndicator activeKey={portrait?.modelId ?? selected?.variants[variantIndex]?.id} scopeKey={selected?.id}/>
               {selected?.portraits?.map((item) => <button key={item.modelId}
                 className={portrait?.modelId === item.modelId ? 'active' : ''}
                 onClick={() => { setPortraitId(item.modelId); setRawPreviewActive(false); setAnimations([]); setOverlayAnimations([]); setStateAnimations([]); setPersistentStates([]); setLayers([]); setAnimation(null); setError(''); setZoom(1); setPan({ x: 0, y: 0 }); setStatus('静态原图 · 点击配置区域播放语音') }}>
@@ -1421,14 +1427,14 @@ export default function App() {
                     aria-expanded={voiceLanguageOpen} aria-haspopup="true">
                     CV {effectiveVoiceLanguage} ▾
                   </button>
-                  {voiceLanguageOpen && <div className="cv-language-menu" role="group" aria-label="配音语言">
+                  <MotionPopup open={voiceLanguageOpen}><div className="cv-language-menu" role="group" aria-label="配音语言">
                     <button className={voiceLanguage === 'ja' ? 'active' : ''}
                       onClick={() => { setVoiceLanguage('ja'); setVoiceLanguageOpen(false) }}>日配</button>
                     <button className={voiceLanguage === 'zh' ? 'active' : ''} disabled={!chineseVoice}
                       title={chineseVoice ? `${chineseVoice.streamCount} 条中配音轨` : '该角色或形态没有本地中配资源'}
                       onClick={() => { setVoiceLanguage('zh'); setVoiceLanguageOpen(false) }}>中配{chineseVoice ? '' : ' · 暂无'}</button>
                     <button onClick={() => { playVoice(); setVoiceLanguageOpen(false) }}>随机播放</button>
-                  </div>}
+                  </div></MotionPopup>
                 </div>
               )) },
             { id: 'lyrics', minWidth: 0, node: (selectedVoice && (
@@ -1454,7 +1460,7 @@ export default function App() {
 
       </section>
       <aside className="gallery-tools" aria-label="交互、动作与台词"><button className="gallery-rail" aria-label="展开查看工具" onClick={() => layout.setToolsOpen(true)}>◧<span>查看工具</span></button>
-        <div className="gallery-tool-content"><div className="gallery-tabs" role="tablist" aria-label="查看内容"><button role="tab" id="gallery-interaction-tab" aria-controls="gallery-interaction" aria-selected={layout.tab === 'interaction'} onClick={() => layout.setTab('interaction')}>交互指引</button><button role="tab" id="gallery-actions-tab" aria-controls="gallery-actions" aria-selected={layout.tab === 'actions'} onClick={() => layout.setTab('actions')}>动作素材 <small>{motionAnimations.length}</small></button><button role="tab" id="gallery-voices-tab" aria-controls="gallery-voices" aria-selected={layout.tab === 'voices'} onClick={() => layout.setTab('voices')}>台词 <small>{selectedVoice?.streamCount ?? 0}</small></button><button aria-label="收起工具栏" onClick={() => layout.setToolsOpen(false)}>◧</button></div>
+        <div className="gallery-tool-content"><div className="gallery-tabs" role="tablist" aria-label="查看内容"><MotionTabIndicator activeKey={layout.tab} variant="tabs"/><button role="tab" id="gallery-interaction-tab" aria-controls="gallery-interaction" aria-selected={layout.tab === 'interaction'} onClick={() => layout.setTab('interaction')}>交互指引</button><button role="tab" id="gallery-actions-tab" aria-controls="gallery-actions" aria-selected={layout.tab === 'actions'} onClick={() => layout.setTab('actions')}>动作素材 <small>{motionAnimations.length}</small></button><button role="tab" id="gallery-voices-tab" aria-controls="gallery-voices" aria-selected={layout.tab === 'voices'} onClick={() => layout.setTab('voices')}>台词 <small>{selectedVoice?.streamCount ?? 0}</small></button><button aria-label="收起工具栏" onClick={() => layout.setToolsOpen(false)}>◧</button></div>
           <div className="gallery-shared-status" hidden={layout.tab === 'voices'}>{currentModePanel}</div>
           <section id="gallery-interaction" role="tabpanel" aria-labelledby="gallery-interaction-tab" hidden={layout.tab !== 'interaction'} className="gallery-tool-page gallery-interaction-tab">
           <div className="gallery-interaction-page">

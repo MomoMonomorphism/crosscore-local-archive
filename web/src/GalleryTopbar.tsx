@@ -1,4 +1,5 @@
 import PrimaryNav, { type ContentSection } from './PrimaryNav'
+import { useDeveloperMode } from './DeveloperMode'
 
 const isPublicPreview = import.meta.env.VITE_STATIC_DEMO === '1'
 const repositoryUrl = 'https://github.com/MomoMonomorphism/crosscore-local-archive'
@@ -7,15 +8,19 @@ export default function GalleryTopbar({ active, onSelect }: {
   active: ContentSection
   onSelect: (section: ContentSection) => void
 }) {
+  const developer = useDeveloperMode()
   return <header className="gallery-topbar">
-    <button type="button" className="gallery-brand" onClick={() => onSelect('character')}
-      title="返回角色立绘" aria-label="CC · 返回角色立绘">
+    <button type="button" className="gallery-brand" onClick={developer.toggleMode}
+      title={developer.enabled ? '切回本地模式' : '切换到开发者模式'}
+      aria-label={developer.enabled ? 'CC · 切回本地模式' : 'CC · 切换到开发者模式'} aria-pressed={developer.enabled}>
       <b><span>CC</span></b><span>CROSSCORE<small>{isPublicPreview ? '非官方演示' : 'LOCAL ARCHIVE'}</small></span>
     </button>
     <PrimaryNav active={active} onSelect={onSelect}/>
     <div className="gallery-topbar-actions">
-      <span className="gallery-edition" aria-label={isPublicPreview ? '在线演示版' : '本地版'}>
-        <span className="gallery-edition-dot" aria-hidden="true"/>{isPublicPreview ? '在线演示' : '本地版'}
+      {developer.enabled && <button type="button" className="gallery-developer-tools" onClick={developer.openTools}
+        aria-expanded={developer.panelOpen}>开发工具</button>}
+      <span className={`gallery-edition ${developer.enabled ? 'developer-enabled' : ''}`} aria-label={developer.enabled ? '开发者模式已开启' : isPublicPreview ? '在线演示版' : '本地版'}>
+        <span className="gallery-edition-dot" aria-hidden="true"/>{developer.enabled ? '开发者模式' : isPublicPreview ? '在线演示' : '本地版'}
       </span>
       <a className="gallery-repository-link" href={repositoryUrl} target="_blank" rel="noopener noreferrer"
         aria-label="在 GitHub 查看项目（新标签页）" title="在 GitHub 查看项目">

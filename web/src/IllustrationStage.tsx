@@ -11,6 +11,8 @@ import { useGalleryLayout } from './GalleryLayout'
 import { GalleryToolbar } from './GalleryToolbar'
 import { ImmersiveContext, ImmersiveTools, ImmersiveEntry } from './ImmersiveMode'
 import { sitePath } from './sitePaths'
+import { useDeveloperImageLayer } from './developerDom'
+import { useDeveloperPlayback } from './developerPlayback'
 
 type View = 'gallery' | 'asmr' | 'picture' | 'audit'
 type VoiceRow = { bankId: string; stream: VoiceStream; speaker: string; speakerId: string }
@@ -63,6 +65,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const linesRef = useRef<HTMLDivElement | null>(null)
   const immersiveLinesRef = useRef<HTMLDivElement | null>(null)
+  const staticImageRef = useRef<HTMLImageElement>(null)
   const choosePicture = (key: string) => {
     setSelectedKey(key)
     if (layout.compact) layout.setLibraryOpen(false)
@@ -134,7 +137,13 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
     ? archiveImages.find((name) => archiveKey(name) === archiveKey(picture.img || '')) || null
     : null, [picture?.img, archiveImages])
   const hasDynamic = Boolean(variant)
+  useDeveloperPlayback('illustration', layout.root, { playing: figurePlaying,
+    available: mode === 'dynamic' && hasDynamic && showFigure, setPlaying: setFigurePlaying })
   const hasStatic = Boolean(staticName)
+  const developerStaticStyle = useDeveloperImageLayer({ sceneId: `archive:${selectedKey}`,
+    sceneLabel: `插画原图 · ${picture ? simplifyDisplay(picture.title) : selectedKey}`,
+    layerId: 'illustration-static', label: staticName ?? '插画原图', assetId: staticName ?? selectedKey },
+    Boolean(picture && mode === 'static' && staticName && !staticError), staticImageRef)
   const interactive = Boolean(picture && !picture.source && contract?.models[String(picture.id)]?.length)
   const hasStaticAudio = Boolean(picture && !picture.source && contract?.staticModels[String(picture.id)]
     ?.some((row) => row.audioId?.some((id) => contract.audioLookup[String(id)])))
@@ -299,7 +308,7 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
           {!bank && <div className="illustration-no-voice">这张插画没有可靠关联的 `picture` 语音包，画面仍可独立浏览。</div>}
           <div className="gallery-voice-detail">
             <small>当前台词</small><strong>{selectedVoice ? simplifyDisplay(selectedVoice.speaker) : '暂无台词'}</strong>
-            <p>{selectedVoice ? simplifyDisplay(selectedVoice.stream.semantic?.script || selectedVoice.stream.name) : '画面仍可独立查看。'}</p>
+            <p key={`${selectedVoice?.bankId}:${selectedVoice?.stream.index}`} className="ui-content-arrive">{selectedVoice ? simplifyDisplay(selectedVoice.stream.semantic?.script || selectedVoice.stream.name) : '画面仍可独立查看。'}</p>
             <div><button className="gallery-action-entry" disabled={!selectedVoice} onClick={() => selectedVoice && play(selectedVoice)}>
               <span className="gallery-action-icon" aria-hidden="true">▷</span>{selectedVoice && playingKey === `${selectedVoice.bankId}:${selectedVoice.stream.index}` ? '重新播放' : '试听这句'}
             </button><button disabled={!playingKey} onClick={stopAudio}>停止</button></div>
@@ -413,9 +422,9 @@ export default function IllustrationStage({ navigate, onSelectSection, gallery, 
         <div className="illustration-canvas-column">
           <div className="illustration-viewport"><div className="picture-figure-frame illustration-frame">
             {picture && mode === 'static' && staticName && !staticError &&
-              <img className="picture-static-image" src={sitePath(`assets/archive/${encodeURIComponent(staticName)}.png`)}
+              <img ref={staticImageRef} className="picture-static-image" src={sitePath(`assets/archive/${encodeURIComponent(staticName)}.png`)}
                 alt={title} draggable={false} onClick={handleStaticClick}
-                style={{ cursor: hasStaticAudio ? 'pointer' : undefined }}
+                style={{ cursor: hasStaticAudio ? 'pointer' : undefined, ...developerStaticStyle }}
                 onError={() => setStaticError(true)} />}
             {picture && mode === 'dynamic' && variant && showFigure && interactive && contract && gallery &&
               <PictureInteractiveFigure key={picture.id} modelId={String(picture.id)} variant={variant}

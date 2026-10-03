@@ -8,6 +8,8 @@ import type { ModelAsset } from './types'
 import { loadNativeSpineSettings, applyNativeSpineSettings } from './nativeSpineSettings'
 import { traceStageFrame } from './stageFrameTrace'
 import { spineAssetPath } from './sitePaths'
+import { useDeveloperMode } from './DeveloperMode'
+import { createDeveloperScene } from './developerScene'
 
 const assetUrl = spineAssetPath
 export function poseAssetAliases(asset: ModelAsset) {
@@ -32,6 +34,7 @@ export function PoseInterlude({ command, playing, speed, onDone, onError }: {
   command: PoseInterludeCommand; playing: boolean; speed: number
   onDone: (serial: number) => void; onError: (message: string) => void
 }) {
+  const { getOverrides, registerScene } = useDeveloperMode()
   const host = useRef<HTMLDivElement>(null)
   const live = useRef({ playing, speed, onDone, onError }); live.current = { playing, speed, onDone, onError }
   useEffect(() => {
@@ -51,6 +54,7 @@ export function PoseInterlude({ command, playing, speed, onDone, onError }: {
       additive(); renderer.runners.contextChange.add({ contextChange: additive })
     }
     element.replaceChildren(app.view)
+    const developerScene = createDeveloperScene(app, `interlude:${command.asset.id}`, `姿态过场 · ${command.asset.sourceName}`, { getOverrides, registerScene })
     const group = new Container(); app.stage.addChild(group)
     const fit = () => {
       if (!overlay || !space) return
@@ -66,10 +70,12 @@ export function PoseInterlude({ command, playing, speed, onDone, onError }: {
       if (disposed) return
       space = ownSpace
       overlay = lifetime.create(() => Spine.from(poseAssetAliases(command.asset))); overlay.autoUpdate = false
+      developerScene.addSpine(overlay, command.asset.id, command.asset.sourceName, 'interlude')
       applyNativeSpineSettings(overlay.state.data, settings)
       if (!overlay.skeleton.data.findAnimation(command.animation)) throw new Error(`过场缺少动画 ${command.animation}`)
       overlay.state.setAnimation(0, command.animation, command.loop); overlay.update(0)
       group.addChild(overlay); fit()
+      developerScene.publish()
       app.ticker.add(() => {
         if (disposed || !live.current.playing || document.hidden || !overlay) return
         const ms = app.ticker.deltaMS * live.current.speed
@@ -79,7 +85,7 @@ export function PoseInterlude({ command, playing, speed, onDone, onError }: {
     }).catch(error => {
       if (!disposed) { live.current.onError(`姿态过场加载失败：${String(error)}`); live.current.onDone(command.serial) }
     })
-    return () => { disposed = true; observer.disconnect(); app.destroy(true, { children: true, texture: false, baseTexture: false }); lifetime.dispose() }
+    return () => { disposed = true; developerScene.dispose(); observer.disconnect(); app.destroy(true, { children: true, texture: false, baseTexture: false }); lifetime.dispose() }
   }, [command])
   return <div data-pose-interlude={command.serial} ref={host} style={{ position: 'absolute', inset: 0, zIndex: 9, pointerEvents: 'none' }} />
 }

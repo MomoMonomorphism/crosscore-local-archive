@@ -2,6 +2,19 @@ import { MeshAttachment, Spine } from '@esotericsoftware/spine-pixi-v7'
 
 const hiddenSlots = new WeakMap<object, string[]>()
 const scannedSkeletons = new WeakSet<object>()
+const suppressedByInstance = new WeakMap<Spine, Map<string, NonNullable<ReturnType<Spine['skeleton']['slots'][number]['getAttachment']>>>>()
+
+/** Retain the instance attachment for explicit developer inspection only. */
+export const suppressedCameraMatteAttachments = (spine: Spine) => suppressedByInstance.get(spine)
+function suppressSlot(spine: Spine, name: string) {
+  const slot = spine.skeleton.findSlot(name)
+  if (!slot?.attachment) return
+  const suppressed = suppressedByInstance.get(spine) ?? new Map()
+  suppressed.set(name, slot.attachment)
+  suppressedByInstance.set(spine, suppressed)
+  // Keep animated deforms: a developer may reveal this attachment while paused.
+  slot.attachment = null
+}
 
 /**
  * The archive's free-framing views have no authored UI viewport. A quartet of
@@ -12,10 +25,7 @@ const scannedSkeletons = new WeakSet<object>()
 export function suppressOversizedCameraMatte(spine: Spine): void {
   if (scannedSkeletons.has(spine.skeleton.data)) {
     for (const name of hiddenSlots.get(spine.skeleton.data) ?? []) {
-      const slot = spine.skeleton.findSlot(name)
-      if (slot) {
-        slot.setAttachment(null)
-      }
+      suppressSlot(spine, name)
     }
     return
   }
@@ -56,10 +66,7 @@ export function suppressOversizedCameraMatte(spine: Spine): void {
     hiddenSlots.set(spine.skeleton.data, names)
     scannedSkeletons.add(spine.skeleton.data)
     for (const name of names) {
-      const slot = spine.skeleton.findSlot(name)
-      if (slot) {
-        slot.setAttachment(null)
-      }
+      suppressSlot(spine, name)
     }
     return
   }

@@ -53,9 +53,11 @@ void main(){
  result=vec4(max(c.rgb,vec3(0.))*c.a,additive>0.?0.:c.a);
 }`
 
-export function UiMaterialImage({ node, width, height, time }: { node: UiNode; width: number; height: number; time: number }) {
+export function UiMaterialImage({ node, width, height, time, disableClipping = false }: {
+  node: UiNode; width: number; height: number; time: number; disableClipping?: boolean
+}) {
   const container = useRef<HTMLDivElement>(null), draw = useRef<(() => void) | null>(null)
-  const latest = useRef({ node, width, height, time });latest.current = { node, width, height, time }
+  const latest = useRef({ node, width, height, time, disableClipping });latest.current = { node, width, height, time, disableClipping }
   const [error, setError] = useState('')
   const [contextRevision, setContextRevision] = useState(0)
   const materialKey = JSON.stringify(node.material)
@@ -127,6 +129,8 @@ export function UiMaterialImage({ node, width, height, time }: { node: UiNode; w
           if(el.width!==w)el.width=w
           if(el.height!==h)el.height=h
           gl.viewport(0,0,el.width,el.height);gl.useProgram(program)
+          gl.uniform4f(loc('flags'), now.disableClipping ? 0 : enabled('_USEMASK_ON'),
+            now.disableClipping ? 0 : enabled('_USEDISSOLVE_ON'), enabled('_USEUVANI_ON'), enabled('_USEUVDISTORTION_ON'))
           vec('color',now.node.color??white);f('clockTime',now.time)
           gl.drawArrays(gl.TRIANGLES,0,6)
         };draw.current()
@@ -140,7 +144,7 @@ export function UiMaterialImage({ node, width, height, time }: { node: UiNode; w
       gl.getExtension('WEBGL_lose_context')?.loseContext();el.remove()
     }
   }, [materialKey, contextRevision])
-  useEffect(() => {draw.current?.()}, [time, width, height, node.color])
+  useEffect(() => {draw.current?.()}, [time, width, height, node.color, disableClipping])
   return <><div ref={container} style={{position:'absolute',inset:0,pointerEvents:'none'}} />
     {error && <span role="alert" data-ui-material-error style={{position:'absolute',color:'#ffb347',background:'#281b24',fontSize:16}}>
       材质未还原：{node.material?.name}（{error}）</span>}</>

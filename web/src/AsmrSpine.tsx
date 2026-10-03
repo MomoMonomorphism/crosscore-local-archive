@@ -8,6 +8,8 @@ import { suppressOversizedCameraMatte } from './spineCameraMatte'
 import { gameFrameTransform } from './gameFrame'
 import { useViewAdjustment, useViewReset, usePinchZoom } from './ImmersiveMode'
 import { spineAssetPath } from './sitePaths'
+import { useDeveloperMode } from './DeveloperMode'
+import { createDeveloperScene } from './developerScene'
 
 /**
  * Renders the 立绘 an ASMR album plays against.
@@ -183,6 +185,7 @@ export default function AsmrSpine({
   onStatus,
   onError,
 }: Props) {
+  const { getOverrides, registerScene } = useDeveloperMode()
   const viewControl = useViewAdjustment()
   const pinch = usePinchZoom(ratio => { viewRef.current.zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, viewRef.current.zoom * ratio)); fit() })
   useViewReset(() => { panRef.current = { x: 0, y: 0 }; viewRef.current.zoom = 1; fit() })
@@ -250,6 +253,7 @@ export default function AsmrSpine({
       powerPreference: 'high-performance',
     })
     appRef.current = app
+    const developerScene = createDeveloperScene(app, `asmr:${asset.id}`, `ASMR · ${asset.sourceName}`, { getOverrides, registerScene })
     host.replaceChildren(app.view)
 
     const load = async () => {
@@ -270,6 +274,7 @@ export default function AsmrSpine({
         if (disposed) return
         prefabSpaceRef.current = layout?.space ?? null
         const spine = lifetime.create(() => Spine.from({ skeleton: `skeleton:${key}`, atlas: `atlas:${key}` }))
+        developerScene.addSpine(spine, asset.id, asset.sourceName, 'main')
         if (!prefabSpaceRef.current) {
           spine.update(0)
           suppressOversizedCameraMatte(spine)
@@ -313,6 +318,7 @@ export default function AsmrSpine({
         ;(window as unknown as ProbeHost).__asmrSpine = () =>
           spineRef.current ? snapshot(spineRef.current, cameraRef.current, cameraOnRef.current) : null
         setReady((count) => count + 1)
+        developerScene.publish()
       } catch (error) {
         if (!disposed) onError(error instanceof Error ? error.message : String(error))
       }
@@ -323,6 +329,7 @@ export default function AsmrSpine({
     void load()
     return () => {
       disposed = true
+      developerScene.dispose()
       resizeObserver.disconnect()
       delete (window as unknown as ProbeHost).__asmrSpine
       spineRef.current = null

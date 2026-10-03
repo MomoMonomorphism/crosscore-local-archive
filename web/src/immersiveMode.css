@@ -25,6 +25,7 @@
 .immersive-panel-buttons{display:flex;flex-wrap:wrap;gap:3px;padding:0 10px 10px;flex-shrink:0;border-bottom:1px solid var(--line)}
 .gallery-shell .immersive-panel-buttons button{flex:1 1 auto;min-height:38px;padding:7px 8px;white-space:nowrap;background:transparent;border-color:transparent}
 .gallery-shell .immersive-panel-buttons button[aria-selected=true]{color:var(--accent-text);background:var(--accent-soft);box-shadow:inset 0 -2px var(--accent)}
+.gallery-shell .immersive-panel-buttons[data-motion-indicator=ready]>button[aria-selected=true]{box-shadow:none}
 .immersive-panel-body{display:flex;flex-direction:column;flex:1 1 auto;min-height:0;overflow:auto;overscroll-behavior:contain;padding:14px 0;scrollbar-width:thin;scrollbar-color:var(--line-strong) transparent}
 .immersive-panel-body:not(.immersive-page-main):not(.immersive-page-more){height:480px}
 .immersive-control-section{padding:0 14px 14px;margin-bottom:14px;border-bottom:1px solid var(--line);flex-shrink:0}

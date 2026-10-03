@@ -127,6 +127,12 @@ try {
   await page.mouse.click(20, 600)
   assert.equal(await menu().count(), 1, 'Clicking the stage keeps the menu open')
   await menu().getByRole('button', { name: '收起沉浸菜单', exact: true }).click()
+  if (await menu().count()) {
+    assert.equal(await menu().getAttribute('data-ui-interactive'), 'false', 'Close disables input immediately')
+    assert.equal(await menu().getAttribute('aria-hidden'), 'true', 'Exiting visuals are not accessible controls')
+    assert.equal(await menu().evaluate(node => node.inert), true, 'Close blocks focus during the exit animation')
+  }
+  await menu().waitFor({ state: 'detached' })
   assert.equal(await menu().count(), 0, 'The menu collapses only through its manual control')
   await page.getByRole('button', { name: '打开沉浸菜单', exact: true }).click()
   await menu().getByRole('button', { name: /^退出沉浸/ }).click()

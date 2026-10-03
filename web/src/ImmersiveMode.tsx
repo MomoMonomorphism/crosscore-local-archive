@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode, type RefObject, type PointerEvent as ReactPointerEvent } from 'react'
 import './immersiveMode.css'
 import { ViewportPinch } from './viewportPinch'
+import { MotionPopup } from './MotionPopup'
+import MotionTabIndicator from './MotionTabIndicator'
 
 export const ImmersiveContext = createContext({ active: false, adjustable: false, resetSerial: 0, controls: false })
 
@@ -174,7 +176,7 @@ export function ImmersiveTools({ mode, title, playing, onPlay, debug, onDebug, c
     onPointerMove={e => e.stopPropagation()} onClick={e => e.stopPropagation()} onWheel={e => e.stopPropagation()}>
     <button ref={toggle} className="immersive-wake" aria-label={mode.controls ? '收起沉浸菜单' : '打开沉浸菜单'} aria-expanded={mode.controls} aria-controls={`${id}-controls`}
       onClick={() => mode.controls ? hide() : mode.setControls(true)}><span aria-hidden="true">{mode.controls ? '×' : '☰'}</span> 控制{mode.adjustable && <small>调整中</small>}</button>
-    {mode.controls && <section id={`${id}-controls`} className="immersive-controls" aria-label="沉浸模式控制">
+    <MotionPopup open={mode.controls}><section id={`${id}-controls`} className="immersive-controls" aria-label="沉浸模式控制">
       <header className="immersive-heading"><div><span>沉浸控制</span>{title && <strong title={title}>{title}</strong>}</div><button aria-label="收起沉浸菜单" onClick={hide}>收起</button></header>
       <nav ref={tabsRef} className="immersive-panel-buttons" role="tablist" aria-label="沉浸功能" onKeyDown={e => {
         if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return
@@ -185,11 +187,12 @@ export function ImmersiveTools({ mode, title, playing, onPlay, debug, onDebug, c
         const next = e.key === 'Home' ? 0 : e.key === 'End' ? buttons.length - 1 : (index + (e.key === 'ArrowLeft' ? -1 : 1) + buttons.length) % buttons.length
         selectPanel(tabs[next].id); buttons[next].focus()
       }}>
+        <MotionTabIndicator activeKey={selected}/>
         {tabs.map(item => <button key={item.id} id={`${id}-tab-${item.id}`} role="tab" aria-selected={selected === item.id} tabIndex={selected === item.id ? 0 : -1}
           aria-controls={`${id}-panel`} onClick={() => selectPanel(item.id)}>{item.title}</button>)}
       </nav>
       <div id={`${id}-panel`} className={`immersive-panel-body immersive-page-${selected}`} key={selected} role="tabpanel" tabIndex={0} aria-labelledby={`${id}-tab-${selected}`}>{panelContent}</div>
       <footer className="immersive-footer"><span>{mode.adjustable ? '画面调整中' : '沉浸浏览'}</span><button onClick={mode.exit}>退出沉浸 <span aria-hidden="true">↗</span></button></footer>
-    </section>}
+    </section></MotionPopup>
   </div>
 }

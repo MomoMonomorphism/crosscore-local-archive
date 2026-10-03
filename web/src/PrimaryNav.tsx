@@ -1,3 +1,5 @@
+import MotionTabIndicator from './MotionTabIndicator'
+
 export type ContentSection = 'character' | 'cg' | 'picture' | 'asmr'
 
 const sections: { id: ContentSection; label: string }[] = [
@@ -13,6 +15,7 @@ export default function PrimaryNav({ active, onSelect }: {
   onSelect: (section: ContentSection) => void
 }) {
   return <nav className="primary-nav" aria-label="内容导航">
+    <MotionTabIndicator activeKey={active} variant="navigation"/>
     {sections.map(({ id, label }) => <button key={id}
       type="button" className={active === id ? 'active' : ''}
       aria-current={active === id ? 'page' : undefined}

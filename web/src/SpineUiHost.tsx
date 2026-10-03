@@ -11,6 +11,12 @@ import { UiClock } from './uiClock'
 import { sitePath } from './sitePaths'
 import { applyUiNodeDelta } from './spineUiDelta'
 import { simplifyDisplay } from './simplifyDisplay'
+import { useDeveloperMode } from './DeveloperMode'
+import { developerLayerPresentation } from './developerControls'
+import { developerUiLayerId, developerUiRequiredNodes, developerUiScene } from './developerDom'
+import { createDeveloperDomPicker } from './developerDomPicking'
+import { findDeveloperDomThumbnailSource } from './developerDomThumbnail'
+import { createDeveloperImageThumbnail } from './developerThumbnailSource'
 type Snapshot = { session?: string; nodes: Node[]; removed?: string[]; partial?: boolean; commands: SpineUiCommand[];
   time: number; detail?: string; workerTiming?: { queueMs: number; runMs: number };
   runtimeTiming?: { advanceMs: number; snapshotMs: number } }
@@ -291,6 +297,32 @@ export function SpineUiHost({ model, idle, playing, speed, multiTracks, rolePosi
     }
   }, [model])
   const nodes = snapshot?.nodes ?? []
+  const developer = useDeveloperMode()
+  const developerSceneId = `ui:${model}`
+  const developerNodes = useRef<readonly Node[]>([]); developerNodes.current = nodes
+  useEffect(() => {
+    let disposed = false
+    const picker = createDeveloperDomPicker(() => host.current, () => {
+      const layers = developerUiScene(developerSceneId, `互动界面 · ${model}`, developerNodes.current).layers
+      return [...(host.current?.querySelectorAll<HTMLElement>('[data-developer-pick-id]') ?? [])].flatMap(element => {
+        const layer = layers.find(value => value.id === element.dataset.developerPickId)
+        return layer ? [{ element, candidate: { id: layer.id, layerId: layer.id,
+          kind: 'layer' as const, label: layer.label, type: layer.kind } }] : []
+      })
+    })
+    const unregister = developer.registerScene({ id: developerSceneId, label: `互动界面 · ${model}`,
+      snapshot: () => developerUiScene(developerSceneId, `互动界面 · ${model}`, developerNodes.current),
+      surface: picker.surface, pick: picker.pick, highlight: picker.highlight,
+      thumbnail: candidate => {
+        if (disposed || !developerNodes.current.some(node => developerUiLayerId(node.id) === candidate.id)) return null
+        const image = findDeveloperDomThumbnailSource(host.current, candidate)
+        return image ? createDeveloperImageThumbnail(image.source, image.width, image.height) : null
+      },
+    })
+    return () => { disposed = true; picker.dispose(); unregister() }
+  }, [developer.registerScene, developerSceneId, model])
+  const developerOverrides = developer.getOverrides(developerSceneId)
+  const developerRequiredNodes = developerUiRequiredNodes(nodes, developerOverrides)
   const queueInput = (node: string, callback?: string) => {
     if (!latest.current.playing || document.hidden) return
     const at = performance.now()
@@ -305,8 +337,8 @@ export function SpineUiHost({ model, idle, playing, speed, multiTracks, rolePosi
   const children = new Map<string, Node[]>()
   for (const node of nodes) { const key = node.parent ?? '';children.set(key, [...(children.get(key) ?? []), node]) }
   const render = (node: Node, pw: number, ph: number, override?: CSSProperties, parentPivot = { x: .5, y: .5 }): React.ReactNode => {
-    if (!node.active) return null
-    const kids = (children.get(node.id) ?? []).filter(child => child.active)
+    if (!node.active && !developerRequiredNodes.has(node.id)) return null
+    const kids = (children.get(node.id) ?? []).filter(child => child.active || developerRequiredNodes.has(child.id))
     const dimensions = measure(node, children)
     const box = rectBox(node, pw, ph, dimensions, parentPivot)
     const w = typeof override?.width === 'number' ? override.width : box.width
@@ -315,15 +347,25 @@ export function SpineUiHost({ model, idle, playing, speed, multiTracks, rolePosi
     const style: CSSProperties = { position: 'absolute', ...box, width: w, height: h, opacity: node.alpha,
       transformOrigin: `${pivot.x * 100}% ${(1 - pivot.y) * 100}%`,
       transform: `translateZ(${node.localZ ?? 0}px) ${rotationCss(node)} scale(${node.sx},${node.sy})`, ...override }
-    const positions = layoutChildren(node, kids, w, h, children)
+    // Debugging an inactive item must not reflow its authored, active siblings.
+    const positions = layoutChildren(node, kids.filter(child => child.active), w, h, children)
     const childNodes = kids.map(child => render(child, w, h, positions.get(child.id), pivot))
-    const maskStyle: CSSProperties = node.mask && node.image
+    const layerId = developerUiLayerId(node.id)
+    const presentation = developerLayerPresentation(layerId, node.active, 1, developerOverrides)
+    const disableClipping = Boolean(developerOverrides?.layers[layerId]?.disableClipping)
+    const maskStyle: CSSProperties = disableClipping ? {} : node.mask && node.image
       ? { maskImage: `url("${node.image}")`, maskSize: '100% 100%', maskRepeat: 'no-repeat' }
       : node.rectMask ? { overflow: 'hidden' } : {}
     return <div key={node.id} style={style} data-ui-node={node.name}>
+      {/* Artwork controls do not remove child layout, callbacks or hit areas.
+          During solo, ancestor wrappers remain so the selected child can draw. */}
+      <div data-developer-pick-id={((node.image || node.material || node.color) && (!node.mask || node.mask.showGraphic)) || node.text ? layerId : undefined}
+        style={{ position: 'absolute', inset: 0, opacity: presentation.opacity,
+          visibility: presentation.visible ? undefined : 'hidden' }}>
       {(!node.mask || node.mask.showGraphic) && <UiImage node={node} width={w} height={h}
-        time={node.material ? snapshot?.time ?? 0 : undefined} />}
+        time={node.material ? snapshot?.time ?? 0 : undefined} disableClipping={disableClipping} />}
       {node.text && <span style={{ position: 'absolute', inset: 0, color: 'white', fontSize: node.fontSize ?? 24, textAlign: 'center', whiteSpace: 'pre-wrap' }}>{simplifyDisplay(node.text)}</span>}
+      </div>
       {node.click && <button type="button" className="source-ui-hit" aria-label={labels[node.click] ?? node.click}
         disabled={!playing} title={labels[node.click] ?? node.click}
         onPointerDown={event => { if (event.button === 0) { event.preventDefault();queueInput(node.id, node.click) } }}

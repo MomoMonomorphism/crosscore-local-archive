@@ -4,6 +4,7 @@ import type { CharacterPortrait } from './types'
 import { sitePath } from './sitePaths'
 import { hitStaticPicture, type StaticPictureTouch } from './staticPictureTouch'
 import { ResourceLoadingNotice } from './ResourceLoadingNotice'
+import { useDeveloperImageLayer } from './developerDom'
 
 export default function CharacterPortraitStage(props: {
   portrait: CharacterPortrait; flipped: boolean; zoom: number
@@ -22,6 +23,9 @@ function PortraitSession({ portrait, flipped, zoom, pan, onPan, onZoom, onTouch 
   const drag = useRef<{ x: number; y: number; pan: { x: number; y: number }; moved: boolean } | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [attempt, setAttempt] = useState(0)
+  const developerStyle = useDeveloperImageLayer({ sceneId: `portrait:${portrait.modelId}`,
+    sceneLabel: `静态立绘 · ${portrait.label}`, layerId: 'portrait', label: portrait.label,
+    assetId: portrait.url }, state === 'ready', image)
   const source = sitePath(portrait.url)
   const url = attempt ? `${source}${source.includes('?') ? '&' : '?'}portraitRetry=${attempt}` : source
   return <div aria-busy={state === 'loading'} style={{ position: 'absolute', inset: 0, overflow: 'hidden', touchAction: 'none' }}
@@ -47,7 +51,9 @@ function PortraitSession({ portrait, flipped, zoom, pan, onPan, onZoom, onTouch 
       if (hit) onTouch(hit)
     }} onPointerCancel={(event) => { pinch.up(event); drag.current = null }}>
     <img key={url} ref={image} src={url} alt={portrait.label} draggable={false}
-      style={{ width: '100%', height: '100%', objectFit: 'contain', opacity: state === 'ready' ? 1 : 0, transform: `translate(${pan.x}px, ${pan.y}px) scale(${flipped ? -zoom : zoom}, ${zoom})` }}
+      style={{ width: '100%', height: '100%', objectFit: 'contain', ...developerStyle,
+        opacity: state === 'ready' ? developerStyle.opacity : 0,
+        transform: `translate(${pan.x}px, ${pan.y}px) scale(${flipped ? -zoom : zoom}, ${zoom})` }}
       onLoad={(event) => setState(event.currentTarget.naturalWidth > 0 ? 'ready' : 'error')}
       onError={() => setState('error')}/>
     {state === 'loading' && <ResourceLoadingNotice title="正在加载立绘"/>}

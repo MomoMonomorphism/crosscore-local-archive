@@ -18,10 +18,12 @@ export function fillStyle(node: UiNode): CSSProperties {
     : `inset(0 ${origin ? 0 : (1 - f) * 100}% 0 ${origin ? (1 - f) * 100 : 0}%)` }
 }
 
-export const UiImage = memo(function UiImage({ node, width, height, time = 0 }: { node: UiNode; width: number; height: number; time?: number }) {
+export const UiImage = memo(function UiImage({ node, width, height, time = 0, disableClipping = false }: {
+  node: UiNode; width: number; height: number; time?: number; disableClipping?: boolean
+}) {
   const id = `tint-${useId().replace(/:/g, '')}`, c = node.color ?? { r: 1, g: 1, b: 1, a: 1 }
   if (width <= 0 || height <= 0) return null
-  if (node.material) return <UiMaterialImage node={node} width={width} height={height} time={time} />
+  if (node.material) return <UiMaterialImage node={node} width={width} height={height} time={time} disableClipping={disableClipping} />
   if (!node.image) return node.color ? <div style={{ position: 'absolute', inset: 0,
     background: `rgba(${c.r * 255},${c.g * 255},${c.b * 255},${c.a})` }} /> : null
   const meta = node.imageMeta, sw = meta?.width ?? width, sh = meta?.height ?? height
@@ -52,7 +54,7 @@ export const UiImage = memo(function UiImage({ node, width, height, time = 0 }: 
       </svg>)
     }
   }
-  return <svg width={dw} height={dh} viewBox={`0 0 ${dw} ${dh}`} style={{ position: 'absolute', left: dx, top: dy, overflow: 'hidden', ...fillStyle(node) }}>
+  return <svg width={dw} height={dh} viewBox={`0 0 ${dw} ${dh}`} style={{ position: 'absolute', left: dx, top: dy, overflow: 'hidden', ...(!disableClipping ? fillStyle(node) : {}) }}>
     <defs><filter id={id} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
       <feComponentTransfer><feFuncR type="linear" slope={c.r} /><feFuncG type="linear" slope={c.g} />
         <feFuncB type="linear" slope={c.b} /><feFuncA type="linear" slope={c.a} /></feComponentTransfer>

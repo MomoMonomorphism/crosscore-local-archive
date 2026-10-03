@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import AsmrSpine from './AsmrSpine'
 import type { ContentSection } from './PrimaryNav'
 import GalleryTopbar from './GalleryTopbar'
+import MotionTabIndicator from './MotionTabIndicator'
 import type { AsmrAlbum, AsmrManifest } from './types'
 import { useGalleryLayout } from './GalleryLayout'
 import { ImmersiveContext, ImmersiveTools, ImmersiveEntry } from './ImmersiveMode'
@@ -10,6 +11,7 @@ import voiceFold from '../../voice_fold_map.json'
 import { sitePath } from './sitePaths'
 import { FloatingLyrics } from './FloatingLyrics'
 import { GalleryToolbar } from './GalleryToolbar'
+import { useDeveloperPlayback } from './developerPlayback'
 
 const fold = voiceFold as Record<string, string>
 const asmrText = (text: string) => simplifyDisplay(Array.from(text, char => fold[char] || char).join(''))
@@ -113,6 +115,8 @@ export default function AsmrStage({
     setAudioError('')
     void audio.play().catch((reason: Error) => {
       if (audioRef.current !== audio || reason.name === 'AbortError') return
+      setRequestPlay(false)
+      if (pendingAudioSeek.current) pendingAudioSeek.current.autoplay = false
       setWaiting(false)
       setAudioError('音频暂未播放，请再次点击播放。' + (reason.name === 'NotAllowedError' ? '' : ` ${reason.message}`))
     })
@@ -183,6 +187,23 @@ export default function AsmrStage({
     else audio.pause()
   }, [playAudio])
 
+  useDeveloperPlayback('asmr', layout.root, { playing: playing || requestPlay || Boolean(pendingAudioSeek.current?.autoplay),
+    available: Boolean(album?.spine), setPlaying: value => {
+      const audio = audioRef.current
+      if (!audio) return
+      if (value) {
+        if (pendingAudioSeek.current) { pendingAudioSeek.current.autoplay = true; setWaiting(true) }
+        playAudio(audio)
+      } else {
+        setRequestPlay(false)
+        if (pendingAudioSeek.current) pendingAudioSeek.current.autoplay = false
+        pendingLineSeek.current = null
+        audio.pause()
+        setPlaying(false)
+        setWaiting(false)
+      }
+    } })
+
   useEffect(() => {
     const handleKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null
@@ -245,7 +266,7 @@ export default function AsmrStage({
         <div className="entry-count">{visibleAlbums.length} 张专辑 · 日语音频</div>
         <section className={immersive ? "immersive-albums asmr-album-list" : "entry-list asmr-album-list"}>
           {visibleAlbums.map(item => <button className={`entry-card ${item.voice === selectedVoice ? 'selected' : ''}`} key={item.voice} title={`${asmrText(item.title)} · ${roleLabel(item)}`} onClick={() => chooseAlbum(item.voice)}>
-            <span className="entry-monogram"><img src={sitePath(`assets/thumbnails/asmr-${item.voice}.png`)} alt="" loading="lazy" onError={event => { event.currentTarget.hidden = true }}/></span>
+            <span className="entry-monogram"><img src={sitePath(`assets/thumbnails/asmr-${item.voice}.png`)} alt="" loading="lazy" onLoad={event => { event.currentTarget.hidden = false }} onError={event => { event.currentTarget.hidden = true }}/></span>
             <span className="entry-copy"><strong>{asmrText(item.title)}</strong><small>{roleLabel(item)}</small><small>{formatClock(item.seconds)} · {item.lineCount} 句</small></span>
           </button>)}
           {!visibleAlbums.length && manifest && <p className="gallery-empty">没有匹配的专辑</p>}
@@ -324,6 +345,7 @@ export default function AsmrStage({
           <div className="asmr-track-tabs variant-strip" role="group" aria-label="选择播放音轨">
             <span className="control-label">音轨</span>
             <div className="chip-row">
+            <MotionTabIndicator activeKey={usingPreview ? 'preview' : 'full'} scopeKey={album?.id}/>
             <button className={usingPreview ? '' : 'active'} aria-pressed={!usingPreview} onClick={() => chooseTrack(false)}>全曲</button>
             <button className={usingPreview ? 'active' : ''} aria-pressed={usingPreview} disabled={!album.previewSeconds} onClick={() => chooseTrack(true)}>独立试听 {album.previewSeconds ? formatClock(album.previewSeconds) : '—'}</button>
             </div>
@@ -355,8 +377,8 @@ export default function AsmrStage({
               onTimeUpdate={event => { if (!pendingAudioSeek.current) setCurrentTime(event.currentTarget.currentTime) }}
               onPlay={() => setPlaying(true)} onPlaying={() => { setPlaying(true); setWaiting(false) }}
               onWaiting={() => setWaiting(true)} onCanPlay={() => setWaiting(false)}
-              onPause={() => { setPlaying(false); setWaiting(false) }} onEnded={() => { setPlaying(false); setWaiting(false) }}
-              onError={() => { pendingAudioSeek.current = null; setWaiting(false); setPlaying(false); setAudioError(`${album.sourceFile} 解码或播放失败`) }}/>
+              onPause={() => { setRequestPlay(false); setPlaying(false); setWaiting(false) }} onEnded={() => { setRequestPlay(false); setPlaying(false); setWaiting(false) }}
+              onError={() => { pendingAudioSeek.current = null; setRequestPlay(false); setWaiting(false); setPlaying(false); setAudioError(`${album.sourceFile} 解码或播放失败`) }}/>
           </section>
         </>}
       </main>

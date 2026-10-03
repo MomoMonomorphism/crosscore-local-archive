@@ -3,6 +3,8 @@ import { createSceneLifetime } from './sceneLifetime'
 import { hallTransitionFrame, hallTransitionVisual } from './hallEntrance'
 import { applyStagePlayback } from './stagePlayback'
 import { createParticleSlotFilter } from './spineParticleVisibility'
+import { useDeveloperMode } from './DeveloperMode'
+import { createDeveloperScene } from './developerScene'
 import { preserveCollapsedBoneTransforms } from './spineCollapsedBones'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 import { Application, Assets, Container, Graphics, Point, Rectangle, Text, Sprite, Matrix, Renderer, BLEND_MODES } from 'pixi.js'
@@ -254,6 +256,7 @@ export default function SpineStage({
   onInteractionEvent,
   onAudit,
 }: Props) {
+  const { getOverrides, registerScene } = useDeveloperMode()
   const viewControl = useViewAdjustment()
   const hostRef = useRef<HTMLDivElement>(null)
   const appRef = useRef<Application | null>(null)
@@ -593,6 +596,10 @@ export default function SpineStage({
       renderer.runners.contextChange.add({ contextChange: configureAdditive })
     }
     appRef.current = app
+    const developerScene = createDeveloperScene(app,
+      `${probeKey === '__rawPreviewStage' ? 'preview' : probeKey === '__auxiliaryPreviewStage' ? 'auxiliary' : 'gallery'}:${asset.id}`,
+      `${probeKey === '__rawPreviewStage' ? '动作素材' : probeKey === '__auxiliaryPreviewStage' ? '附加画面' : '角色／CG'} · ${asset.sourceName}`,
+      { getOverrides, registerScene })
     host.dataset.entranceHistory = 'loading'
     host.dataset.assetId = asset.id
     host.replaceChildren(app.view)
@@ -610,6 +617,8 @@ export default function SpineStage({
       const filterParticles = createParticleSlotFilter(spine.skeleton.slots)
       const updateTransform = spine.updateTransform.bind(spine)
       spine.updateTransform = () => filterParticles(loadedControlsRef.current.effectsVisible, updateTransform)
+      developerScene.addSpine(spine, model.id, model.sourceName,
+        model.id === asset.id ? 'main' : effects.find(effect => effect.asset.id === model.id)?.layer ?? 'nested')
       applyNativeSpineSettings(spine.state.data, profile)
       if (profile) nativeProfiles.set(spine, profile)
       if (!interactionRef.current?.space && probeKey !== '__auxiliaryPreviewStage') {
@@ -717,6 +726,7 @@ export default function SpineStage({
           const sprite = lifetime.create(() => new Sprite(texture))
           sprite.width = host.width; sprite.height = host.height
           sprite.anchor.set(host.pivotX, host.pivotY)
+          developerScene.addLayer(sprite, `drag:${host.object}`, `拖拽物件 · ${host.object}`, 'image', host.image)
           const object = lifetime.create(() => new Container())
           object.addChild(sprite)
           object.transform.setFromMatrix(new Matrix(host.a, host.b, host.c, host.d, host.x, host.y))
@@ -739,6 +749,7 @@ export default function SpineStage({
             frame.width = overlay.width * overlay.scaleX;frame.height = overlay.height * overlay.scaleY
             frame.anchor.set(overlay.pivotX, overlay.pivotY);frame.position.set(overlay.x, overlay.y)
             object.addChild(frame)
+            developerScene.addLayer(frame, `drag:${host.object}:overlay:${overlay.image}`, `物件叠层 · ${overlay.image}`, 'image', overlay.image)
             dragOverlayRef.current.push({ object, sprite: frame, elapsed: 0, wasVisible: false, fade: overlay.fade })
           }
           if (host.overlays?.length) group.setChildIndex(object, group.children.length - 1)
@@ -771,6 +782,7 @@ export default function SpineStage({
         // viewport-sized mesh replacement is not part of the original game.
         const entranceFlash = lifetime.create(() => new Graphics())
         entranceFlash.eventMode = 'none'
+        developerScene.addLayer(entranceFlash, 'entrance-flash', '入场转场白幕', 'transition')
         app.stage.addChild(entranceFlash)
         let revealMs = runtimeReadyRef.current ? 0 : 180
         let wasTransitioning = false
@@ -1220,6 +1232,7 @@ export default function SpineStage({
         }
         const effectStatus = effects.length ? ` · ${loadedEffects.length}/${effects.length} 特效层` : ''
         onStatus(`Spine ${main.skeleton.data.version || asset.spineVersion} · ${animations.length} 个动作${effectStatus}`)
+        developerScene.publish()
       } catch (error) {
         if (!disposed) onError(error instanceof Error ? error.message : String(error))
       }
@@ -1230,6 +1243,7 @@ export default function SpineStage({
     void load()
     return () => {
       disposed = true
+      developerScene.dispose()
       resizeObserver.disconnect()
       layersRef.current = []
       boundsRef.current = null

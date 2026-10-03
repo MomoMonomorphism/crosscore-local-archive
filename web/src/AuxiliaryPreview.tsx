@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import SpineStage, { type SpineMetadata } from './SpineStage'
 import type { ModelAsset, Variant } from './types'
+import { useDeveloperPlayback } from './developerPlayback'
 
 const NO_EFFECTS: Variant['effects'] = []
 const NO_STATES: string[] = []
@@ -17,6 +18,7 @@ export default function AuxiliaryPreview({ asset, onClose }: { asset: ModelAsset
   const [pan, setPan] = useState({ x: 0, y: 0 })
   const [status, setStatus] = useState('正在加载辅助素材…')
   const [error, setError] = useState('')
+  useDeveloperPlayback('auxiliary-preview', dialog, { playing, available: Boolean(animation), setPlaying })
   useEffect(() => {
     const element = dialog.current
     element?.showModal()

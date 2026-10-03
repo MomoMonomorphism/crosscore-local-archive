@@ -1,0 +1,49 @@
+/* First motion pass: only changing UI content, never a game canvas, viewport,
+ * fixed heading or the shared interaction status. */
+.gallery-shell .gallery-tool-page:not([hidden]) { animation:none; }
+.gallery-shell .gallery-tool-page:not([hidden])>.gallery-interaction-page>.gallery-interaction-body,
+.gallery-shell #gallery-actions:not([hidden])>.gallery-action-list,
+.gallery-shell #gallery-voices:not([hidden])>.gallery-voice-list,
+.gallery-shell .gallery-action-expanded,
+.gallery-shell .immersive-panel-body,
+.gallery-shell .ui-content-arrive {
+  animation:ui-content-arrive 180ms cubic-bezier(.2,.7,.2,1);
+}
+@keyframes ui-content-arrive {
+  from { opacity:.65; translate:0 4px; }
+  to { opacity:1; translate:0 0; }
+}
+
+.gallery-shell [data-ui-motion] {
+  opacity:1; translate:0 0;
+  transition:opacity 190ms ease,translate 190ms cubic-bezier(.2,.7,.2,1);
+}
+.gallery-shell [data-ui-motion="enter"] { opacity:0; translate:0 4px; }
+.gallery-shell [data-ui-motion="exit"] { opacity:0; translate:0 2px; transition-duration:130ms; }
+.gallery-shell [data-ui-interactive="false"] { pointer-events:none; }
+
+/* Native details stay mounted. Modern browsers animate their own disclosure
+ * box; older browsers retain a short entry animation and native closing. */
+.gallery-shell .gallery-toolbar-more[open]>.gallery-toolbar-menu {
+  animation:ui-content-arrive 160ms ease-out;
+}
+@supports selector(details::details-content) and (transition-behavior:allow-discrete) {
+  .gallery-shell .gallery-toolbar-more::details-content {
+    opacity:0;
+    transition:opacity 130ms ease,content-visibility 160ms allow-discrete;
+  }
+  .gallery-shell .gallery-toolbar-more[open]::details-content { opacity:1; }
+  .gallery-shell .gallery-toolbar-more[open]>.gallery-toolbar-menu { animation:none; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .gallery-shell .gallery-tool-page:not([hidden])>.gallery-interaction-page>.gallery-interaction-body,
+  .gallery-shell #gallery-actions:not([hidden])>.gallery-action-list,
+  .gallery-shell #gallery-voices:not([hidden])>.gallery-voice-list,
+  .gallery-shell :is(.gallery-action-expanded,.immersive-panel-body,.ui-content-arrive),
+  .gallery-shell .gallery-toolbar-more[open]>.gallery-toolbar-menu {
+    animation:none!important; translate:none!important;
+  }
+  .gallery-shell [data-ui-motion] { transition:none!important; translate:none!important; }
+  .gallery-shell .gallery-toolbar-more::details-content { transition:none!important; translate:none!important; }
+}
