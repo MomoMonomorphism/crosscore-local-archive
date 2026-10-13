@@ -405,7 +405,7 @@ def build_thumbnails(
     # for every configured picture, including static pictures and CGs without a
     # loadable skeleton. These are separate from the raw skeleton gallery entries.
     archive_entries: dict[str, dict[str, Any]] = {}
-    for archive_id, row in archive.items():
+    for archive_id, row in {**archive, **multi.get('supplementalArchive', {})}.items():
         image_name = row.get("img") or ""
         match = resolve_archive_sprite([image_name], archive_sprites, archive_folded)
         source_name = ""
@@ -423,7 +423,7 @@ def build_thumbnails(
                 image = Image.new("RGBA", (424, 198), (20, 20, 22, 255))
                 image.alpha_composite(scaled, ((424 - scaled.width) // 2, (198 - scaled.height) // 2))
             source_name = f"archive:{big_matches[0]}"
-        filename = f"archive-{archive_id}.png"
+        filename = f"archive-{str(archive_id).replace(':', '-')}.png"
         destination = output_dir / filename
         image.save(destination, format="PNG", optimize=True)
         archive_entries[archive_id] = {

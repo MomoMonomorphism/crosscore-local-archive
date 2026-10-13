@@ -58,7 +58,7 @@ function PortraitSession({ portrait, flipped, zoom, pan, onPan, onZoom, onTouch 
       onError={() => setState('error')}/>
     {state === 'loading' && <ResourceLoadingNotice title="正在加载立绘"/>}
     {state === 'error' && <div className="error-state" role="alert">
-      <strong>立绘加载失败</strong><span>图片未能载入，请检查网络连接后重试。</span>
+      <strong>立绘加载失败</strong><span>{import.meta.env.VITE_STATIC_DEMO === '1' ? '图片未能载入，请检查网络连接后重试。' : '图片未能载入，请检查本地资源与服务后重试。'}</span>
       <button onClick={() => { drag.current = null; setState('loading'); setAttempt(value => value + 1) }}>重新载入</button>
     </div>}
     <div hidden={viewControl.active || state !== 'ready'} style={{ position: 'absolute', bottom: 12, left: 16, pointerEvents: 'none', color: '#ddd', background: '#15181ccc', padding: '6px 10px' }}>

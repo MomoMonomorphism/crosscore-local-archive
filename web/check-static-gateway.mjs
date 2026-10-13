@@ -8,7 +8,8 @@ const output = path.resolve('../.scratch/static-gateway-check.cjs')
 fs.mkdirSync(path.dirname(output), { recursive: true })
 buildSync({ entryPoints: ['src/staticGateway.ts'], bundle: true, platform: 'node', format: 'cjs',
   define: { 'import.meta.env.BASE_URL': JSON.stringify('/crosscore-demo/'),
-    'import.meta.env.VITE_STATIC_DEMO': JSON.stringify('1') }, outfile: output })
+    'import.meta.env.VITE_STATIC_DEMO': JSON.stringify('1'),
+    '__SPINE_REFERENCE_VERSIONS__': JSON.stringify({}) }, outfile: output })
 
 const calls = []
 const values = new Map()

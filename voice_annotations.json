@@ -1,0 +1,946 @@
+{
+  "schema": 1,
+  "luaSources": {
+    "android": {
+      "path": "../resource-baselines/android-cn-3.3.0-20261001-d92fccc3/resources/Custom/luascripts",
+      "sha256": "d92fccc322b77488c1c98ea5907283e05610ce4f88b91b4d43ef50dd0a510e88"
+    }
+  },
+  "entries": [
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Sphalerite.acb",
+      "sourceSha256": "71a2511d0929b5b33c723261fa1611d812dec966e0e7653fd99169eaddc776a8",
+      "index": 9,
+      "cue": "Sphalerite_09",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_m10250.lua",
+          "event": "{effect=\"cast0_eff\",time=6000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Sphalerite.acb\",cue_name=\"Sphalerite_09\",cue_feature=1,path_target={ref_type=1}}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Sphalerite.acb",
+      "sourceSha256": "71a2511d0929b5b33c723261fa1611d812dec966e0e7653fd99169eaddc776a8",
+      "index": 10,
+      "cue": "Sphalerite_10",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_m10250.lua",
+          "event": "{effect=\"cast1_eff1\",time=6000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Sphalerite.acb\",cue_name=\"Sphalerite_10\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Sphalerite.acb",
+      "sourceSha256": "71a2511d0929b5b33c723261fa1611d812dec966e0e7653fd99169eaddc776a8",
+      "index": 11,
+      "cue": "Sphalerite_11",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_m10250.lua",
+          "event": "{effect=\"cast2_eff\",time=8000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Sphalerite.acb\",cue_name=\"Sphalerite_11\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Pelorovis.acb",
+      "sourceSha256": "796a3b595208be8ba2f8ee12483c759e11273755aadd3d6c7feaf663253b91a1",
+      "index": 12,
+      "cue": "Pelorovis_12",
+      "kind": "original-text",
+      "platform": "android",
+      "luaSha256": "d92fccc322b77488c1c98ea5907283e05610ce4f88b91b4d43ef50dd0a510e88",
+      "audioId": 30320112
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "cf0e5e2665e3a951f673252e3bf4ae048ef7d53d60d455411ea46567d79219ab",
+      "index": 41,
+      "cue": "Lynx_41",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=2164,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=2364,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=2364,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=2164,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "cf0e5e2665e3a951f673252e3bf4ae048ef7d53d60d455411ea46567d79219ab",
+      "index": 42,
+      "cue": "Lynx_42",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "cf0e5e2665e3a951f673252e3bf4ae048ef7d53d60d455411ea46567d79219ab",
+      "index": 43,
+      "cue": "Lynx_43",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=9524,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=9724,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=9724,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=9524,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Noctilucent.acb",
+      "sourceSha256": "921c27c8880bb19fa830d0c94160543c6526035fdb3b1bcec20a15870d405bd5",
+      "index": 13,
+      "cue": "Noctilucent_12_b",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_a40310.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031003.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031004.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031005.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031006.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031007.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Goliatus.acb",
+      "sourceSha256": "5a6287eff9a761a91c642f2db85fd8f18d2e663d56500a12feeca1f1e1bed931",
+      "index": 8,
+      "cue": "Goliatus_08",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_s50260.lua",
+          "event": "time=3500,type=0,cue_sheet=\"cv/Goliatus.acb\",cue_name=\"Goliatus_08\",cue_feature=1"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Goliatus.acb",
+      "sourceSha256": "5a6287eff9a761a91c642f2db85fd8f18d2e663d56500a12feeca1f1e1bed931",
+      "index": 9,
+      "cue": "Goliatus_09",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_s50260.lua",
+          "event": "{time=2000,type=0,cue_sheet=\"cv/Goliatus.acb\",cue_name=\"Goliatus_09\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Goliatus.acb",
+      "sourceSha256": "5a6287eff9a761a91c642f2db85fd8f18d2e663d56500a12feeca1f1e1bed931",
+      "index": 10,
+      "cue": "Goliatus_10",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_s50260.lua",
+          "event": "{time=5000,type=0,cue_sheet=\"cv/Goliatus.acb\",cue_name=\"Goliatus_10\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Goliatus.acb",
+      "sourceSha256": "5a6287eff9a761a91c642f2db85fd8f18d2e663d56500a12feeca1f1e1bed931",
+      "index": 11,
+      "cue": "Goliatus_11",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_s50260.lua",
+          "event": "{time=8000,type=0,cue_sheet=\"cv/Goliatus.acb\",cue_name=\"Goliatus_11\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tizona.acb",
+      "sourceSha256": "be2a055aed19b162e6eb8b2065d3bd09b4c74afdc73aa8387e75256f884ef58a",
+      "index": 46,
+      "cue": "Tizona_46",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_b60310.lua",
+          "event": "{time=17000,type=0,cue_sheet=\"cv/Tizona.acb\",cue_name=\"Tizona_46\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_b6031003.lua",
+          "event": "{time=17000,type=0,cue_sheet=\"cv/Tizona.acb\",cue_name=\"Tizona_46\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_b6031004.lua",
+          "event": "{time=17000,type=0,cue_sheet=\"cv/Tizona.acb\",cue_name=\"Tizona_46\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_g91380.lua",
+          "event": "{time=17000,type=0,cue_sheet=\"cv/Tizona.acb\",cue_name=\"Tizona_46\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 5,
+      "cue": "Lokotun_05",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_skipcast2"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 6,
+      "cue": "Lokotun_06",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_skipcast2"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 7,
+      "cue": "Lokotun_07",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_skipcast2"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 8,
+      "cue": "Lokotun_08",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_skipcast2"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 9,
+      "cue": "Lokotun_09",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30020.lua",
+          "event": "{effect=\"cast0_eff\",time=2000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_09\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3002003.lua",
+          "event": "{effect=\"cast0_eff\",effect_pack=\"u30020\",time=2000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_09\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 10,
+      "cue": "Lokotun_10",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30020.lua",
+          "event": "{effect=\"cast1_eff\",time=2000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_10\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3002003.lua",
+          "event": "{effect=\"cast1_eff\",effect_pack=\"u30020\",time=2000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_10\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 11,
+      "cue": "Lokotun_11",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30020.lua",
+          "event": "{effect=\"cast2_eff\",time=7000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_11\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3002003.lua",
+          "event": "{effect=\"cast2_eff\",effect_pack=\"u30020\",time=7000,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Lokotun.acb\",cue_name=\"Lokotun_11\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 13,
+      "cue": "Lokotun_13",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_overload"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_overload"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 14,
+      "cue": "Lokotun_14",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_hit"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 15,
+      "cue": "Lokotun_15",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_hit"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 16,
+      "cue": "Lokotun_16",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_hit"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Lokotun.acb",
+      "sourceSha256": "eb9593ca73cd3595db5b7f3c7afca87db43133cb8d17f8cff9ead004d36132d3",
+      "index": 17,
+      "cue": "Lokotun_17",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002002,
+          "field": "s_hit"
+        },
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 3002001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 4,
+      "cue": "Tornado_04",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_turn"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 5,
+      "cue": "Tornado_05",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 6,
+      "cue": "Tornado_06",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 7,
+      "cue": "Tornado_07",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 8,
+      "cue": "Tornado_08",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_skipcast2"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 9,
+      "cue": "Tornado_09",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_a40330.lua",
+          "event": "{effect=\"cast0_eff\",time=3500,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Tornado.acb\",cue_name=\"Tornado_09\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 10,
+      "cue": "Tornado_10",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_a40330.lua",
+          "event": "{effect=\"cast3_eff\",time=3500,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Tornado.acb\",cue_name=\"Tornado_10\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 11,
+      "cue": "Tornado_11",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_a40330.lua",
+          "event": "{effect=\"cast2_eff\",time=7220,type=0,pos_ref={ref_type=6},cue_sheet=\"cv/Tornado.acb\",cue_name=\"Tornado_11\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 13,
+      "cue": "Tornado_13",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_overload"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 14,
+      "cue": "Tornado_14",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 15,
+      "cue": "Tornado_15",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 16,
+      "cue": "Tornado_16",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 17,
+      "cue": "Tornado_17",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 18,
+      "cue": "Tornado_18",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_hit"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 20,
+      "cue": "Tornado_20",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_death"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 21,
+      "cue": "Tornado_21",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_mvp"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Tornado.acb",
+      "sourceSha256": "0f2729590c9d57c59d6c41a3a3c6b8666459ef64ac08da838be06e6df6e02234",
+      "index": 22,
+      "cue": "Tornado_22",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "cfgcharacter.lua",
+          "modelId": 4033001,
+          "field": "s_fail"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_cn",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "e122ff38b6e0c50471bd352b41e151917a5a686ede45ee8653c9c5820db68828",
+      "index": 41,
+      "cue": "Lynx_41",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=2164,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=2364,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=2364,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=2164,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_41\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_cn",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "e122ff38b6e0c50471bd352b41e151917a5a686ede45ee8653c9c5820db68828",
+      "index": 42,
+      "cue": "Lynx_42",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=3000,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_42\",cue_feature=1}"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_cn",
+      "sourceFile": "Lynx.acb",
+      "sourceSha256": "e122ff38b6e0c50471bd352b41e151917a5a686ede45ee8653c9c5820db68828",
+      "index": 43,
+      "cue": "Lynx_43",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_u30420.lua",
+          "event": "{delay=9524,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042003.lua",
+          "event": "{delay=9724,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042004.lua",
+          "event": "{delay=9724,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_u3042005.lua",
+          "event": "{delay=9524,time=12000,type=0,cue_sheet=\"cv/Lynx.acb\",cue_name=\"Lynx_43\",cue_feature=1},"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_cn",
+      "sourceFile": "Noctilucent.acb",
+      "sourceSha256": "a51f90b827d8c54073053b3e53c0bb5eba80e5deba37db3f40ac15294d127372",
+      "index": 13,
+      "cue": "Noctilucent_12_b",
+      "kind": "usage",
+      "platform": "pc",
+      "luaSha256": "3261717c585c92ef92c6b5bdf631dc4aa147b96092bbcd8ae4ef91e79d673e06",
+      "proofs": [
+        {
+          "asset": "FBD_a40310.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031003.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031004.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031005.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031006.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        },
+        {
+          "asset": "FBD_a4031007.lua",
+          "event": "{delay=8825,time=14000,type=0,cue_sheet=\"cv/Noctilucent.acb\",cue_name=\"Noctilucent_12_b\",cue_feature=1},"
+        }
+      ]
+    }
+  ]
+}

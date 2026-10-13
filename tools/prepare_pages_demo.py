@@ -12,11 +12,13 @@ import wave
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-from asset_cache import DEFAULT_CENSUS, load_catalog
+from asset_cache import DEFAULT_CENSUS, load_catalog, extract_package
+from spine_source import REFERENCES
 from display_names import build_display_names
 from hall_entry import entry_manifest
 from portrait_cache import extract_portrait
 from runtime_paths import PATHS
+from text_localization import localize
 from spine_action import pos_space_of
 from spine_runtime_settings import runtime_settings
 from tools.prepare_offline_ui import main as prepare_ui
@@ -52,7 +54,7 @@ def read(name):
 def emit(name, value):
     target = API / (name + '.json')
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(json.dumps(value, ensure_ascii=False), encoding='utf-8')
+    target.write_text(json.dumps(localize(name, value, CACHE), ensure_ascii=False), encoding='utf-8')
 
 
 def copy_asset(path, source=None):
@@ -70,6 +72,11 @@ def copy_asset(path, source=None):
 
 def copy_model(asset, folders):
     folders.add(asset['folder'])
+    package = 'prefabs_spine_' + asset['folder']
+    if package in REFERENCES:
+        manifest = extract_package(package, SOURCE, CACHE)
+        match = next(model for model in manifest['models'] if model['sourceName'] == asset['sourceName'])
+        asset['spineVersion'] = match['spineVersion']
     return sum(copy_asset(path) for path in
                [asset['jsonPath'], asset['atlasPath'], *asset['texturePaths']])
 

@@ -9,8 +9,9 @@ from pathlib import Path
 
 import UnityPy
 from asset_cache import unwrap_bundle, validate_package
+from spine_source import resolve_spine_source
 
-VERSION = 2
+VERSION = 3
 _lock = threading.Lock()
 
 
@@ -41,7 +42,11 @@ def settings_from_environment(env) -> dict:
             data_obj = local(graphic['skeletonDataAsset'], obj)
             data = data_obj.read_typetree()
             text_obj = local(data['skeletonJSON'], data_obj)
-            name = text_obj.read().m_Name
+            # Asset extraction trims TextAsset names; native profiles must use
+            # the same identity (Leader03 is shipped with a trailing space).
+            name = (text_obj.read().m_Name or '').strip()
+            if not name:
+                raise ValueError('empty skeleton name')
             default = float(data['defaultMix'])
             if not math.isfinite(default) or default < 0:
                 raise ValueError('invalid defaultMix')
@@ -75,9 +80,9 @@ def settings_from_environment(env) -> dict:
 
 def runtime_settings(package: str, source_root: Path, cache_root: Path) -> dict:
     package = validate_package(package)
-    source = source_root / package
+    source = resolve_spine_source(package, source_root)
     stat = source.stat()
-    identity = {'size': stat.st_size, 'mtimeNs': stat.st_mtime_ns}
+    identity = {'source': str(source.resolve()), 'size': stat.st_size, 'mtimeNs': stat.st_mtime_ns}
     target = cache_root / 'spine-runtime' / f'{package}.json'
     with _lock:
         if target.is_file():

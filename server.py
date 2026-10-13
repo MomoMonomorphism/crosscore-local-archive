@@ -13,6 +13,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path, PurePosixPath
 from urllib.parse import parse_qs, unquote, urlsplit
 from runtime_paths import PATHS
+from text_localization import localize, localized_bytes
 
 from asset_cache import DEFAULT_CACHE, DEFAULT_CENSUS, DEFAULT_SOURCE, extract_archive_image, extract_package, load_catalog, write_catalog
 from display_names import build_display_names
@@ -58,6 +59,9 @@ class Handler(BaseHTTPRequestHandler):
         super().log_request(code, size)
 
     def send_json(self, payload: object, status: HTTPStatus = HTTPStatus.OK) -> None:
+        domain = urlsplit(self.path).path.removeprefix('/api/')
+        if domain in ('display-names', 'spine-ui') and status == HTTPStatus.OK:
+            payload = localize(domain, payload, self.server.cache_root)
         body = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
@@ -128,7 +132,7 @@ class Handler(BaseHTTPRequestHandler):
                     HTTPStatus.NOT_FOUND,
                 )
                 return
-            body = self.server.manifest_path.read_bytes()
+            body = localized_bytes('manifest', self.server.manifest_path.read_bytes(), self.server.cache_root)
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -187,7 +191,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_json({"error": "multi_interaction_manifest_not_generated",
                                 "command": "python multi_picture_action.py"}, HTTPStatus.NOT_FOUND)
                 return
-            body = manifest_path.read_bytes()
+            body = localized_bytes('multi-interactions', manifest_path.read_bytes(), self.server.cache_root)
             self.send_response(HTTPStatus.OK)
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
@@ -587,10 +591,13 @@ def main() -> None:
     asmr_manifest_path = args.cache / "asmr.generated.json"
     server.asmr_manifest_bytes = asmr_manifest_path.read_bytes() if asmr_manifest_path.is_file() else b""
     server.asmr_manifest = json.loads(server.asmr_manifest_bytes) if server.asmr_manifest_bytes else {}
+    server.voice_manifest_bytes = localized_bytes('voices', server.voice_manifest_bytes, args.cache)
+    server.asmr_manifest_bytes = localized_bytes('asmr', server.asmr_manifest_bytes, args.cache)
     thumbnail_manifest_path = args.cache / "thumbnails.generated.json"
     server.thumbnail_manifest_bytes = thumbnail_manifest_path.read_bytes() if thumbnail_manifest_path.is_file() else b""
     interaction_manifest_path = args.cache / "spine_action.generated.json"
     server.interaction_manifest_bytes = interaction_manifest_path.read_bytes() if interaction_manifest_path.is_file() else b""
+    server.interaction_manifest_bytes = localized_bytes('interactions', server.interaction_manifest_bytes, args.cache)
     multi_interaction_path = args.cache / "multi_picture_action.generated.json"
     server.multi_interaction_path = multi_interaction_path
     server.audit_path = args.cache / "spine-audit.generated.json"

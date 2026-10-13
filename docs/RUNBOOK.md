@@ -1,112 +1,71 @@
-# 当前主线运行手册
+# 本地运行与资源准备
 
-更新：2026-09-28。生产入口已支持统一路径配置、只读预检和服务身份核对。本机检查通过；还没有在全新电脑做完整安装或空缓存重建。
+更新：2026-10-13。仓库提供本地版正式源码和精选 Pages 演示资源。完整游戏包与完整运行缓存需自行准备；全新电脑的空缓存重建尚未完整验证。
 
-## 日常启动
+## 安装与启动
 
-在项目目录运行：
-
-```powershell
-.\start_viewer.ps1 -CheckOnly -NoBrowser
-.\start_viewer.ps1 -NoBrowser
-```
-
-第一条只检查依赖与输入，不启动服务、不生成缓存。第二条启动或复用经核实的本项目服务；去掉 `-NoBrowser` 打开默认浏览器。默认地址为 http://127.0.0.1:8798/ 。
-
-修改前端后：
+本地完整交互需要 Windows x64、Python 3.13、Node.js 24、自备游戏资源、原生 xLua DLL 和音频解码器。
 
 ```powershell
+python -m pip install -r requirements.txt
+Copy-Item viewer.example.json viewer.local.json
+# 编辑 viewer.local.json，配置自己的资源和已准备的缓存。
+cd web
+npm ci
+cd ..
 .\start_viewer.ps1 -Build -CheckOnly -NoBrowser
+.\start_viewer.ps1 -Port 8798 -NoBrowser
 ```
 
-先执行 TypeScript 检查，再构建 dist，保留独立设计/材质检查页。已有页面需要刷新。`-Build` 与 `-CheckOnly` 同用时仍会执行明确要求的构建；只有不带 `-Build` 的预检是只读的。
+去掉 `-NoBrowser` 打开默认浏览器。`-CheckOnly` 检查依赖与输入，不生成缓存；与 `-Build` 合用仍执行明确要求的前端构建。启动器不会删除或自动重建验收清单。
 
-启动器不会自动删除或重建任何缺失清单；缺失或结构损坏会列出具体文件，停止启动。已有历史补充数据不能用一次自动重建代替。
+可用 `-Python` 指定解释器、`-Config` 指定外部配置。修改前端后重新构建并刷新；修改后端或启动时载入的清单后，需要重启对应服务。
 
-## Python 与前端依赖
+## 路径配置
 
-Python 的选择顺序：`-Python` 参数 → `CROSSCORE_PYTHON` → 项目 `.venv/Scripts/python.exe` → PATH → 原本机 crosscore 环境。显式参数路径无效时报错。
+JSON 相对路径以配置文件目录为基准。优先级为 `CROSSCORE_<大写键名>` 环境变量、JSON 配置、默认值；`CROSSCORE_CONFIG` 可指定配置文件。未知键会报错。
 
-```powershell
-.\start_viewer.ps1 -Python 'D:/venvs/crosscore/Scripts/python.exe' -CheckOnly
-```
-
-需要 Windows x64 Python；依赖见 requirements.txt。本机验证版本为 Python 3.13.14、UnityPy 1.25.3、Pillow 12.3.0、brotli 1.2.0、lz4 4.4.5、texture2ddecoder 1.0.6。原 xLua 是 Windows DLL。
-
-前端构建需要 PATH 中的 Node，本机为 24.19.0。新目录先在 web 内按锁文件运行 `npm ci`。启动器不会自动安装包。目前本机 web/node_modules 仍是指向旧 local_viewer 工作树的 Junction，不能随文件夹复制视作独立依赖。
-
-## 统一资源路径
-
-复制 viewer.example.json 为 viewer.local.json，按需要修改；本地配置不纳入 Git。也可指定外部配置：
-
-```powershell
-.\start_viewer.ps1 -Config 'D:/CrossCore/viewer.json' -CheckOnly
-```
-
-相对路径以配置文件所在目录为基准。各项优先级为 `CROSSCORE_<大写键名>` 环境变量 → JSON 配置 → 默认值。配置文件可通过 `CROSSCORE_CONFIG` 指定。未知键会报错，避免拼写错误悄悄失效。
-
-| 配置键 | 默认位置 / 推导 |
+| 键 | 用途 |
 |---|---|
-| game_data | `../Daibloscore/client/DAIBLOSCORE_Data` |
-| source | game_data 下 `GameHotRes/Custom` |
-| lua_bundle | source 下 `luascripts` |
-| voice_source | source 同级 `sounds/cv` |
-| chinese_source | voice_source 向上两层下 `sounds_cn/cv` |
-| xlua | game_data 下 `Plugins/x86_64/xlua.dll` |
-| cache | 项目 `cache` |
-| census | `../.probe/census_full.json` |
-| decoder | `../tools/vgmstream/vgmstream-cli.exe` |
+| game_data | PC 客户端数据目录，用于推导其余路径 |
+| source | 资源包目录，通常是 `GameHotRes/Custom` |
+| lua_bundle | Lua 数据包，通常是 source 下的 `luascripts` |
+| voice_source / chinese_source | 日配与可选中配音频目录 |
+| xlua | Windows x64 原生 xLua DLL |
+| cache | 当前资源集专用运行缓存 |
+| census | 已核实的资源普查 JSON |
+| decoder | 音频解码器及其运行依赖 |
 
-五套小游戏还需要 voice_source 同级的 temp/temp.acb 和 bgms/LycorisRadiata_Music_01.acb；解码器运行依赖须与 exe 一起保留。中配目录为可选项。
+小游戏还使用日配目录同级的 `temp/temp.acb` 和 `bgms/LycorisRadiata_Music_01.acb`。不同资源集应使用独立缓存。`/api/health` 返回工作目录、路径、进程与前端哈希，启动器据此核对服务身份。
 
-统一配置覆盖服务器、资产缓存、Lua 包、xLua、语音、主要交互和缩略图生成器。历史逆向探针可能仍含本机路径。旧 server.py 的 `--source` / `--cache` 等只覆盖对应服务器参数，不会重新绑定已导入模块的全部默认参数；整套迁移应使用上述 JSON / 环境变量。
+## 运行清单
 
-## 服务身份与升级
+预检需要六项缓存清单：`assets.generated.json`、`voices.generated.json`、`asmr.generated.json`、`spine_action.generated.json`、`multi_picture_action.generated.json`、`thumbnails.generated.json`。
 
-`/api/health` 返回 service、workspace、pid、parentPid、runtimePaths 和 dist/index.html 的 SHA256。启动器核对工作树和所有配置路径；Windows 虚拟环境启动器创建子进程时也能识别。
+依赖顺序为资源普查与资产索引、语音与 ASMR 及交互配置、多人插画配置、缩略图。生成入口分别为 `generate_manifest.py`、`voice_cache.py`、`spine_action.py`、`multi_picture_action.py`、`thumbnail_cache.py`。这些入口不替代缺失的历史保留输入；不要用空缓存重建覆盖唯一的已验收清单。仓库没有完整的一键资源普查和冷启动准备流程。
 
-8798 上原先已经运行的旧后端不会因文件修改自动升级。本轮没有停止它。新启动器遇到没有身份字段的旧实例会明确报错，不会误认或结束它。准备重启时先核对进程与工作目录，再停止该实例；也可用其他端口验证。不要照搬旧报告的 PID。
+## 安卓简体文本与语音
 
-前台调试示例：
-
-```powershell
-$viewerPython = 'C:/Users/Admin/.workbuddy/binaries/python/envs/crosscore/Scripts/python.exe'
-& $viewerPython -X utf8 server.py --host 127.0.0.1 --port 8798
-```
-
-先确认端口空闲。退出前台用 Ctrl+C。Vite 开发代理默认指向 8798，换后端端口时需要对应修改。
-
-## 数据准备与重建边界
-
-当前六项必要清单：assets、voices、asmr、spine_action、multi_picture_action、thumbnails 的 generated.json。预检校验它们的 JSON 与关键字段类型，也检查 census 的基本结构；这不是全部资源内容一致性验收。
-
-生产数据依赖顺序为：
-
-1. 原资源普查 census → 资产清单。
-2. 原 Lua / 音频 → voices 与 ASMR；原交互配置与保留输入 → spine_action。
-3. 资产、语音与多人配置 → multi_picture_action。
-4. 资产及多人关联 → thumbnails。
-
-此顺序用于规划隔离重建，尚非已验证的一键冷启动流程。仓库目前没有独立 census 生成入口；先恢复本地快照中的 external/census_full.json 或提供已核实索引。普通交互保留旧记录 1007003，语音保留旧语义计数 342；后者不是已证明的冷重建丢失数。完整空缓存重建需先把这些输入整理为可追溯来源，不能直接删除验收缓存。
-
-server 启动时将部分清单载入内存，修改清单后须重启经确认的实例。图像/音频可按需提取；原游戏目录保持只读。Unity Editor 不是当前浏览所需依赖，原生粒子任务仍暂缓。
-
-## 本地版本恢复
-
-- 源码基线：提交 `21500b5`，标签 `viewer-frontend-accepted-2026-09-28`。
-- 运行输入：`.local-baselines/viewer-frontend-accepted-2026-09-28/snapshot.json` 与 `runtime-inputs-and-dist.zip`，163 项文件，ZIP 和逐项 SHA256 已核对。
-- 后续维护改动另作提交，原前端基线保留。
-- 该目录是 Git worktree，Git 历史位于上级 local_viewer/.git；只复制工作目录不包含完整历史。
-- 恢复前另存当前改动，在单独目录恢复标签代码并核对快照哈希。压缩包 cache/、dist/ 对应工作树；external/census_full.json 对应配置的 census。
-- 快照不含原游戏全部资源、全部图片/音频缓存、Python 和 node_modules，不是独立分发安装包。
-
-## 验证与遗留
+从自己的固定安卓 Lua 包生成显示文字覆盖表：
 
 ```powershell
-& $viewerPython -X utf8 tools/check_startup.py
-& $viewerPython -X utf8 tools/check_ui_timeline.py
+python tools/build_android_text.py --android '<安卓 luascripts 路径>'
+python tools/refresh_voice_index.py
+# 检查输出后，需要写入当前语音清单时使用 --apply。
 ```
 
-启动测试使用临时缓存与临时端口，测试服务自行关闭；不接触 8798 正在使用的实例。浏览器画面、声音与手机验收仍由用户完成。
+简体覆盖保存到配置缓存中的 `android_text_zh_cn.generated.json`。缺少覆盖表时服务器保留原文本；覆盖不改变资源 ID、音轨或动作。语音修复工具通过来源指纹核对已有音轨及文本元数据。
 
-本轮结果见 [维护复核](MAINTENANCE_REVIEW_2026-09-28.md)，剩余事项见 [已知问题](../KNOWN_ISSUES.md)。9月27日发布审计保留为历史证据；其中固定路径和未纳入版本的问题应以本轮更新为准。
+## 固定资源与缓存
+
+`spine_resource_references.json` 保存已验证包的相对目录、基准与替代包指纹。只有配置来源与已审计基准相符时才使用指定替代包；其他资源来源保持自身内容。适用的指定包缺失或指纹不符时会报错。前端仅使用版本标记，Pages 独立使用 `pages-pack/spine-references.json`。
+
+`tools/freeze_resource_baseline.py --destination '<新目录>'` 可复制并验证当前本地资源基线；`tools/freeze_android_baseline.py` 可通过明确指定的 adb、设备和新目录导出已关闭游戏的安卓资源。`tools/verify_resource_baseline.py '<快照目录>'` 只读验证快照。导出工具不会用于日常启动。
+
+## 验证与 Pages
+
+构建本地前端后，`python tools/check_startup.py` 使用临时缓存和临时端口检查配置、源码导入及服务身份。独立测试的命令见 `.github/workflows/local-source-check.yml`，不需要完整游戏包。
+
+Pages 构建使用仓库内的精选资源：在 web 目录运行 `npm run build:pages`，部署时设置仓库名对应的 `VITE_BASE_PATH`。完整演示包重建工具 `tools/prepare_pages_demo.py` 需要本地已准备资源；仅调整共用小游戏 host 时可使用 `tools/refresh_offline_ui_host.py --directory pages-pack/public/offline/ui`，保留各程序的资源与游戏源码前缀。
+
+同步范围与本地保留内容见 [同步清单](SYNC_STATUS.md)，开发者工具见 [开发者模式](DEVELOPER_MODE.md)。

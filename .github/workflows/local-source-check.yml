@@ -1,0 +1,29 @@
+name: Local source checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+          cache: pip
+      - name: Install Python dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Check source and resource-independent regressions
+        run: |
+          python -m compileall -q *.py tools
+          python server.py --help
+          python -m unittest test_lua_bundle test_config_recovery test_text_localization test_spine_source test_spine_runtime_settings test_resource_baseline test_archive_supplement test_voice_index_refresh test_voice_annotations test_android_voice_conflicts test_character_catalog test_character_identity test_hall_entry

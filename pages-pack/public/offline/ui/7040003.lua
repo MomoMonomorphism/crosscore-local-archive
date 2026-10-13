@@ -241,7 +241,15 @@ local function applyAnimations()
     end
     if weight>=1 then root.clipId=tr.to;root.clip=dest;root.animAt=Time.time-destTime end
    end
-   for _,c in pairs(values)do local n=resolve(root,c.path);if n then setValue(n,c.property,c.value)end end
+   -- Native Unity 2022.3 probe: RectTransform anchored properties win over
+   -- overlapping local-position curves (rankEffect and ToWhite). Lua pairs
+   -- order must not choose the visible pose. Keep local Z and unaliased axes.
+   for _,c in pairs(values)do
+    local axis=c.property:match('^m_LocalPosition%.([xy])$')
+    if not axis or not values[c.path..'|m_AnchoredPosition.'..axis] then
+     local n=resolve(root,c.path);if n then setValue(n,c.property,c.value)end
+    end
+   end
   end
  end
  for _,n in ipairs(allNodes)do

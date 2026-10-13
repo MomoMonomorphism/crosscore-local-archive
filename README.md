@@ -11,13 +11,15 @@
 ```powershell
 Set-Location <仓库目录>
 python -m pip install -r requirements.txt
+Copy-Item viewer.example.json viewer.local.json
+# 编辑资源路径，并准备运行手册列出的缓存清单。
 Set-Location web
 npm ci
 Set-Location ..
 .\start_viewer.ps1 -Port 8798 -Build
 ```
 
-复制并填写 `viewer.example.json` 中的资源路径。
+启动前复制 `viewer.example.json` 为 `viewer.local.json`，填写自己的资源、索引及缓存路径，并准备运行手册列出的六项清单。完整资源和缓存不随仓库分发。正式代码同步范围见 [同步清单](docs/SYNC_STATUS.md)。
 
 ## Pages 演示版
 

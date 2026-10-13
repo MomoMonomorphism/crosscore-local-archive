@@ -97,6 +97,26 @@ def parse_config_entries(text: str, wanted: set[int] | None = None) -> tuple[dic
     """
     models: dict[str, dict] = {}
     damaged: list[int] = []
+    # Complete generated tables may start with implicit array entries before
+    # switching to explicit [id] keys. Preserve both forms before attempting
+    # damaged-stream recovery, whose record boundaries are necessarily keyed.
+    if '--[[DAMAGED]]--' not in text:
+        try:
+            complete = parse_config(text)
+        except (LuaParseError, IndexError):
+            complete = None
+        if isinstance(complete, (dict, list)):
+            rows = complete.values() if isinstance(complete, dict) else complete
+            for row in rows:
+                if not isinstance(row, dict) or type(row.get('id')) is not int:
+                    continue
+                identity = row['id']
+                if wanted is not None and identity not in wanted:
+                    continue
+                if str(identity) in models:
+                    raise ValueError(f'duplicate config record ID: {identity}')
+                models[str(identity)] = row
+            return models, []
     marks = config_record_entries(text)
     for index, (entry_id, start) in enumerate(marks):
         if wanted is not None and entry_id not in wanted:

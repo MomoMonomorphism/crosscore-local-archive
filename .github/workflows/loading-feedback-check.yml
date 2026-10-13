@@ -56,6 +56,7 @@ jobs:
           done
           cd web
           node check-static-gateway.mjs
+          CROSSCORE_OFFLINE_ROOT=../pages-pack/public node check-offline-ui.mjs
           node --experimental-strip-types check-hall-entry.ts
           node check-loading-feedback.mjs
           CROSSCORE_TEST_URL=http://127.0.0.1:4173/crosscore-local-archive node check-auto-entrance.mjs

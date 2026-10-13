@@ -12,6 +12,7 @@ from typing import Any
 
 import UnityPy
 from runtime_paths import PATHS
+from spine_source import resolve_spine_source, spine_reference_metadata
 
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -117,6 +118,8 @@ def _cached_manifest(target: Path, source: Path) -> dict[str, Any] | None:
         return None
     stat = source.stat()
     identity = data.get("sourceIdentity", {})
+    if Path(data.get('source', '')).resolve() != source.resolve():
+        return None
     if identity.get("size") != stat.st_size or identity.get("mtimeNs") != stat.st_mtime_ns:
         return None
     files = data.get("files", [])
@@ -134,7 +137,7 @@ def extract_package(
     force: bool = False,
 ) -> dict[str, Any]:
     package = validate_package(package)
-    source = source_root / package
+    source = resolve_spine_source(package, source_root)
     if not source.is_file():
         raise FileNotFoundError(source)
     target = cache_root / "spine" / folder_for_package(package)
@@ -251,6 +254,9 @@ def extract_package(
                 "files": sorted(set(files)),
                 "cacheHit": False,
             }
+            reference = spine_reference_metadata(package, source)
+            if reference:
+                manifest['resourceReference'] = reference
             (temporary / "manifest.json").write_text(
                 json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8"
             )

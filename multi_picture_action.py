@@ -25,6 +25,7 @@ from luatable import parse_config
 from spine_action import audio_ids_of, interlude_default_of, pose_contracts, pose_space_of, remap_rects, touches_of
 from voice_semantics import fold_label, load_sound_book
 from interaction_corrections import apply_corrections
+from archive_supplement import load_additions
 
 
 ROOT = Path(__file__).resolve().parent
@@ -290,6 +291,7 @@ def build(
             "inferredAudioCues": inferred_audio,
         },
         "archive": compact_archive,
+        "supplementalArchive": load_additions(PATHS['cache'], source, compact_archive),
         "groups": groups,
         "entryByModel": entry_by_model,
         "variantByModel": variant_by_model,

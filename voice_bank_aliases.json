@@ -1,0 +1,716 @@
+{
+  "schema": 1,
+  "aliases": [
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Aymur_skin104_.acb",
+      "canonicalFile": "Aymur_skin104.acb",
+      "sourceSha256": "20c65a41138172851e00576c3ec03b4b6a8371d21e152d7acf4a7520d3b34da3",
+      "canonicalSha256": "12db42fd4e55a7a50dc036439d99468ff8667c1a15faa2283eade274a55b3a28",
+      "verification": "All 35 decoded PCM streams exactly match (channels, sample width/rate, sample count and frame hash); metadata triples also identical. Original bundle bytes differ.",
+      "cues": [
+        "Aymur_skin104_01",
+        "Aymur_skin104_02",
+        "Aymur_skin104_03",
+        "Aymur_skin104_04",
+        "Aymur_skin104_05",
+        "Aymur_skin104_06",
+        "Aymur_skin104_07",
+        "Aymur_skin104_08",
+        "Aymur_skin104_09",
+        "Aymur_skin104_10",
+        "Aymur_skin104_11",
+        "Aymur_skin104_12",
+        "Aymur_skin104_13",
+        "Aymur_skin104_14",
+        "Aymur_skin104_15",
+        "Aymur_skin104_16",
+        "Aymur_skin104_17",
+        "Aymur_skin104_18",
+        "Aymur_skin104_19",
+        "Aymur_skin104_20",
+        "Aymur_skin104_21",
+        "Aymur_skin104_22",
+        "Aymur_skin104_23",
+        "Aymur_skin104_24",
+        "Aymur_skin104_25",
+        "Aymur_skin104_26",
+        "Aymur_skin104_27",
+        "Aymur_skin104_28",
+        "Aymur_skin104_29",
+        "Aymur_skin104_30",
+        "Aymur_skin104_31",
+        "Aymur_skin104_32",
+        "Aymur_skin104_33",
+        "Aymur_skin104_34",
+        "Aymur_skin104_35"
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Ijen_Blade.acb",
+      "canonicalFile": "IjenBlade.acb",
+      "sourceSha256": "5d9fc087de024e274a50f3c8ae13925252f11982749d1e86927170098a25b9bf",
+      "canonicalSha256": "6a3456dda7de5475539ae454d7ad65eed00607c72d1f1a04cff6a0d6f9ecf4cc",
+      "verification": "Only listed cues have identical decoded PCM channels/sample width/rate/count/frame hash. Other cues are not aliased.",
+      "cues": [
+        {
+          "sourceCue": "Ijen_Blade_01",
+          "canonicalCue": "IjenBlade_01"
+        },
+        {
+          "sourceCue": "Ijen_Blade_02",
+          "canonicalCue": "IjenBlade_02"
+        },
+        {
+          "sourceCue": "Ijen_Blade_03",
+          "canonicalCue": "IjenBlade_03"
+        },
+        {
+          "sourceCue": "Ijen_Blade_04",
+          "canonicalCue": "IjenBlade_04"
+        },
+        {
+          "sourceCue": "Ijen_Blade_05",
+          "canonicalCue": "IjenBlade_05"
+        },
+        {
+          "sourceCue": "Ijen_Blade_06",
+          "canonicalCue": "IjenBlade_06"
+        },
+        {
+          "sourceCue": "Ijen_Blade_07",
+          "canonicalCue": "IjenBlade_07"
+        },
+        {
+          "sourceCue": "Ijen_Blade_08",
+          "canonicalCue": "IjenBlade_08"
+        },
+        {
+          "sourceCue": "Ijen_Blade_09",
+          "canonicalCue": "IjenBlade_09"
+        },
+        {
+          "sourceCue": "Ijen_Blade_10",
+          "canonicalCue": "IjenBlade_10"
+        },
+        {
+          "sourceCue": "Ijen_Blade_11",
+          "canonicalCue": "IjenBlade_11"
+        },
+        {
+          "sourceCue": "Ijen_Blade_12",
+          "canonicalCue": "IjenBlade_12"
+        },
+        {
+          "sourceCue": "Ijen_Blade_13",
+          "canonicalCue": "IjenBlade_13"
+        },
+        {
+          "sourceCue": "Ijen_Blade_14",
+          "canonicalCue": "IjenBlade_14"
+        },
+        {
+          "sourceCue": "Ijen_Blade_15",
+          "canonicalCue": "IjenBlade_15"
+        },
+        {
+          "sourceCue": "Ijen_Blade_16",
+          "canonicalCue": "IjenBlade_16"
+        },
+        {
+          "sourceCue": "Ijen_Blade_17",
+          "canonicalCue": "IjenBlade_17"
+        },
+        {
+          "sourceCue": "Ijen_Blade_18",
+          "canonicalCue": "IjenBlade_18"
+        },
+        {
+          "sourceCue": "Ijen_Blade_19",
+          "canonicalCue": "IjenBlade_19"
+        },
+        {
+          "sourceCue": "Ijen_Blade_20",
+          "canonicalCue": "IjenBlade_20"
+        },
+        {
+          "sourceCue": "Ijen_Blade_21",
+          "canonicalCue": "IjenBlade_21"
+        },
+        {
+          "sourceCue": "Ijen_Blade_22",
+          "canonicalCue": "IjenBlade_22"
+        },
+        {
+          "sourceCue": "Ijen_Blade_23",
+          "canonicalCue": "IjenBlade_23"
+        },
+        {
+          "sourceCue": "Ijen_Blade_24",
+          "canonicalCue": "IjenBlade_24"
+        },
+        {
+          "sourceCue": "Ijen_Blade_25",
+          "canonicalCue": "IjenBlade_25"
+        },
+        {
+          "sourceCue": "Ijen_Blade_26",
+          "canonicalCue": "IjenBlade_26"
+        },
+        {
+          "sourceCue": "Ijen_Blade_27",
+          "canonicalCue": "IjenBlade_27"
+        },
+        {
+          "sourceCue": "Ijen_Blade_28",
+          "canonicalCue": "IjenBlade_28"
+        },
+        {
+          "sourceCue": "Ijen_Blade_29",
+          "canonicalCue": "IjenBlade_29"
+        },
+        {
+          "sourceCue": "Ijen_Blade_30",
+          "canonicalCue": "IjenBlade_30"
+        },
+        {
+          "sourceCue": "Ijen_Blade_31",
+          "canonicalCue": "IjenBlade_31"
+        },
+        {
+          "sourceCue": "Ijen_Blade_32",
+          "canonicalCue": "IjenBlade_32"
+        },
+        {
+          "sourceCue": "Ijen_Blade_33",
+          "canonicalCue": "IjenBlade_33"
+        },
+        {
+          "sourceCue": "Ijen_Blade_34",
+          "canonicalCue": "IjenBlade_34"
+        },
+        {
+          "sourceCue": "Ijen_Blade_35",
+          "canonicalCue": "IjenBlade_35"
+        },
+        {
+          "sourceCue": "Ijen_Blade_36",
+          "canonicalCue": "IjenBlade_36"
+        },
+        {
+          "sourceCue": "Ijen_Blade_37",
+          "canonicalCue": "IjenBlade_37"
+        },
+        {
+          "sourceCue": "Ijen_Blade_38",
+          "canonicalCue": "IjenBlade_38"
+        },
+        {
+          "sourceCue": "Ijen_Blade_39",
+          "canonicalCue": "IjenBlade_39"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Orchid_skin_127.acb",
+      "canonicalFile": "Orchid_skin127.acb",
+      "sourceSha256": "20bd8492e80129d3b041ec936203d7a23fb1234e504a62be23e54e19bd81917d",
+      "canonicalSha256": "b1193b9d19fe8bc4076005c5a18d977b653219a3c4a416e6f7ee6bf54060f686",
+      "verification": "Only listed cues have identical decoded PCM channels/sample width/rate/count/frame hash. Other cues are not aliased.",
+      "cues": [
+        {
+          "sourceCue": "Orchid_skin_127_01",
+          "canonicalCue": "Orchid_skin127_01"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_02",
+          "canonicalCue": "Orchid_skin127_02"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_03",
+          "canonicalCue": "Orchid_skin127_03"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_04",
+          "canonicalCue": "Orchid_skin127_04"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_05",
+          "canonicalCue": "Orchid_skin127_05"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_06",
+          "canonicalCue": "Orchid_skin127_06"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_07",
+          "canonicalCue": "Orchid_skin127_07"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_08",
+          "canonicalCue": "Orchid_skin127_08"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_09",
+          "canonicalCue": "Orchid_skin127_09"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_10",
+          "canonicalCue": "Orchid_skin127_10"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_11",
+          "canonicalCue": "Orchid_skin127_11"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_12",
+          "canonicalCue": "Orchid_skin127_12"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_13",
+          "canonicalCue": "Orchid_skin127_13"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_14",
+          "canonicalCue": "Orchid_skin127_14"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_15",
+          "canonicalCue": "Orchid_skin127_15"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_16",
+          "canonicalCue": "Orchid_skin127_16"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_17",
+          "canonicalCue": "Orchid_skin127_17"
+        },
+        {
+          "sourceCue": "Orchid_skin_127_18",
+          "canonicalCue": "Orchid_skin127_18"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Ijen_Blade_skin127.acb",
+      "canonicalFile": "IjenBlade_skin127.acb",
+      "sourceSha256": "53f34e5bde76bf73df7490aeb26150541240f218f0e3334612665ae3a0136a23",
+      "canonicalSha256": "3342b6d259271a405b4522abe7547e0210ea279ba946c2e875edbb04e9c72be2",
+      "verification": "Only listed cues have identical decoded PCM channels/sample width/rate/count/frame hash. Other cues are not aliased.",
+      "cues": [
+        {
+          "sourceCue": "Ijen_Blade_skin127_01",
+          "canonicalCue": "IjenBlade_skin127_01"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_02",
+          "canonicalCue": "IjenBlade_skin127_02"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_03",
+          "canonicalCue": "IjenBlade_skin127_03"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_04",
+          "canonicalCue": "IjenBlade_skin127_04"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_05",
+          "canonicalCue": "IjenBlade_skin127_05"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_06",
+          "canonicalCue": "IjenBlade_skin127_06"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_07",
+          "canonicalCue": "IjenBlade_skin127_07"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_08",
+          "canonicalCue": "IjenBlade_skin127_08"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_09",
+          "canonicalCue": "IjenBlade_skin127_09"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_10",
+          "canonicalCue": "IjenBlade_skin127_10"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_11",
+          "canonicalCue": "IjenBlade_skin127_11"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_12",
+          "canonicalCue": "IjenBlade_skin127_12"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_13",
+          "canonicalCue": "IjenBlade_skin127_13"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_14",
+          "canonicalCue": "IjenBlade_skin127_14"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_15",
+          "canonicalCue": "IjenBlade_skin127_15"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_16",
+          "canonicalCue": "IjenBlade_skin127_16"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_17",
+          "canonicalCue": "IjenBlade_skin127_17"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_18",
+          "canonicalCue": "IjenBlade_skin127_18"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_19",
+          "canonicalCue": "IjenBlade_skin127_19"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_20",
+          "canonicalCue": "IjenBlade_skin127_20"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_21",
+          "canonicalCue": "IjenBlade_skin127_21"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_22",
+          "canonicalCue": "IjenBlade_skin127_22"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_23",
+          "canonicalCue": "IjenBlade_skin127_23"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_24",
+          "canonicalCue": "IjenBlade_skin127_24"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_25",
+          "canonicalCue": "IjenBlade_skin127_25"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_26",
+          "canonicalCue": "IjenBlade_skin127_26"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_27",
+          "canonicalCue": "IjenBlade_skin127_27"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_28",
+          "canonicalCue": "IjenBlade_skin127_28"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_29",
+          "canonicalCue": "IjenBlade_skin127_29"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_30",
+          "canonicalCue": "IjenBlade_skin127_30"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_31",
+          "canonicalCue": "IjenBlade_skin127_31"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_32",
+          "canonicalCue": "IjenBlade_skin127_32"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_33",
+          "canonicalCue": "IjenBlade_skin127_33"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_34",
+          "canonicalCue": "IjenBlade_skin127_34"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_35",
+          "canonicalCue": "IjenBlade_skin127_35"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_36",
+          "canonicalCue": "IjenBlade_skin127_36"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_37",
+          "canonicalCue": "IjenBlade_skin127_37"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_39",
+          "canonicalCue": "IjenBlade_skin127_38"
+        },
+        {
+          "sourceCue": "Ijen_Blade_skin127_40",
+          "canonicalCue": "IjenBlade_skin127_39"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv",
+      "sourceFile": "Naglering.acb",
+      "canonicalFile": "Naglering.acb",
+      "sourceSha256": "d1d304e825cc797b1f3b4ef7d64c19f015e96bbddc33bd7c30ed4db4a87dd0f9",
+      "canonicalSha256": "d1d304e825cc797b1f3b4ef7d64c19f015e96bbddc33bd7c30ed4db4a87dd0f9",
+      "verification": "Exact decoded PCM parameters and frame hash for each listed cue",
+      "cues": [
+        {
+          "sourceCue": "Naglering_10_1",
+          "canonicalCue": "Naglering_10"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Anthem_skin111.acb",
+      "canonicalFile": "Anthem_skin101.acb",
+      "sourceSha256": "71ceb9a50d9d0c2cf12d62e8503e6e609384fa1090ca9f13989fb3938504678e",
+      "canonicalSha256": "173c102c11380bc34b1ae27557bd05bee55acfb9f47f45af6507d5f1e9fcf8e5",
+      "verification": "Exact decoded PCM parameters and frame hash for each listed cue",
+      "cues": [
+        {
+          "sourceCue": "Anthem_skin111_01",
+          "canonicalCue": "Anthem_skin101_01"
+        },
+        {
+          "sourceCue": "Anthem_skin111_02",
+          "canonicalCue": "Anthem_skin101_02"
+        },
+        {
+          "sourceCue": "Anthem_skin111_03",
+          "canonicalCue": "Anthem_skin101_03"
+        },
+        {
+          "sourceCue": "Anthem_skin111_04",
+          "canonicalCue": "Anthem_skin101_04"
+        },
+        {
+          "sourceCue": "Anthem_skin111_05",
+          "canonicalCue": "Anthem_skin101_05"
+        },
+        {
+          "sourceCue": "Anthem_skin111_06",
+          "canonicalCue": "Anthem_skin101_06"
+        },
+        {
+          "sourceCue": "Anthem_skin111_07",
+          "canonicalCue": "Anthem_skin101_07"
+        },
+        {
+          "sourceCue": "Anthem_skin111_08",
+          "canonicalCue": "Anthem_skin101_08"
+        },
+        {
+          "sourceCue": "Anthem_skin111_09",
+          "canonicalCue": "Anthem_skin101_09"
+        },
+        {
+          "sourceCue": "Anthem_skin111_10",
+          "canonicalCue": "Anthem_skin101_10"
+        },
+        {
+          "sourceCue": "Anthem_skin111_11",
+          "canonicalCue": "Anthem_skin101_11"
+        },
+        {
+          "sourceCue": "Anthem_skin111_12",
+          "canonicalCue": "Anthem_skin101_12"
+        },
+        {
+          "sourceCue": "Anthem_skin111_13",
+          "canonicalCue": "Anthem_skin101_13"
+        },
+        {
+          "sourceCue": "Anthem_skin111_14",
+          "canonicalCue": "Anthem_skin101_14"
+        },
+        {
+          "sourceCue": "Anthem_skin111_15",
+          "canonicalCue": "Anthem_skin101_15"
+        },
+        {
+          "sourceCue": "Anthem_skin111_16",
+          "canonicalCue": "Anthem_skin101_16"
+        },
+        {
+          "sourceCue": "Anthem_skin111_17",
+          "canonicalCue": "Anthem_skin101_17"
+        },
+        {
+          "sourceCue": "Anthem_skin111_18",
+          "canonicalCue": "Anthem_skin101_18"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Moralltach_skin127_b.acb",
+      "canonicalFile": "Moralltach_skin127b.acb",
+      "sourceSha256": "149b9488b7867e2465e25814d5501f20a94fe9b96bfed79b921d6215c8fd3c2a",
+      "canonicalSha256": "929b33443a24dcbd2b1cfb32ac87cc12a03fb0190a5fe858540a29c1d8e6d954",
+      "verification": "Exact decoded PCM parameters and frame hash for each listed cue",
+      "cues": [
+        {
+          "sourceCue": "Moralltach_skin127_b_01",
+          "canonicalCue": "Moralltach_skin127b_01"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_02",
+          "canonicalCue": "Moralltach_skin127b_02"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_03",
+          "canonicalCue": "Moralltach_skin127b_03"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_04",
+          "canonicalCue": "Moralltach_skin127b_04"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_05",
+          "canonicalCue": "Moralltach_skin127b_05"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_06",
+          "canonicalCue": "Moralltach_skin127b_06"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_07",
+          "canonicalCue": "Moralltach_skin127b_07"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_08",
+          "canonicalCue": "Moralltach_skin127b_08"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_09",
+          "canonicalCue": "Moralltach_skin127b_09"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_10",
+          "canonicalCue": "Moralltach_skin127b_10"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_11",
+          "canonicalCue": "Moralltach_skin127b_11"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_12",
+          "canonicalCue": "Moralltach_skin127b_12"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_13",
+          "canonicalCue": "Moralltach_skin127b_13"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_14",
+          "canonicalCue": "Moralltach_skin127b_14"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_15",
+          "canonicalCue": "Moralltach_skin127b_15"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_16",
+          "canonicalCue": "Moralltach_skin127b_16"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_17",
+          "canonicalCue": "Moralltach_skin127b_17"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_18",
+          "canonicalCue": "Moralltach_skin127b_18"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_19",
+          "canonicalCue": "Moralltach_skin127b_19"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_20",
+          "canonicalCue": "Moralltach_skin127b_20"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_21",
+          "canonicalCue": "Moralltach_skin127b_21"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_22",
+          "canonicalCue": "Moralltach_skin127b_22"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_23",
+          "canonicalCue": "Moralltach_skin127b_23"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_24",
+          "canonicalCue": "Moralltach_skin127b_24"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_25",
+          "canonicalCue": "Moralltach_skin127b_25"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_26",
+          "canonicalCue": "Moralltach_skin127b_26"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_27",
+          "canonicalCue": "Moralltach_skin127b_27"
+        },
+        {
+          "sourceCue": "Moralltach_skin127_b_28",
+          "canonicalCue": "Moralltach_skin127b_28"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "Naglering_skin123.acb",
+      "sourceSha256": "990115004783ae39f83bbe49a6f5fdad5fd1b49c8dedcb29da450b3b473d6413",
+      "canonicalGroup": "cv",
+      "canonicalFile": "alps.acb",
+      "canonicalSha256": "8d2ee96375786b1b79cebba1f1e499669ed2d8acc483ddc8432aae334acfeacc",
+      "verification": "Exact decoded PCM parameters and full frame hash; explicit cross-group mapping",
+      "cues": [
+        {
+          "sourceCue": "alps_27",
+          "canonicalCue": "alps_27"
+        }
+      ]
+    },
+    {
+      "sourceGroup": "cv_skin",
+      "sourceFile": "tender_dream.acb",
+      "sourceSha256": "043fa550ed914322ce8803e2bb5d479b02dc186e9a2e17a769bddcec8d7212a3",
+      "canonicalGroup": "picture",
+      "canonicalFile": "tender_dream.acb",
+      "canonicalSha256": "a9ad0e107dd1f45b6ee90c61237a009a92f451fdd951e942a72fa387184fac6a",
+      "verification": "Exact decoded PCM parameters and full frame hash; explicit cross-group mapping",
+      "cues": [
+        {
+          "sourceCue": "tender_dream_01; tender_dream_03",
+          "canonicalCue": "tender_dream_03"
+        },
+        {
+          "sourceCue": "tender_dream_02",
+          "canonicalCue": "tender_dream_02"
+        }
+      ]
+    }
+  ]
+}

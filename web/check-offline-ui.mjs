@@ -15,11 +15,12 @@ const { createLocalSpineUiTransport } = require(output)
 
 let afterOpen = false
 let requestCount = 0
+const publicRoot = path.resolve(process.env.CROSSCORE_OFFLINE_ROOT || '../web/public')
 globalThis.fetch = async url => {
   requestCount++
   if (afterOpen) throw Error(`Unexpected network request during round: ${url}`)
-  const file = path.resolve('../web/public', String(url).replace(/^\//, ''))
-  if (!file.startsWith(path.resolve('../web/public') + path.sep)) throw Error('Invalid test asset path')
+  const file = path.resolve(publicRoot, String(url).replace(/^\//, ''))
+  if (!file.startsWith(publicRoot + path.sep)) throw Error('Invalid test asset path')
   const body = fs.readFileSync(file)
   return new Response(body, { status: 200, headers: { 'content-type': file.endsWith('.json') ? 'application/json' :
     file.endsWith('.png') ? 'image/png' : file.endsWith('.wav') ? 'audio/wav' : 'text/plain' } })
@@ -66,7 +67,7 @@ while (snap.time < 15.5) {
 assert.ok(snap.commands.some(command => command.type === 'play' && [14, 15, 16].includes(command.index)),
   'The original Lua round should reach a score result')
 assert.equal(snap.nodes.length, 173, 'Browser scene nodes must remain available through the round')
-assert.equal(requestCount, 2 + JSON.parse(fs.readFileSync('../web/public/offline/ui/3018005.assets.json')).images.length + 7)
+assert.equal(requestCount, 2 + JSON.parse(fs.readFileSync(path.join(publicRoot, 'offline/ui/3018005.assets.json'))).images.length + 7)
 await send({ op: 'close', session: snap.session })
 const otherModels = ['7003005', '7501003', '2008006', '7040003']
 const otherResults = []

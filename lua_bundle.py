@@ -9,11 +9,10 @@ and each body starts with a UTF-8 BOM.  The layout is 4-byte aligned, which is
 why a fixed `+1` padding guess only works for names whose length happens to make
 `8 + len(name)` land at 31 mod 4.
 
-Some blocks carry altered bytes in their LZ4 stream. Known repairs belong to an
-older client build, so decoding always tries the shipped bytes first and accepts
-a repair only when decompression reaches the declared size. Damaged blocks are
-reported explicitly; `read_segments()` exposes only the intact portions of a
-table. The current client has gaps in both `cfgSound` and `CfgCardRoleVoice`.
+ABCustom scrambles roughly 100 bytes across the entire payload using a stride
+and rolling XOR key derived from its length. Decode this before reading UnityFS;
+repairing individual compressed blocks misses changes that still decompress.
+Truly unreadable blocks remain explicit through `read_segments()`.
 """
 
 from __future__ import annotations
@@ -34,30 +33,35 @@ DEFAULT_LUA_BUNDLE = PATHS['lua_bundle']
 BLOCK_SIZE = 131072
 NAME_RE = re.compile(rb"[A-Za-z0-9_]{3,64}\.lua")
 
-# block index -> {compressed-stream offset: replacement byte}
-# Older client byte repairs, used only when the original block fails to decode
-# to its declared size. No patch is applied to a valid current block.
-BLOCK_REPAIRS: dict[int, dict[int, int]] = {
-    # cfgCfgCardRoleVoice.lua spans blocks 129-130; block 130 carries 4 altered bytes.
-    130: {8885: 0x33, 8886: 0xEF, 8887: 0xBC, 8888: 0x8C},
-    # cfgSound.lua spans blocks 563-600 and is damaged at 570, 578 and 595.
-    # Block 595 in the current client is valid without this older patch.
-    595: {4348: 0x11},
-}
+def _decode_abcustom(payload: bytearray) -> None:
+    """Game ABCustom.DdooEennccyypptt: a symmetric, length-dependent transform.
+
+    The next key adds the old and new byte, so it is identical in both
+    directions. Only our in-memory copy is changed, never the source bundle.
+    """
+    key = len(payload) % 254 + 1
+    for offset in range(0, len(payload), max(1, len(payload) // 100)):
+        old = payload[offset]
+        payload[offset] ^= key
+        key = (old + payload[offset]) & 0xFF
 
 
 def _unwrap_abcustom(raw: bytes) -> bytearray:
     """Return the UnityFS payload from the BinaryFormatter ABCustom wrapper."""
     marker = raw.find(b"UnityFS\0")
     if marker >= 0:
+        # A plain serialized byte[] still has a MessageEnd byte after it.
+        if marker >= 5 and b"ABCustom" in raw[:marker] and raw[marker - 1] == 2:
+            size = int.from_bytes(raw[marker - 5 : marker - 1], "little")
+            if size < 64 or marker + size > len(raw):
+                raise ValueError("invalid ABCustom payload size")
+            return bytearray(raw[marker : marker + size])
         return bytearray(raw[marker:])
-    # The ABCustom wrapper's first payload byte is overwritten in some client
-    # revisions (0x15 in the earlier bundle, 0x1e in the current one). Recover
-    # only that byte; the BinaryFormatter byte-array length and the UnityFS
-    # version immediately after the signature must still validate.
+    # The first transformed byte hides 'U'; following signature bytes remain
+    # readable in these bundles. Validate the serialized Byte array boundary.
     tail = raw.find(b"nityFS\0")
     marker = tail - 1
-    if tail < 1 or marker < 5 or b"ABCustom" not in raw[:marker]:
+    if tail < 1 or marker < 5 or b"ABCustom" not in raw[:marker] or raw[marker - 1] != 2:
         raise ValueError("UnityFS payload not found in luascripts")
     payload_size = int.from_bytes(raw[marker - 5 : marker - 1], "little")
     if payload_size < 64 or marker + payload_size > len(raw):
@@ -65,7 +69,9 @@ def _unwrap_abcustom(raw: bytes) -> bytearray:
     payload = bytearray(raw[marker : marker + payload_size])
     if payload[1:8] != b"nityFS\0" or payload[8:12] != b"\0\0\0\x08":
         raise ValueError("invalid UnityFS header in ABCustom payload")
-    payload[0] = ord("U")
+    _decode_abcustom(payload)
+    if payload[:8] != b"UnityFS\0":
+        raise ValueError("ABCustom transform did not restore the UnityFS signature")
     return payload
 
 
@@ -133,18 +139,7 @@ def _decompress_block(payload: bytearray, block_index: int, offset: int, block: 
             raise ValueError(f"unexpected length for Lua block {block_index}")
         return result
 
-    # These repairs describe an older client build. The current block 595 is
-    # valid as shipped; applying its old patch would break it.
-    try:
-        return decode(compressed)
-    except (ValueError, lz4.block.LZ4BlockError):
-        repairs = BLOCK_REPAIRS.get(block_index)
-        if not repairs:
-            raise
-        patched = bytearray(compressed)
-        for byte_offset, replacement in repairs.items():
-            patched[byte_offset] = replacement
-        return decode(bytes(patched))
+    return decode(compressed)
 
 
 class LuaBundle:
